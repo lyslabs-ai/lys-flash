@@ -17,7 +17,7 @@ import {
 } from '@lyslabs.ai/lys-flash';
 
 async function main() {
-  console.log('Solana Execution Client - Basic Usage Example\n');
+  console.log('LYS Flash - Basic Usage Example\n');
 
   // Create client
   console.log('1. Creating client...');

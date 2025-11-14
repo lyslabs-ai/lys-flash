@@ -1,5 +1,5 @@
 /**
- * Type definitions for @solana-execution/client
+ * Type definitions for @lyslabs.ai/lys-flash
  *
  * This module exports all type definitions used by the client library.
  * Import from this module for convenient access to all types.
@@ -11,7 +11,7 @@
  *   PumpFunBuyParams,
  *   TransactionRequest,
  *   TransactionResponse
- * } from '@solana-execution/client';
+ * } from '@lyslabs.ai/lys-flash';
  * ```
  *
  * @module types

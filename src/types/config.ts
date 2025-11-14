@@ -1,5 +1,5 @@
 /**
- * Configuration options for the Solana Execution Client
+ * Configuration options for LYS Flash
  */
 export interface ClientConfig {
   /**

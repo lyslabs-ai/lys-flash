@@ -1,6 +1,6 @@
 # Wallet Management Guide
 
-Complete guide to secure wallet creation and management with the Solana Execution Client.
+Complete guide to secure wallet creation and management with LYS Flash.
 
 ## Overview
 
@@ -18,7 +18,7 @@ This ensures that:
 ## Installation
 
 ```bash
-npm install @solana-execution/client @solana/web3.js tweetnacl
+npm install @lyslabs.ai/lys-flash @solana/web3.js tweetnacl
 ```
 
 ## Quick Start
@@ -26,7 +26,7 @@ npm install @solana-execution/client @solana/web3.js tweetnacl
 ### Creating a Wallet
 
 ```typescript
-import { SolanaExecutionClient } from '@solana-execution/client';
+import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
 
 const client = new SolanaExecutionClient();
@@ -232,7 +232,7 @@ async function rotateMasterSecret() {
 ## Error Handling
 
 ```typescript
-import { ExecutionError, ErrorCode } from '@solana-execution/client';
+import { ExecutionError, ErrorCode } from '@lyslabs.ai/lys-flash';
 
 try {
   const wallet = await client.createWallet(userPublicKey);
@@ -324,7 +324,7 @@ There's no hard limit, but implement rate limiting to prevent abuse. Recommended
 
 ## Support
 
-- [GitHub Issues](https://github.com/lys-analytics/solana-execution/issues)
+- [GitHub Issues](https://github.com/lyslabs-ai/lys-flash/issues)
 - [Main README](./README.md)
 - [Examples](./examples/)
 

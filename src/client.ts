@@ -29,7 +29,7 @@ const DEFAULT_CONFIG: Required<Omit<ClientConfig, 'logger'>> & { logger: Logger 
  *
  * @example Basic usage
  * ```typescript
- * import { SolanaExecutionClient } from '@solana-execution/client';
+ * import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
  *
  * const client = new SolanaExecutionClient();
  *
@@ -67,7 +67,7 @@ export class SolanaExecutionClient {
   private stats: ClientStats;
 
   /**
-   * Create a new Solana Execution Client
+   * Create a new LYS Flash Client
    *
    * @param config - Client configuration options
    */

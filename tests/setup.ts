@@ -76,7 +76,7 @@ async function checkEngineConnectivity(): Promise<void> {
  */
 beforeAll(async () => {
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🧪 @solana-execution/client Test Suite');
+  console.log('🧪 @lyslabs.ai/lys-flash Test Suite');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   // Validate environment

@@ -1,12 +1,12 @@
 /**
- * @solana-execution/client
+ * @lyslabs.ai/lys-flash
  *
  * High-performance TypeScript client for Solana Execution Engine.
  * Ultra-low latency transaction execution for trading bots.
  *
  * @example Quick start
  * ```typescript
- * import { SolanaExecutionClient, TransactionBuilder } from '@solana-execution/client';
+ * import { SolanaExecutionClient, TransactionBuilder } from '@lyslabs.ai/lys-flash';
  *
  * const client = new SolanaExecutionClient();
  *
