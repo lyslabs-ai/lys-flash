@@ -24,6 +24,7 @@
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Detailed Documentation](#detailed-documentation)
 - [Prerequisites](#prerequisites)
 - [Wallet Management](#wallet-management)
   - [Creating Wallets](#creating-wallets)
@@ -105,6 +106,30 @@ console.log("Transaction signature:", result.signature);
 // Clean up
 client.close();
 ```
+
+## Detailed Documentation
+
+For comprehensive guides and examples, see:
+
+### API Documentation
+
+- **[Raw API Guide](./RAW_API.md)** - Complete guide to using `client.execute()` for direct transaction execution with maximum control
+- **[Transaction Builder Guide](./TRANSACTION_BUILDER.md)** - Complete guide to using the fluent `TransactionBuilder` API (recommended)
+
+### Examples
+
+- **[Raw API Examples](./examples/raw-api-usage.ts)** - Working examples using `client.execute()`
+- **[Transaction Builder Examples](./examples/transaction-builder-usage.ts)** - Working examples using `TransactionBuilder`
+- **[Basic Usage](./examples/basic-usage.ts)** - Simple quick-start example
+- **[Wallet Management](./examples/wallet-management.ts)** - Secure wallet creation and management
+
+### Other Guides
+
+- **[Wallet Management](./WALLET_MANAGEMENT.md)** - Wallet creation, encryption, and security
+- **[Security Policy](./SECURITY.md)** - Security best practices and policies
+- **[Contributing](./CONTRIBUTING.md)** - How to contribute to the project
+
+**Note:** For Pump.fun and Pump.fun AMM operations, providing `coinCreator` and `poolCreator` in `poolAccounts` is **optional but recommended**. These fields speed up transaction building by avoiding additional RPC requests to fetch pool metadata.
 
 ## Prerequisites
 
@@ -256,6 +281,7 @@ const result = await client.execute({
   },
   feePayer: "wallet",
   priorityFeeLamports: 1_000_000,
+  bribeLamports: 1_000_000,            // Mandatory for NONCE
   transport: "NONCE"
 });
 
