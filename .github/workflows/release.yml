@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Bump version
+        run: |
+          npm version ${{ github.event.inputs.version }} -m "chore: bump version to %s"
+          echo "NEW_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Push changes
+        run: |
+          git push origin main
+          git push origin --tags
+
+      - name: Create release notes
+        run: |
+          echo "## Release v${{ env.NEW_VERSION }}" > release_notes.md
+          echo "" >> release_notes.md
+          echo "### Changes" >> release_notes.md
+          git log --oneline $(git describe --tags --abbrev=0 HEAD^)..HEAD >> release_notes.md
+
+      - name: Summary
+        run: |
+          echo "## 🚀 Release v${{ env.NEW_VERSION }} Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Version bumped: ${{ github.event.inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Tag created: v${{ env.NEW_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Changes pushed to main" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔄 NPM publish workflow will run automatically from the tag" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Package will be available at: https://www.npmjs.com/package/@lyslabs.ai/lys-flash" >> $GITHUB_STEP_SUMMARY
