@@ -347,7 +347,11 @@ export class SolanaExecutionClient {
    */
   private validateTransactionRequest(request: TransactionRequest): void {
     if (!request.data) {
-      throw new ExecutionError('Missing data field in request', ErrorCode.INVALID_REQUEST, 'CLIENT');
+      throw new ExecutionError(
+        'Missing data field in request',
+        ErrorCode.INVALID_REQUEST,
+        'CLIENT'
+      );
     }
 
     if (!request.feePayer) {

@@ -100,7 +100,9 @@ export function isErrorResponse(response: TransactionResponse): response is Erro
 /**
  * Assert response is successful and return typed response
  */
-export function assertSuccessResponse(response: TransactionResponse): asserts response is SuccessResponse {
+export function assertSuccessResponse(
+  response: TransactionResponse
+): asserts response is SuccessResponse {
   if (!isSuccessResponse(response)) {
     throw new Error(`Expected success response but got error: ${JSON.stringify(response.error)}`);
   }
@@ -109,7 +111,9 @@ export function assertSuccessResponse(response: TransactionResponse): asserts re
 /**
  * Assert response is error and return typed response
  */
-export function assertErrorResponse(response: TransactionResponse): asserts response is ErrorResponse {
+export function assertErrorResponse(
+  response: TransactionResponse
+): asserts response is ErrorResponse {
   if (!isErrorResponse(response)) {
     throw new Error(`Expected error response but got success: ${response.signature}`);
   }
@@ -158,7 +162,9 @@ export function assertPublicKey(publicKey: string): void {
 /**
  * Assert response has valid signature
  */
-export function assertHasSignature(response: TransactionResponse): asserts response is SuccessResponse {
+export function assertHasSignature(
+  response: TransactionResponse
+): asserts response is SuccessResponse {
   assertSuccessResponse(response);
   assertSignature(response.signature);
 }
@@ -166,7 +172,9 @@ export function assertHasSignature(response: TransactionResponse): asserts respo
 /**
  * Assert response has transaction logs (SIMULATE mode)
  */
-export function assertHasLogs(response: TransactionResponse): asserts response is SuccessResponse & { logs: string[] } {
+export function assertHasLogs(
+  response: TransactionResponse
+): asserts response is SuccessResponse & { logs: string[] } {
   assertSuccessResponse(response);
   if (!response.logs || !Array.isArray(response.logs)) {
     throw new Error('Expected response to have logs array');
@@ -262,7 +270,7 @@ export async function waitFor(
  * Sleep for specified milliseconds
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // ============================================================================
@@ -295,7 +303,9 @@ export function calculateAverage(values: number[]): number {
 /**
  * Measure execution time of async function
  */
-export async function measureLatency<T>(fn: () => Promise<T>): Promise<{ result: T; latency: number }> {
+export async function measureLatency<T>(
+  fn: () => Promise<T>
+): Promise<{ result: T; latency: number }> {
   const start = Date.now();
   const result = await fn();
   const latency = Date.now() - start;

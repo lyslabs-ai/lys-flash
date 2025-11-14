@@ -23,22 +23,18 @@ function validateEnvironment(): void {
 
   // Check ZMQ address
   if (!process.env.TEST_ZMQ_ADDRESS) {
-    warnings.push(
-      'TEST_ZMQ_ADDRESS not set, using default: tcp://127.0.0.1:5555'
-    );
+    warnings.push('TEST_ZMQ_ADDRESS not set, using default: tcp://127.0.0.1:5555');
   }
 
   // Check test wallet
   if (!process.env.TEST_WALLET_PRIVATE_KEY) {
-    warnings.push(
-      'TEST_WALLET_PRIVATE_KEY not set - wallet creation tests may fail'
-    );
+    warnings.push('TEST_WALLET_PRIVATE_KEY not set - wallet creation tests may fail');
   }
 
   // Log warnings
   if (warnings.length > 0) {
     console.warn('\n⚠️  Environment Warnings:');
-    warnings.forEach(warning => console.warn(`   ${warning}`));
+    warnings.forEach((warning) => console.warn(`   ${warning}`));
     console.warn('');
   }
 }
@@ -54,15 +50,9 @@ async function checkEngineConnectivity(): Promise<void> {
   if (available) {
     console.log('✅ Execution engine is available\n');
   } else {
-    console.warn(
-      '⚠️  Execution engine is NOT available'
-    );
-    console.warn(
-      '   Integration tests will be skipped or may fail'
-    );
-    console.warn(
-      '   To run integration tests, start the execution engine:'
-    );
+    console.warn('⚠️  Execution engine is NOT available');
+    console.warn('   Integration tests will be skipped or may fail');
+    console.warn('   To run integration tests, start the execution engine:');
     console.warn('   $ npm start (in execution engine directory)\n');
   }
 }
@@ -105,22 +95,22 @@ afterAll(() => {
  * Default test timeouts
  */
 export const TEST_TIMEOUTS = {
-  UNIT: 5000,           // 5 seconds for unit tests
-  INTEGRATION: 30000,   // 30 seconds for integration tests
-  PERFORMANCE: 60000,   // 60 seconds for performance tests
+  UNIT: 5000, // 5 seconds for unit tests
+  INTEGRATION: 30000, // 30 seconds for integration tests
+  PERFORMANCE: 60000, // 60 seconds for performance tests
 };
 
 /**
  * Transport mode latency targets (in milliseconds)
  */
 export const LATENCY_TARGETS = {
-  SIMULATE: { min: 0, max: 50 },           // Local simulation
-  VANILLA: { min: 200, max: 1000 },        // Standard RPC with variance
-  NOZOMI: { min: 80, max: 400 },           // Low-latency with variance
-  ZERO_SLOT: { min: 30, max: 200 },        // Ultra-fast with variance
-  HELIUS_SENDER: { min: 100, max: 500 },   // Premium with variance
-  JITO: { min: 150, max: 600 },            // MEV-protected with variance
-  NONCE: { min: 30, max: 150 },            // Multi-broadcast (fastest)
+  SIMULATE: { min: 0, max: 50 }, // Local simulation
+  VANILLA: { min: 200, max: 1000 }, // Standard RPC with variance
+  NOZOMI: { min: 80, max: 400 }, // Low-latency with variance
+  ZERO_SLOT: { min: 30, max: 200 }, // Ultra-fast with variance
+  HELIUS_SENDER: { min: 100, max: 500 }, // Premium with variance
+  JITO: { min: 150, max: 600 }, // MEV-protected with variance
+  NONCE: { min: 30, max: 150 }, // Multi-broadcast (fastest)
 };
 
 /**
@@ -137,9 +127,9 @@ export const TEST_CONSTANTS = {
  * Performance test configuration
  */
 export const PERFORMANCE_CONFIG = {
-  BENCHMARK_ITERATIONS: 50,      // Number of iterations for latency benchmarks
+  BENCHMARK_ITERATIONS: 50, // Number of iterations for latency benchmarks
   CONCURRENCY_LEVELS: [1, 5, 10, 25, 50], // Concurrency levels to test
-  ACCEPTABLE_P95_VARIANCE: 0.20, // 20% variance allowed for p95 latency
+  ACCEPTABLE_P95_VARIANCE: 0.2, // 20% variance allowed for p95 latency
 };
 
 // ============================================================================
