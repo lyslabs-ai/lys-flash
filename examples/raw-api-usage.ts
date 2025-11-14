@@ -154,13 +154,13 @@ async function main() {
     }
 
     // ========================================================================
-    // PUMP.FUN AMM OPERATIONS (After migration to Raydium)
+    // PUMP.FUN AMM OPERATIONS (After migration to AMM)
     // ========================================================================
 
     console.log('\n3. Pump.fun AMM Operations');
     console.log('   ───────────────────────\n');
 
-    // Example 5: AMM BUY - Buy on Raydium AMM
+    // Example 5: AMM BUY - Buy on AMM
     console.log('   a) Simulating Pump.fun AMM BUY...');
     const ammBuySimulation = await client.execute({
       data: {
@@ -188,7 +188,7 @@ async function main() {
       console.log('      ✗ Simulation failed:', ammBuySimulation.error);
     }
 
-    // Example 6: AMM SELL - Sell on Raydium AMM
+    // Example 6: AMM SELL - Sell on AMM
     console.log('\n   b) Simulating Pump.fun AMM SELL...');
     const ammSellSimulation = await client.execute({
       data: {
@@ -389,13 +389,13 @@ async function main() {
     console.log('   });');
     console.log('');
     console.log('   Available transports:');
-    console.log('   - NONCE        : Multi-broadcast (40-100ms) [Requires bribe]');
-    console.log('   - ZERO_SLOT    : Ultra-fast (40-150ms)');
-    console.log('   - NOZOMI       : Low-latency (100-300ms)');
-    console.log('   - HELIUS_SENDER: Premium (150-400ms)');
-    console.log('   - JITO         : MEV-protected (200-500ms)');
-    console.log('   - VANILLA      : Standard (300-800ms)');
-    console.log('   - SIMULATE     : Testing only (~0ms)');
+    console.log('   - NONCE        : Multi-broadcast with MEV protection [Requires bribe]');
+    console.log('   - ZERO_SLOT    : Ultra-fast with MEV protection [Requires bribe]');
+    console.log('   - NOZOMI       : Low-latency with MEV protection [Requires bribe]');
+    console.log('   - HELIUS_SENDER: Premium reliability with MEV protection [Requires bribe]');
+    console.log('   - JITO         : MEV-protected via Jito [Requires bribe]');
+    console.log('   - VANILLA      : Standard RPC (no MEV protection, no bribe)');
+    console.log('   - SIMULATE     : Testing only (no broadcast, no bribe)');
 
     // ========================================================================
     // CLIENT STATISTICS

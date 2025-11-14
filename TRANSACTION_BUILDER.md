@@ -55,7 +55,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)             // Mandatory for NONCE
+  .setBribe(1_000_000)             // Required for MEV protection
   .setTransport("NONCE")
   .send();
 
@@ -121,7 +121,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)                // Mandatory for NONCE
+  .setBribe(1_000_000)                // Required for MEV protection
   .setTransport("NONCE")
   .send();
 ```
@@ -151,7 +151,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)                    // Mandatory for NONCE
+  .setBribe(1_000_000)                    // Required for MEV protection
   .setTransport("NONCE")
   .send();
 ```
@@ -184,7 +184,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)                    // Mandatory for NONCE
+  .setBribe(1_000_000)                    // Required for MEV protection
   .setTransport("NONCE")
   .send();
 ```
@@ -197,7 +197,7 @@ const result = await new TransactionBuilder(client)
 - `meta.symbol` (string): Token symbol
 - `meta.uri` (string): Metadata URI
 
-#### `pumpFunMigrate()` - Migrate to Raydium AMM
+#### `pumpFunMigrate()` - Migrate to AMM
 
 ```typescript
 const result = await new TransactionBuilder(client)
@@ -207,7 +207,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)                    // Mandatory for NONCE
+  .setBribe(1_000_000)                    // Required for MEV protection
   .setTransport("NONCE")
   .send();
 ```
@@ -218,9 +218,9 @@ const result = await new TransactionBuilder(client)
 
 ### Pump.fun AMM Operations
 
-After migration to Raydium, use these operations:
+After migration to AMM, use these operations:
 
-#### `pumpFunAmmBuy()` - Buy on Raydium AMM
+#### `pumpFunAmmBuy()` - Buy on AMM
 
 ```typescript
 const result = await new TransactionBuilder(client)
@@ -238,7 +238,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)                    // Mandatory for NONCE
+  .setBribe(1_000_000)                    // Required for MEV protection
   .setTransport("NONCE")
   .send();
 ```
@@ -255,7 +255,7 @@ const result = await new TransactionBuilder(client)
 - `solAmountIn` (number): SOL amount in lamports
 - `tokenAmountOut` (number): Minimum tokens expected
 
-#### `pumpFunAmmSell()` - Sell on Raydium AMM
+#### `pumpFunAmmSell()` - Sell on AMM
 
 ```typescript
 const result = await new TransactionBuilder(client)
@@ -274,7 +274,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)                    // Mandatory for NONCE
+  .setBribe(1_000_000)                    // Required for MEV protection
   .setTransport("NONCE")
   .send();
 ```
@@ -470,10 +470,10 @@ builder.setPriorityFee(5_000_000)  // 0.005 SOL for high priority
 
 ### `setBribe(lamports: number)`
 
-Set Jito bribe in lamports. **Mandatory for NONCE transport** (minimum: 1_000_000).
+Set MEV protection bribe in lamports. **Required for all transports except VANILLA and SIMULATE** (minimum: 1_000_000).
 
 ```typescript
-builder.setBribe(1_000_000)  // 0.001 SOL (required for NONCE)
+builder.setBribe(1_000_000)  // 0.001 SOL (required for MEV protection)
 ```
 
 ### `setTransport(mode: TransportMode)`
@@ -489,13 +489,13 @@ builder.setTransport("SIMULATE")    // Test without broadcasting
 ```
 
 **Available modes:**
-- `NONCE` - Multi-broadcast (40-100ms, requires bribe)
-- `ZERO_SLOT` - Ultra-fast (40-150ms)
-- `NOZOMI` - Low-latency (100-300ms)
-- `HELIUS_SENDER` - Premium (150-400ms)
-- `JITO` - MEV-protected (200-500ms)
-- `VANILLA` - Standard (300-800ms)
-- `SIMULATE` - Testing only (~0ms)
+- `NONCE` - Multi-broadcast with MEV protection (requires bribe)
+- `ZERO_SLOT` - Ultra-fast with MEV protection (requires bribe)
+- `NOZOMI` - Low-latency with MEV protection (requires bribe)
+- `HELIUS_SENDER` - Premium reliability with MEV protection (requires bribe)
+- `JITO` - MEV-protected via Jito (requires bribe)
+- `VANILLA` - Standard RPC (no MEV protection, no bribe)
+- `SIMULATE` - Testing only (no broadcast, no bribe)
 
 ## Batched Operations
 
@@ -530,7 +530,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)                    // Mandatory for NONCE
+  .setBribe(1_000_000)                    // Required for MEV protection
   .setTransport("NONCE")
   .send();
 ```
@@ -563,7 +563,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)                    // Mandatory for NONCE
+  .setBribe(1_000_000)                    // Required for MEV protection
   .setTransport("NONCE")
   .send();
 ```
@@ -643,16 +643,16 @@ const result = await new TransactionBuilder(client)
   .send();
 ```
 
-### 2. Use NONCE for Production
+### 2. Use MEV-Protected Transports for Production
 
-NONCE provides the fastest execution with redundancy:
+Use NONCE (recommended), ZERO_SLOT, NOZOMI, HELIUS_SENDER, or JITO for MEV protection:
 
 ```typescript
 const result = await new TransactionBuilder(client)
   .pumpFunBuy({ /* ... */ })
   .setFeePayer("wallet")
   .setPriorityFee(5_000_000)      // Higher for important trades
-  .setBribe(1_000_000)            // Mandatory for NONCE
+  .setBribe(1_000_000)            // Required for MEV protection
   .setTransport("NONCE")
   .send();
 ```

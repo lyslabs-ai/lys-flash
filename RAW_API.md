@@ -56,7 +56,7 @@ const result = await client.execute({
   },
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,        // Mandatory for NONCE transport
+  bribeLamports: 1_000_000,        // Required for MEV protection (all transports except VANILLA/SIMULATE)
   transport: "NONCE"
 });
 
@@ -79,7 +79,7 @@ interface TransactionRequest {
   data: OperationData | OperationData[];  // Single or batched operations
   feePayer: string;                        // Fee payer wallet address (base58)
   priorityFeeLamports?: number;            // Priority fee (default: 1_000_000)
-  bribeLamports?: number;                  // Jito bribe (mandatory for NONCE)
+  bribeLamports?: number;                  // MEV protection bribe (mandatory for all transports except VANILLA and SIMULATE)
   transport?: TransportMode;               // Transport mode (default: "NONCE")
 }
 ```
@@ -100,17 +100,17 @@ interface TransactionResponse {
 
 ## Transport Modes
 
-| Mode | Description | Latency | Bribe Required |
-|------|-------------|---------|----------------|
-| **NONCE** ⭐ | Multi-broadcast to 5 endpoints (recommended) | 40-100ms | **YES** (min 1_000_000) |
-| ZERO_SLOT | Ultra-fast specialized endpoint | 40-150ms | No |
-| NOZOMI | Low-latency Temporal endpoint | 100-300ms | No |
-| HELIUS_SENDER | Premium reliability | 150-400ms | No |
-| JITO | MEV-protected transactions | 200-500ms | Optional |
-| VANILLA | Standard RPC | 300-800ms | No |
-| SIMULATE | Test without broadcasting (free) | ~0ms | No |
+| Mode | Description | MEV Protection | Bribe Required |
+|------|-------------|----------------|----------------|
+| **NONCE** ⭐ | Multi-broadcast to 5 endpoints (recommended) | Yes | **YES** (min 1_000_000) |
+| ZERO_SLOT | Ultra-fast specialized endpoint | Yes | **YES** (min 1_000_000) |
+| NOZOMI | Low-latency Temporal endpoint | Yes | **YES** (min 1_000_000) |
+| HELIUS_SENDER | Premium reliability | Yes | **YES** (min 1_000_000) |
+| JITO | MEV-protected via Jito | Yes | **YES** (min 1_000_000) |
+| VANILLA | Standard RPC | No | No |
+| SIMULATE | Test without broadcasting (free) | No | No |
 
-**Important:** NONCE transport **requires** a minimum bribe of 1_000_000 lamports (0.001 SOL).
+**Important:** All transport modes except VANILLA and SIMULATE **require** a minimum bribe of 1_000_000 lamports (0.001 SOL) for MEV protection.
 
 ## Operation Types
 
@@ -133,7 +133,7 @@ const result = await client.execute({
   },
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,           // Mandatory for NONCE
+  bribeLamports: 1_000_000,           // Required for MEV protection
   transport: "NONCE"
 });
 ```
@@ -158,7 +158,7 @@ const result = await client.execute({
   },
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,               // Mandatory for NONCE
+  bribeLamports: 1_000_000,               // Required for MEV protection
   transport: "NONCE"
 });
 ```
@@ -186,12 +186,12 @@ const result = await client.execute({
   },
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,               // Mandatory for NONCE
+  bribeLamports: 1_000_000,               // Required for MEV protection
   transport: "NONCE"
 });
 ```
 
-#### MIGRATE - Migrate to Raydium AMM
+#### MIGRATE - Migrate to AMM
 
 ```typescript
 const result = await client.execute({
@@ -203,16 +203,16 @@ const result = await client.execute({
   },
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,               // Mandatory for NONCE
+  bribeLamports: 1_000_000,               // Required for MEV protection
   transport: "NONCE"
 });
 ```
 
 ### Pump.fun AMM Operations
 
-After migration to Raydium, use these operations:
+After migration to AMM, use these operations:
 
-#### AMM BUY - Buy on Raydium AMM
+#### AMM BUY - Buy on AMM
 
 ```typescript
 const result = await client.execute({
@@ -232,14 +232,14 @@ const result = await client.execute({
   },
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,               // Mandatory for NONCE
+  bribeLamports: 1_000_000,               // Required for MEV protection
   transport: "NONCE"
 });
 ```
 
 **Note:** `coinCreator` and `poolCreator` in `poolAccounts` are **optional but recommended**. Providing them speeds up transaction building by avoiding additional RPC requests.
 
-#### AMM SELL - Sell on Raydium AMM
+#### AMM SELL - Sell on AMM
 
 ```typescript
 const result = await client.execute({
@@ -260,7 +260,7 @@ const result = await client.execute({
   },
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,               // Mandatory for NONCE
+  bribeLamports: 1_000_000,               // Required for MEV protection
   transport: "NONCE"
 });
 ```
@@ -482,7 +482,7 @@ const result = await client.execute({
   ],
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,               // Mandatory for NONCE
+  bribeLamports: 1_000_000,               // Required for MEV protection
   transport: "NONCE"
 });
 ```
@@ -526,7 +526,7 @@ const result = await client.execute({
   ],
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,               // Mandatory for NONCE
+  bribeLamports: 1_000_000,               // Required for MEV protection
   transport: "NONCE"
 });
 ```
@@ -595,7 +595,7 @@ const result = await client.execute({
   data: { /* ... */ },
   feePayer: "wallet",
   priorityFeeLamports: 5_000_000,      // Higher priority for production
-  bribeLamports: 1_000_000,            // Mandatory for NONCE
+  bribeLamports: 1_000_000,            // Required for MEV protection
   transport: "NONCE"
 });
 ```
@@ -624,7 +624,7 @@ const result = await client.execute({
   data: { /* same data */ },
   feePayer: "wallet",
   priorityFeeLamports: 5_000_000,
-  bribeLamports: 1_000_000,            // Mandatory for NONCE
+  bribeLamports: 1_000_000,            // Required for MEV protection
   transport: "NONCE"
 });
 ```
@@ -682,7 +682,7 @@ const result = await client.execute({
   data: { /* ... */ },
   feePayer: "wallet",
   priorityFeeLamports: 5_000_000,      // 0.005 SOL for important trades
-  bribeLamports: 1_000_000,            // Mandatory for NONCE
+  bribeLamports: 1_000_000,            // Required for MEV protection
   transport: "NONCE"
 });
 ```
