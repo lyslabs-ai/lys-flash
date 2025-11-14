@@ -41,3 +41,7 @@ pnpm-debug.log*
 # Misc
 *.tmp
 *.temp
+tmp/
+
+# NPM
+*.tgz
