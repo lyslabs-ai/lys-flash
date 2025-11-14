@@ -42,22 +42,23 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
-      - name: Run integration tests
-        run: npm run test:integration
-        continue-on-error: true  # Integration tests may fail without running engine
+      # - name: Run integration tests
+      #   run: npm run test:integration
+      #   continue-on-error: true  # Integration tests may fail without running engine
 
-      - name: Run tests with coverage
-        run: npm run test:coverage
+      # - name: Run tests with coverage
+      #   run: npm run test:coverage
+      #   continue-on-error: true  # Integration tests may fail without running engine
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        if: matrix.node-version == '20.x'
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage-final.json
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v4
+      #   if: matrix.node-version == '20.x'
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: ./coverage/coverage-final.json
+      #     flags: unittests
+      #     name: codecov-umbrella
+      #     fail_ci_if_error: false
 
   build-check:
     runs-on: ubuntu-latest
