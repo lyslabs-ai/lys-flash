@@ -109,4 +109,5 @@ export interface TransportConfig {
   maxReconnectAttempts: number;
   reconnectDelay: number;
   logger: Logger;
+  verbose?: boolean;
 }

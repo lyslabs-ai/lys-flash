@@ -139,7 +139,15 @@ export class ZMQTransport {
       ]);
 
       // Deserialize response
-      const response = unpack(Buffer.from(responseBuffer[0])) as T;
+      const firstBuffer = responseBuffer[0];
+      if (!firstBuffer) {
+        throw new ExecutionError(
+          'Received empty response from ZMQ',
+          ErrorCode.NETWORK_ERROR,
+          'ZMQ'
+        );
+      }
+      const response = unpack(Buffer.from(firstBuffer)) as T;
       this.config.logger.debug('Received MessagePack response', this.config.verbose ? response : undefined);
 
       return response;

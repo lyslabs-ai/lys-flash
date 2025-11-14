@@ -87,6 +87,7 @@ export class SolanaExecutionClient {
       maxReconnectAttempts: this.config.maxReconnectAttempts,
       reconnectDelay: this.config.reconnectDelay,
       logger: this.config.logger,
+      verbose: this.config.verbose,
     };
 
     // Initialize transport

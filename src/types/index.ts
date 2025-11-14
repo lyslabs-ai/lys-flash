@@ -18,14 +18,11 @@
  */
 
 // Transport types
-export {
-  TransportMode,
-  TRANSPORT_DESCRIPTIONS,
-  TRANSPORT_LATENCY,
-} from './transport';
+export type { TransportMode } from './transport';
+export { TRANSPORT_DESCRIPTIONS, TRANSPORT_LATENCY } from './transport';
 
 // Configuration types
-export {
+export type {
   ClientConfig,
   Logger,
   ClientStats,
@@ -33,19 +30,18 @@ export {
 } from './config';
 
 // Response types
-export {
+export type {
   BaseResponse,
   SuccessResponse,
   ErrorResponse,
   TransactionResponse,
   SimulationResponse,
   WalletCreationResponse,
-  isSuccessResponse,
-  isErrorResponse,
 } from './responses';
+export { isSuccessResponse, isErrorResponse } from './responses';
 
 // Operation types
-export {
+export type {
   // Base types
   ExecutionType,
   EventType,
