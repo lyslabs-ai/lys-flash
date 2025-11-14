@@ -773,7 +773,6 @@ describe('TransactionBuilder', () => {
           error: null,
         });
       });
-
     });
 
     describe('simulate()', () => {
@@ -917,7 +916,9 @@ describe('TransactionBuilder', () => {
           .setBribe(2_000_000)
           .reset();
 
-        builder.systemTransfer({ sender: 'a', recipient: 'b', lamports: 1000 }).setFeePayer('wallet2');
+        builder
+          .systemTransfer({ sender: 'a', recipient: 'b', lamports: 1000 })
+          .setFeePayer('wallet2');
 
         await builder.send();
 

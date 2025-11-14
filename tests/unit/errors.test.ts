@@ -29,11 +29,7 @@ describe('ErrorCode Enum', () => {
 describe('ExecutionError Class', () => {
   describe('Constructor', () => {
     it('should create error with required parameters', () => {
-      const error = new ExecutionError(
-        'Test error message',
-        ErrorCode.NETWORK_ERROR,
-        'NONCE'
-      );
+      const error = new ExecutionError('Test error message', ErrorCode.NETWORK_ERROR, 'NONCE');
 
       expect(error).toBeInstanceOf(Error);
       expect(error).toBeInstanceOf(ExecutionError);
@@ -75,11 +71,7 @@ describe('ExecutionError Class', () => {
 
   describe('toJSON()', () => {
     it('should serialize error to JSON', () => {
-      const error = new ExecutionError(
-        'Test error',
-        ErrorCode.NETWORK_ERROR,
-        'NONCE'
-      );
+      const error = new ExecutionError('Test error', ErrorCode.NETWORK_ERROR, 'NONCE');
 
       const json = error.toJSON();
 

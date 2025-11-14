@@ -42,8 +42,7 @@ export const TRANSPORT_DESCRIPTIONS: Record<TransportMode, string> = {
   ZERO_SLOT: '0Slot specialized endpoint (40-150ms, ultra-fast)',
   HELIUS_SENDER: 'Helius sender service (150-400ms, premium reliability)',
   JITO: 'Jito MEV-protected transactions (200-500ms, MEV protection)',
-  NONCE:
-    'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 5 endpoints in parallel)',
+  NONCE: 'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 5 endpoints in parallel)',
 };
 
 /**

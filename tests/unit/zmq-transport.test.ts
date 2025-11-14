@@ -71,58 +71,58 @@ describe('ZMQTransport', () => {
   });
 
   describe('connect()', () => {
-    it('should connect to ZMQ socket', async () => {
+    it('should connect to ZMQ socket', () => {
       transport = new ZMQTransport(config);
 
-      await transport.connect();
+      transport.connect();
 
       expect(transport.isConnected()).toBe(true);
       expect(mockSocket.connect).toHaveBeenCalledWith(config.address);
       expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('Connected'));
     });
 
-    it('should not connect if already connected', async () => {
+    it('should not connect if already connected', () => {
       transport = new ZMQTransport(config);
-      await transport.connect();
+      transport.connect();
 
       mockSocket.connect.mockClear();
-      await transport.connect();
+      transport.connect();
 
       expect(mockSocket.connect).not.toHaveBeenCalled();
     });
 
-    it('should not connect if already connecting', async () => {
+    it('should not connect if already connecting', () => {
       transport = new ZMQTransport(config);
 
-      const promise1 = transport.connect();
-      const promise2 = transport.connect();
+      // Start connecting by setting the connecting flag
+      (transport as any).connecting = true;
 
-      await Promise.all([promise1, promise2]);
+      transport.connect();
 
-      // Should only connect once
-      expect(mockSocket.connect).toHaveBeenCalledTimes(1);
+      // Should not connect when already connecting
+      expect(mockSocket.connect).not.toHaveBeenCalled();
     });
 
-    it('should reset reconnect attempts on successful connection', async () => {
+    it('should reset reconnect attempts on successful connection', () => {
       transport = new ZMQTransport(config);
       (transport as any).reconnectAttempts = 5;
 
-      await transport.connect();
+      transport.connect();
 
       expect(transport.getReconnectAttempts()).toBe(0);
     });
 
-    it('should throw ExecutionError on connection failure', async () => {
-      mockSocket.connect.mockImplementationOnce(() => {
+    it('should throw ExecutionError on connection failure', () => {
+      mockSocket.connect.mockImplementation(() => {
         throw new Error('Connection refused');
       });
 
       transport = new ZMQTransport(config);
 
-      await expect(transport.connect()).rejects.toThrow(ExecutionError);
+      expect(() => transport.connect()).toThrow(ExecutionError);
 
       try {
-        await transport.connect();
+        transport.connect();
       } catch (error) {
         expect(error).toBeInstanceOf(ExecutionError);
         expect((error as ExecutionError).code).toBe(ErrorCode.CONNECTION_ERROR);
@@ -135,9 +135,9 @@ describe('ZMQTransport', () => {
   });
 
   describe('disconnect()', () => {
-    it('should disconnect from ZMQ socket', async () => {
+    it('should disconnect from ZMQ socket', () => {
       transport = new ZMQTransport(config);
-      await transport.connect();
+      transport.connect();
 
       transport.disconnect();
 
@@ -146,9 +146,9 @@ describe('ZMQTransport', () => {
       expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('Disconnected'));
     });
 
-    it('should handle disconnect errors gracefully', async () => {
+    it('should handle disconnect errors gracefully', () => {
       transport = new ZMQTransport(config);
-      await transport.connect();
+      transport.connect();
 
       mockSocket.close.mockImplementationOnce(() => {
         throw new Error('Close error');
@@ -160,9 +160,9 @@ describe('ZMQTransport', () => {
       expect(transport.isConnected()).toBe(false);
     });
 
-    it('should clear reconnect timer', async () => {
+    it('should clear reconnect timer', () => {
       transport = new ZMQTransport(config);
-      await transport.connect();
+      transport.connect();
 
       // Simulate reconnect timer
       (transport as any).reconnectTimer = setTimeout(() => {}, 10000);
@@ -190,16 +190,16 @@ describe('ZMQTransport', () => {
       expect(transport.isConnected()).toBe(false);
     });
 
-    it('should return true when connected', async () => {
+    it('should return true when connected', () => {
       transport = new ZMQTransport(config);
-      await transport.connect();
+      transport.connect();
 
       expect(transport.isConnected()).toBe(true);
     });
 
-    it('should return false after disconnect', async () => {
+    it('should return false after disconnect', () => {
       transport = new ZMQTransport(config);
-      await transport.connect();
+      transport.connect();
       transport.disconnect();
 
       expect(transport.isConnected()).toBe(false);
@@ -207,9 +207,9 @@ describe('ZMQTransport', () => {
   });
 
   describe('request()', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       transport = new ZMQTransport(config);
-      await transport.connect();
+      transport.connect();
 
       // Setup mock msgpackr responses
       (unpack as any).mockReturnValue({
@@ -419,9 +419,9 @@ describe('ZMQTransport', () => {
   });
 
   describe('Reconnection Logic', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       transport = new ZMQTransport(config);
-      await transport.connect();
+      transport.connect();
     });
 
     it('should increment reconnect attempts', async () => {
@@ -440,7 +440,7 @@ describe('ZMQTransport', () => {
       expect(transport.getReconnectAttempts()).toBeGreaterThanOrEqual(1);
     });
 
-    it('should respect max reconnect attempts', async () => {
+    it('should respect max reconnect attempts', () => {
       const limitedConfig = { ...config, maxReconnectAttempts: 2 };
       transport.disconnect();
       transport = new ZMQTransport(limitedConfig);
@@ -452,7 +452,7 @@ describe('ZMQTransport', () => {
 
       // Try to connect (will fail and trigger reconnect attempts)
       try {
-        await transport.connect();
+        transport.connect();
       } catch {
         // Expected to fail
       }
@@ -460,13 +460,15 @@ describe('ZMQTransport', () => {
       // Manually trigger reconnects
       for (let i = 0; i < 3; i++) {
         try {
-          await (transport as any).reconnect();
+          (transport as any).reconnect();
         } catch {
           // Expected to fail
         }
       }
 
-      expect(transport.getReconnectAttempts()).toBeLessThanOrEqual(limitedConfig.maxReconnectAttempts + 1);
+      expect(transport.getReconnectAttempts()).toBeLessThanOrEqual(
+        limitedConfig.maxReconnectAttempts + 1
+      );
     });
 
     it('should reset reconnect attempts', () => {
@@ -485,7 +487,7 @@ describe('ZMQTransport', () => {
       expect(transport.getReconnectAttempts()).toBe(0);
     });
 
-    it('should return current reconnect attempts', async () => {
+    it('should return current reconnect attempts', () => {
       transport = new ZMQTransport(config);
       (transport as any).reconnectAttempts = 3;
 

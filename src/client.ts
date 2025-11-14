@@ -117,9 +117,9 @@ export class SolanaExecutionClient {
    *
    * @throws ExecutionError if connection fails
    */
-  private async connect(): Promise<void> {
+  private connect(): void {
     try {
-      await this.transport.connect();
+      this.transport.connect();
       this.stats.connected = true;
       this.stats.connectedSince = new Date();
     } catch (error) {

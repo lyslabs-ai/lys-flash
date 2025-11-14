@@ -26,7 +26,7 @@ export class ZMQTransport {
   /**
    * Connect to the ZeroMQ socket
    */
-  async connect(): Promise<void> {
+  connect(): void {
     if (this.connected || this.connecting) {
       return;
     }
@@ -111,13 +111,9 @@ export class ZMQTransport {
   async request<T>(message: unknown): Promise<T> {
     if (!this.connected || !this.socket) {
       if (this.config.autoReconnect) {
-        await this.reconnect();
+        this.reconnect();
       } else {
-        throw new ExecutionError(
-          'Not connected to ZMQ socket',
-          ErrorCode.CONNECTION_ERROR,
-          'ZMQ'
-        );
+        throw new ExecutionError('Not connected to ZMQ socket', ErrorCode.CONNECTION_ERROR, 'ZMQ');
       }
     }
 
@@ -148,7 +144,10 @@ export class ZMQTransport {
         );
       }
       const response = unpack(Buffer.from(firstBuffer)) as T;
-      this.config.logger.debug('Received MessagePack response', this.config.verbose ? response : undefined);
+      this.config.logger.debug(
+        'Received MessagePack response',
+        this.config.verbose ? response : undefined
+      );
 
       return response;
     } catch (error) {
@@ -172,7 +171,10 @@ export class ZMQTransport {
       }
 
       // Handle serialization errors
-      if (error instanceof Error && (error.message.includes('pack') || error.message.includes('unpack'))) {
+      if (
+        error instanceof Error &&
+        (error.message.includes('pack') || error.message.includes('unpack'))
+      ) {
         throw new ExecutionError(
           `Serialization error: ${error.message}`,
           ErrorCode.SERIALIZATION_ERROR,
@@ -233,11 +235,13 @@ export class ZMQTransport {
       );
 
       this.reconnectTimer = setTimeout(() => {
-        this.reconnect().catch((error) => {
+        try {
+          this.reconnect();
+        } catch (error) {
           this.config.logger.error(
             `Reconnection failed: ${error instanceof Error ? error.message : String(error)}`
           );
-        });
+        }
       }, this.config.reconnectDelay);
     }
   }
@@ -245,7 +249,7 @@ export class ZMQTransport {
   /**
    * Reconnect to the ZeroMQ socket
    */
-  private async reconnect(): Promise<void> {
+  private reconnect(): void {
     if (this.connected || this.connecting) {
       return;
     }
@@ -257,7 +261,7 @@ export class ZMQTransport {
 
     // Connect with new socket
     try {
-      await this.connect();
+      this.connect();
       this.config.logger.info('Reconnection successful');
     } catch (error) {
       if (this.reconnectAttempts < this.config.maxReconnectAttempts) {

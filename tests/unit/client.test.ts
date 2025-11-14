@@ -270,7 +270,7 @@ describe('SolanaExecutionClient', () => {
       const beforeReset = client.getStats().connectedSince;
 
       // Wait a bit
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       client.resetStats();
 
