@@ -105,11 +105,13 @@ export class SolanaExecutionClient {
     };
 
     // Connect on initialization
-    this.connect().catch((error) => {
+    try {
+      this.connect();
+    } catch (error) {
       this.config.logger.error(
         `Failed to connect during initialization: ${error instanceof Error ? error.message : String(error)}`
       );
-    });
+    }
   }
 
   /**
