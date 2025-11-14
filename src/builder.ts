@@ -41,6 +41,7 @@ import { ExecutionError, ErrorCode } from './errors';
  *   })
  *   .setFeePayer("wallet")
  *   .setPriorityFee(1_000_000)
+ *   .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
  *   .setTransport("NONCE")
  *   .send();
  * ```

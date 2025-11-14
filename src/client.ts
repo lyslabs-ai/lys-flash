@@ -45,6 +45,7 @@ const DEFAULT_CONFIG: Required<Omit<ClientConfig, 'logger'>> & { logger: Logger 
  *   },
  *   feePayer: "buyer_wallet",
  *   priorityFeeLamports: 1_000_000,
+ *   bribeLamports: 1_000_000,        // 0.001 SOL bribe (mandatory for NONCE)
  *   transport: "NONCE"
  * });
  *
@@ -151,6 +152,7 @@ export class SolanaExecutionClient {
    *   },
    *   feePayer: "wallet",
    *   priorityFeeLamports: 1_000_000,
+   *   bribeLamports: 1_000_000,        // 0.001 SOL bribe (mandatory for NONCE)
    *   transport: "NONCE"
    * });
    * ```

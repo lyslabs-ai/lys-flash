@@ -96,6 +96,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("buyer_wallet")
   .setPriorityFee(1_000_000)       // 0.001 SOL priority fee
+  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
   .setTransport("NONCE")            // Multi-broadcast
   .send();
 
@@ -195,6 +196,7 @@ const result = await new TransactionBuilder(client)
     tokenAmountOut: 3_400_000_000
   })
   .setFeePayer(newWalletKeypair.publicKey.toBase58())
+  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
   .setTransport("NONCE")
   .send();
 ```
@@ -390,6 +392,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("YourWallet")
   .setPriorityFee(5_000_000)
+  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
   .setTransport("NONCE")
   .send();
 
@@ -410,6 +413,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("YourWallet")
   .setPriorityFee(5_000_000)
+  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
   .setTransport("NONCE")
   .send();
 
@@ -443,6 +447,7 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("CreatorWallet")
   .setPriorityFee(10_000_000)
+  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
   .setTransport("NONCE")
   .send();
 
@@ -465,6 +470,7 @@ if (simulation.success) {
   const result = await new TransactionBuilder(client)
     .pumpFunBuy({ /* same params */ })
     .setFeePayer("wallet")
+    .setBribe(1_000_000)           // 0.001 SOL bribe (mandatory for NONCE)
     .setTransport("NONCE")
     .send();
 
@@ -514,6 +520,7 @@ import { ExecutionError, ErrorCode } from '@lyslabs.ai/lys-flash';
 try {
   const result = await new TransactionBuilder(client)
     .pumpFunBuy({ /* params */ })
+    .setBribe(1_000_000)           // 0.001 SOL bribe (mandatory for NONCE)
     .setTransport("NONCE")
     .send();
 
@@ -653,6 +660,7 @@ class TradingBot {
       })
       .setFeePayer(wallet)
       .setPriorityFee(5_000_000)
+      .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
       .setTransport("NONCE")
       .send();
 
