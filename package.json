@@ -1,6 +1,6 @@
 {
   "name": "@lyslabs.ai/lys-flash",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "High-performance TypeScript client for Solana transaction execution - Ultra-low latency trading on Solana with Pump.fun, AMM, and SPL Token support",
   "keywords": [
     "solana",

@@ -56,28 +56,31 @@ npm install @lyslabs.ai/lys-flash @solana/web3.js tweetnacl
 ```typescript
 import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
 
-// Connect via ZeroMQ IPC (default, fastest)
+// Connect via ZeroMQ IPC (default, fastest - no API key required)
 const client = new SolanaExecutionClient();
 
 // Or connect via ZeroMQ TCP
 const client = new SolanaExecutionClient({
-  zmqAddress: 'tcp://127.0.0.1:5555'
+  address: 'tcp://127.0.0.1:5555'
 });
 
-// Or connect via HTTP (auto-detected from URL scheme)
+// Or connect via HTTP (API key required)
 const client = new SolanaExecutionClient({
-  zmqAddress: 'http://localhost:3000/api/execute'
+  address: 'http://localhost:3000',
+  apiKey: 'sk_live_your_api_key'
 });
 
-// Or connect via HTTPS
+// Or connect via HTTPS (API key required)
 const client = new SolanaExecutionClient({
-  zmqAddress: 'https://api.example.com/execute'
+  address: 'https://api.example.com',
+  apiKey: 'sk_live_your_api_key',
+  contentType: 'msgpack'  // or 'json' (default: 'msgpack')
 });
 ```
 
 The client automatically detects the transport mode based on the URL scheme:
-- `ipc://` or `tcp://` → ZeroMQ transport (default, lowest latency)
-- `http://` or `https://` → HTTP transport (for remote/cloud deployments)
+- `ipc://` or `tcp://` → ZeroMQ transport (default, lowest latency, no API key)
+- `http://` or `https://` → HTTP transport (requires API key, for remote/cloud deployments)
 
 ### Step 2: Create a Wallet (Optional)
 
@@ -382,6 +385,42 @@ const result = await new TransactionBuilder(client)
 
 **Recommendation:** Use `NONCE` for production trading (multi-broadcast with redundancy).
 
+### HTTP Transport & API Keys
+
+For remote or cloud deployments, use HTTP transport with API key authentication:
+
+```typescript
+const client = new SolanaExecutionClient({
+  address: 'https://api.example.com',
+  apiKey: 'sk_live_your_api_key',  // Required for HTTP/HTTPS
+  contentType: 'msgpack',          // 'msgpack' (default) or 'json'
+  timeout: 30000,                  // Request timeout in ms
+});
+```
+
+**Configuration options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `address` | `string` | `ipc:///tmp/tx-executor.ipc` | Server URL (http/https/tcp/ipc) |
+| `apiKey` | `string` | - | API key for HTTP transport (required) |
+| `contentType` | `'json' \| 'msgpack'` | `'msgpack'` | Request/response serialization format |
+| `timeout` | `number` | `30000` | Request timeout in milliseconds |
+| `autoReconnect` | `boolean` | `true` | Auto-reconnect on connection loss |
+| `maxReconnectAttempts` | `number` | `5` | Max reconnection attempts |
+| `reconnectDelay` | `number` | `1000` | Delay between reconnect attempts (ms) |
+| `verbose` | `boolean` | `false` | Enable debug logging |
+
+**API Key Format:**
+- Production keys: `sk_live_*`
+- Test keys: `sk_test_*`
+
+**Content Types:**
+- `msgpack` - Binary format, 2-3x smaller payloads, faster serialization (recommended)
+- `json` - Text format, easier debugging
+
+The API key is sent via the `X-API-Key` HTTP header with each request.
+
 ## Examples
 
 ### Create a Wallet
@@ -618,14 +657,25 @@ try {
 ### Custom Configuration
 
 ```typescript
-const client = new SolanaExecutionClient({
-  zmqAddress: "tcp://127.0.0.1:5555",  // TCP socket
-  timeout: 60000,                       // 60 seconds
+// ZMQ Transport (local deployment)
+const zmqClient = new SolanaExecutionClient({
+  address: "tcp://127.0.0.1:5555",  // TCP socket
+  timeout: 60000,                    // 60 seconds
   autoReconnect: true,
   maxReconnectAttempts: 10,
-  reconnectDelay: 2000,                 // 2 seconds
-  verbose: true,                        // Debug logging
-  logger: customLogger                  // Custom logger
+  reconnectDelay: 2000,              // 2 seconds
+  verbose: true,                     // Debug logging
+  logger: customLogger               // Custom logger
+});
+
+// HTTP Transport (remote/cloud deployment)
+const httpClient = new SolanaExecutionClient({
+  address: "https://api.lyslabs.ai",
+  apiKey: process.env.LYS_API_KEY!,  // From environment variable
+  contentType: "msgpack",             // Binary format (faster)
+  timeout: 30000,
+  autoReconnect: true,
+  verbose: false,
 });
 ```
 
