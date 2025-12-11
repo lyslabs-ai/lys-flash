@@ -43,6 +43,21 @@ export enum ErrorCode {
   CONNECTION_ERROR = 'CONNECTION_ERROR',
 
   /**
+   * Unauthorized (invalid API key)
+   */
+  UNAUTHORIZED = 'UNAUTHORIZED',
+
+  /**
+   * Not found (invalid endpoint)
+   */
+  NOT_FOUND = 'NOT_FOUND',
+
+  /**
+   * Server error
+   */
+  SERVER_ERROR = 'SERVER_ERROR',
+
+  /**
    * Unknown error
    */
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',

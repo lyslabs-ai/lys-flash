@@ -3,10 +3,31 @@
  */
 export interface ClientConfig {
   /**
-   * ZeroMQ socket address
+   * Server address - transport auto-detected from URL scheme:
+   * - http:// or https:// → HTTP transport
+   * - tcp:// or ipc:// → ZMQ transport
    * @default "ipc:///tmp/tx-executor.ipc"
-   * @example "ipc:///tmp/tx-executor.ipc" // Local IPC socket
-   * @example "tcp://127.0.0.1:5555" // TCP socket
+   * @example "http://localhost:3000" // HTTP transport
+   * @example "https://api.example.com" // HTTPS transport
+   * @example "ipc:///tmp/tx-executor.ipc" // ZMQ via IPC
+   * @example "tcp://127.0.0.1:5555" // ZMQ via TCP
+   */
+  address?: string;
+
+  /**
+   * API key for HTTP transport (required when using http:// or https://)
+   */
+  apiKey?: string;
+
+  /**
+   * Content type for HTTP requests
+   * @default 'msgpack'
+   */
+  contentType?: 'json' | 'msgpack';
+
+  /**
+   * @deprecated Use `address` instead
+   * ZeroMQ socket address (kept for backward compatibility)
    */
   zmqAddress?: string;
 

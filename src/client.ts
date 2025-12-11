@@ -1,9 +1,10 @@
 import { ZMQTransport } from './transport/zmq-transport';
+import { HTTPTransport } from './transport/http-transport';
+import { Transport, BaseTransportConfig, HTTPTransportConfig } from './transport/transport.interface';
 import {
   ClientConfig,
   ClientStats,
   Logger,
-  TransportConfig,
   TransactionRequest,
   TransactionResponse,
   WalletCreationRequest,
@@ -14,8 +15,16 @@ import { ExecutionError, ErrorCode, fromUnknownError } from './errors';
 /**
  * Default client configuration
  */
-const DEFAULT_CONFIG: Required<Omit<ClientConfig, 'logger'>> & { logger: Logger } = {
-  zmqAddress: 'ipc:///tmp/tx-executor.ipc',
+const DEFAULT_CONFIG: Required<Omit<ClientConfig, 'logger' | 'apiKey' | 'contentType' | 'zmqAddress'>> & {
+  logger: Logger;
+  apiKey: string;
+  contentType: 'json' | 'msgpack';
+  zmqAddress: string;
+} = {
+  address: 'ipc:///tmp/tx-executor.ipc',
+  zmqAddress: 'ipc:///tmp/tx-executor.ipc', // deprecated
+  apiKey: '',
+  contentType: 'msgpack',
   timeout: 30000, // 30 seconds
   autoReconnect: true,
   maxReconnectAttempts: 5,
@@ -25,13 +34,21 @@ const DEFAULT_CONFIG: Required<Omit<ClientConfig, 'logger'>> & { logger: Logger 
 };
 
 /**
+ * Detect transport type from URL scheme
+ */
+function isHTTPAddress(address: string): boolean {
+  return address.startsWith('http://') || address.startsWith('https://');
+}
+
+/**
  * Main client for interacting with the Solana Execution Engine
  *
- * @example Basic usage
+ * @example Basic usage with ZMQ (default)
  * ```typescript
  * import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
  *
  * const client = new SolanaExecutionClient();
+ * // or explicitly: new SolanaExecutionClient({ address: 'ipc:///tmp/tx-executor.ipc' })
  *
  * const result = await client.execute({
  *   data: {
@@ -45,7 +62,7 @@ const DEFAULT_CONFIG: Required<Omit<ClientConfig, 'logger'>> & { logger: Logger 
  *   },
  *   feePayer: "buyer_wallet",
  *   priorityFeeLamports: 1_000_000,
- *   bribeLamports: 1_000_000,        // 0.001 SOL bribe (mandatory for NONCE)
+ *   bribeLamports: 1_000_000,
  *   transport: "NONCE"
  * });
  *
@@ -53,19 +70,29 @@ const DEFAULT_CONFIG: Required<Omit<ClientConfig, 'logger'>> & { logger: Logger 
  * client.close();
  * ```
  *
- * @example With custom configuration
+ * @example With HTTP transport
  * ```typescript
  * const client = new SolanaExecutionClient({
- *   zmqAddress: "tcp://127.0.0.1:5555",
+ *   address: "http://localhost:3000",
+ *   apiKey: "sk_live_abc123",
+ *   contentType: "msgpack" // or "json"
+ * });
+ * ```
+ *
+ * @example With ZMQ over TCP
+ * ```typescript
+ * const client = new SolanaExecutionClient({
+ *   address: "tcp://127.0.0.1:5555",
  *   timeout: 60000,
  *   verbose: true
  * });
  * ```
  */
 export class SolanaExecutionClient {
-  private transport: ZMQTransport;
-  private config: Required<Omit<ClientConfig, 'logger'>> & { logger: Logger };
+  private transport: Transport;
+  private config: typeof DEFAULT_CONFIG;
   private stats: ClientStats;
+  private transportType: 'HTTP' | 'ZMQ';
 
   /**
    * Create a new LYS Flash Client
@@ -73,26 +100,58 @@ export class SolanaExecutionClient {
    * @param config - Client configuration options
    */
   constructor(config?: ClientConfig) {
-    // Merge config with defaults
+    // Merge config with defaults, handle backward compatibility
+    const address = config?.address || config?.zmqAddress || DEFAULT_CONFIG.address;
+
     this.config = {
       ...DEFAULT_CONFIG,
       ...config,
+      address,
       logger: config?.logger || DEFAULT_CONFIG.logger,
     };
 
-    // Create transport configuration
-    const transportConfig: TransportConfig = {
-      address: this.config.zmqAddress,
-      timeout: this.config.timeout,
-      autoReconnect: this.config.autoReconnect,
-      maxReconnectAttempts: this.config.maxReconnectAttempts,
-      reconnectDelay: this.config.reconnectDelay,
-      logger: this.config.logger,
-      verbose: this.config.verbose,
-    };
+    // Determine transport type from address
+    const useHTTP = isHTTPAddress(address);
+    this.transportType = useHTTP ? 'HTTP' : 'ZMQ';
 
-    // Initialize transport
-    this.transport = new ZMQTransport(transportConfig);
+    // Create transport based on address scheme
+    if (useHTTP) {
+      // Validate API key for HTTP transport
+      if (!this.config.apiKey) {
+        throw new ExecutionError(
+          'API key is required for HTTP transport. Set the apiKey option.',
+          ErrorCode.INVALID_REQUEST,
+          'CLIENT'
+        );
+      }
+
+      const httpConfig: HTTPTransportConfig = {
+        address: address,
+        apiKey: this.config.apiKey,
+        contentType: this.config.contentType || 'msgpack',
+        timeout: this.config.timeout,
+        autoReconnect: this.config.autoReconnect,
+        maxReconnectAttempts: this.config.maxReconnectAttempts,
+        reconnectDelay: this.config.reconnectDelay,
+        logger: this.config.logger,
+        verbose: this.config.verbose,
+      };
+
+      this.transport = new HTTPTransport(httpConfig);
+    } else {
+      // ZMQ transport (ipc:// or tcp://)
+      const zmqConfig: BaseTransportConfig = {
+        address: address,
+        timeout: this.config.timeout,
+        autoReconnect: this.config.autoReconnect,
+        maxReconnectAttempts: this.config.maxReconnectAttempts,
+        reconnectDelay: this.config.reconnectDelay,
+        logger: this.config.logger,
+        verbose: this.config.verbose,
+      };
+
+      this.transport = new ZMQTransport(zmqConfig);
+    }
 
     // Initialize statistics
     this.stats = {
@@ -113,6 +172,13 @@ export class SolanaExecutionClient {
         `Failed to connect during initialization: ${error instanceof Error ? error.message : String(error)}`
       );
     }
+  }
+
+  /**
+   * Get the transport type being used
+   */
+  getTransportType(): 'HTTP' | 'ZMQ' {
+    return this.transportType;
   }
 
   /**

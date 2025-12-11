@@ -1,6 +1,6 @@
 import * as zmq from 'zeromq';
 import { pack, unpack } from 'msgpackr';
-import { TransportConfig } from '../types/config';
+import { Transport, BaseTransportConfig } from './transport.interface';
 import { ExecutionError, ErrorCode, fromUnknownError } from '../errors';
 
 /**
@@ -11,15 +11,15 @@ import { ExecutionError, ErrorCode, fromUnknownError } from '../errors';
  *
  * @internal
  */
-export class ZMQTransport {
+export class ZMQTransport implements Transport {
   private socket: zmq.Request | null = null;
-  private config: TransportConfig;
+  private config: BaseTransportConfig;
   private connected: boolean = false;
   private connecting: boolean = false;
   private reconnectAttempts: number = 0;
   private reconnectTimer: NodeJS.Timeout | null = null;
 
-  constructor(config: TransportConfig) {
+  constructor(config: BaseTransportConfig) {
     this.config = config;
   }
 

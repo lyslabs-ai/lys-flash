@@ -88,9 +88,20 @@ export type {
 /**
  * Library version
  */
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 
 /**
+ * Default address (ZMQ IPC)
+ */
+export const DEFAULT_ADDRESS = 'ipc:///tmp/tx-executor.ipc';
+
+/**
+ * @deprecated Use DEFAULT_ADDRESS instead
  * Default ZMQ address
  */
 export const DEFAULT_ZMQ_ADDRESS = 'ipc:///tmp/tx-executor.ipc';
+
+/**
+ * Default HTTP port
+ */
+export const DEFAULT_HTTP_PORT = 3000;
