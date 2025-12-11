@@ -32,11 +32,11 @@ npm install @lyslabs.ai/lys-flash @solana/web3.js
 ## Quick Start
 
 ```typescript
-import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
+import { LysFlash } from '@lyslabs.ai/lys-flash';
 
 // Create client
-const client = new SolanaExecutionClient({
-  zmqAddress: 'ipc:///tmp/tx-executor.ipc',
+const client = new LysFlash({
+  address: 'ipc:///tmp/tx-executor.ipc',
   timeout: 30000,
   verbose: true
 });
@@ -657,13 +657,13 @@ Don't create a new client for each transaction:
 ```typescript
 // ❌ BAD
 async function trade() {
-  const client = new SolanaExecutionClient();
+  const client = new LysFlash();
   await client.execute({ /* ... */ });
   client.close();
 }
 
 // ✅ GOOD
-const client = new SolanaExecutionClient();
+const client = new LysFlash();
 
 async function trade() {
   await client.execute({ /* ... */ });

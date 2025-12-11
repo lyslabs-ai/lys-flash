@@ -1,4 +1,4 @@
-import { SolanaExecutionClient } from './client';
+import { LysFlash } from './client';
 import {
   TransportMode,
   OperationData,
@@ -58,7 +58,7 @@ import { ExecutionError, ErrorCode } from './errors';
  * ```
  */
 export class TransactionBuilder {
-  private client: SolanaExecutionClient;
+  private client: LysFlash;
   private operations: OperationData[] = [];
   private feePayer?: string;
   private priorityFeeLamports: number = 1_000_000; // Default: 0.001 SOL
@@ -68,9 +68,9 @@ export class TransactionBuilder {
   /**
    * Create a new TransactionBuilder
    *
-   * @param client - SolanaExecutionClient instance
+   * @param client - LysFlash client instance
    */
-  constructor(client: SolanaExecutionClient) {
+  constructor(client: LysFlash) {
     this.client = client;
   }
 

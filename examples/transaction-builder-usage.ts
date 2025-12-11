@@ -10,7 +10,7 @@
  */
 
 import {
-  SolanaExecutionClient,
+  LysFlash,
   TransactionBuilder,
   ExecutionError,
   ErrorCode,
@@ -22,8 +22,8 @@ async function main() {
 
   // Create client
   console.log('1. Creating client...');
-  const client = new SolanaExecutionClient({
-    zmqAddress: 'ipc:///tmp/tx-executor.ipc',
+  const client = new LysFlash({
+    address: 'ipc:///tmp/tx-executor.ipc',
     timeout: 30000,
     verbose: true,
   });

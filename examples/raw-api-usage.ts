@@ -7,7 +7,7 @@
  * For a simpler, fluent API, see transaction-builder-usage.ts
  */
 
-import { SolanaExecutionClient, ExecutionError, ErrorCode } from '@lyslabs.ai/lys-flash';
+import { LysFlash, ExecutionError, ErrorCode } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
 import bs58 from 'bs58';
 
@@ -16,8 +16,8 @@ async function main() {
 
   // Create client
   console.log('1. Creating client...');
-  const client = new SolanaExecutionClient({
-    zmqAddress: 'ipc:///tmp/tx-executor.ipc',
+  const client = new LysFlash({
+    address: 'ipc:///tmp/tx-executor.ipc',
     timeout: 30000,
     verbose: true,
   });

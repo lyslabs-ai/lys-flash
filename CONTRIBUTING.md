@@ -166,16 +166,16 @@ Test individual functions and classes in isolation:
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { SolanaExecutionClient } from '../src/client';
+import { LysFlash } from '../src/client';
 
-describe('SolanaExecutionClient', () => {
+describe('LysFlash', () => {
   it('should initialize with default config', () => {
-    const client = new SolanaExecutionClient();
+    const client = new LysFlash();
     expect(client).toBeDefined();
   });
 
   it('should connect to ZMQ socket', async () => {
-    const client = new SolanaExecutionClient();
+    const client = new LysFlash();
     // Test connection logic
   });
 });
@@ -187,11 +187,11 @@ Test complete workflows and interactions with the execution engine:
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { SolanaExecutionClient, TransactionBuilder } from '../src';
+import { LysFlash, TransactionBuilder } from '../src';
 
 describe('Pump.fun Integration', () => {
   it('should buy tokens successfully', async () => {
-    const client = new SolanaExecutionClient();
+    const client = new LysFlash();
     const result = await new TransactionBuilder(client)
       .pumpFunBuy({
         pool: "mint",
@@ -215,11 +215,11 @@ Test performance characteristics and benchmarks:
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { SolanaExecutionClient } from '../src';
+import { LysFlash } from '../src';
 
 describe('Performance', () => {
   it('should handle 100 concurrent requests', async () => {
-    const client = new SolanaExecutionClient();
+    const client = new LysFlash();
     const start = Date.now();
 
     const promises = Array.from({ length: 100 }, () =>

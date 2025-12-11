@@ -45,10 +45,10 @@ function isHTTPAddress(address: string): boolean {
  *
  * @example Basic usage with ZMQ (default)
  * ```typescript
- * import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
+ * import { LysFlash } from '@lyslabs.ai/lys-flash';
  *
- * const client = new SolanaExecutionClient();
- * // or explicitly: new SolanaExecutionClient({ address: 'ipc:///tmp/tx-executor.ipc' })
+ * const client = new LysFlash();
+ * // or explicitly: new LysFlash({ address: 'ipc:///tmp/tx-executor.ipc' })
  *
  * const result = await client.execute({
  *   data: {
@@ -72,7 +72,7 @@ function isHTTPAddress(address: string): boolean {
  *
  * @example With HTTP transport
  * ```typescript
- * const client = new SolanaExecutionClient({
+ * const client = new LysFlash({
  *   address: "http://localhost:3000",
  *   apiKey: "sk_live_abc123",
  *   contentType: "msgpack" // or "json"
@@ -81,21 +81,21 @@ function isHTTPAddress(address: string): boolean {
  *
  * @example With ZMQ over TCP
  * ```typescript
- * const client = new SolanaExecutionClient({
+ * const client = new LysFlash({
  *   address: "tcp://127.0.0.1:5555",
  *   timeout: 60000,
  *   verbose: true
  * });
  * ```
  */
-export class SolanaExecutionClient {
+export class LysFlash {
   private transport: Transport;
   private config: typeof DEFAULT_CONFIG;
   private stats: ClientStats;
   private transportType: 'HTTP' | 'ZMQ';
 
   /**
-   * Create a new LYS Flash Client
+   * Create a new LysFlash client
    *
    * @param config - Client configuration options
    */
@@ -482,3 +482,8 @@ export class SolanaExecutionClient {
     }
   }
 }
+
+/**
+ * @deprecated Use `LysFlash` instead. This alias is kept for backward compatibility.
+ */
+export const SolanaExecutionClient = LysFlash;

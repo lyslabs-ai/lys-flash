@@ -6,9 +6,9 @@
  *
  * @example Quick start
  * ```typescript
- * import { SolanaExecutionClient, TransactionBuilder } from '@lyslabs.ai/lys-flash';
+ * import { LysFlash, TransactionBuilder } from '@lyslabs.ai/lys-flash';
  *
- * const client = new SolanaExecutionClient();
+ * const client = new LysFlash();
  *
  * // Simple buy with builder pattern
  * const result = await new TransactionBuilder(client)
@@ -33,7 +33,7 @@
  */
 
 // Core classes
-export { SolanaExecutionClient } from './client';
+export { LysFlash, SolanaExecutionClient } from './client';
 export { TransactionBuilder } from './builder';
 
 // Error handling
@@ -88,7 +88,7 @@ export type {
 /**
  * Library version
  */
-export const VERSION = '1.1.1';
+export const VERSION = '1.2.0';
 
 /**
  * Default address (ZMQ IPC)

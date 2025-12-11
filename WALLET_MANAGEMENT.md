@@ -26,10 +26,10 @@ npm install @lyslabs.ai/lys-flash @solana/web3.js tweetnacl
 ### Creating a Wallet
 
 ```typescript
-import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
+import { LysFlash } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
 
-const client = new SolanaExecutionClient();
+const client = new LysFlash();
 
 // Your keypair for encryption
 const userKeypair = Keypair.generate();

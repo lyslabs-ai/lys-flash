@@ -9,7 +9,7 @@
  * - Best practices for wallet security
  */
 
-import { SolanaExecutionClient, TransactionBuilder } from '@lyslabs.ai/lys-flash';
+import { LysFlash, TransactionBuilder } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import * as fs from 'fs';
@@ -26,12 +26,12 @@ interface WalletStorage {
 }
 
 class WalletManager {
-  private client: SolanaExecutionClient;
+  private client: LysFlash;
   private userKeypair: Keypair;
   private storageFile: string;
 
   constructor(userKeypairSecretKey: Uint8Array, storageFile: string = './wallets.json') {
-    this.client = new SolanaExecutionClient();
+    this.client = new LysFlash();
     this.userKeypair = Keypair.fromSecretKey(userKeypairSecretKey);
     this.storageFile = storageFile;
   }

@@ -54,24 +54,24 @@ npm install @lyslabs.ai/lys-flash @solana/web3.js tweetnacl
 ### Step 1: Connect to the Execution Engine
 
 ```typescript
-import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
+import { LysFlash } from '@lyslabs.ai/lys-flash';
 
 // Connect via ZeroMQ IPC (default, fastest - no API key required)
-const client = new SolanaExecutionClient();
+const client = new LysFlash();
 
 // Or connect via ZeroMQ TCP
-const client = new SolanaExecutionClient({
+const client = new LysFlash({
   address: 'tcp://127.0.0.1:5555'
 });
 
 // Or connect via HTTP (API key required)
-const client = new SolanaExecutionClient({
+const client = new LysFlash({
   address: 'http://localhost:3000',
   apiKey: 'sk_live_your_api_key'
 });
 
 // Or connect via HTTPS (API key required)
-const client = new SolanaExecutionClient({
+const client = new LysFlash({
   address: 'https://api.example.com',
   apiKey: 'sk_live_your_api_key',
   contentType: 'msgpack'  // or 'json' (default: 'msgpack')
@@ -109,10 +109,10 @@ const walletKeypair = Keypair.fromSecretKey(new Uint8Array(secretKey!));
 ### Step 3: Execute Transactions
 
 ```typescript
-import { SolanaExecutionClient, TransactionBuilder } from '@lyslabs.ai/lys-flash';
+import { LysFlash, TransactionBuilder } from '@lyslabs.ai/lys-flash';
 
 // Create client
-const client = new SolanaExecutionClient();
+const client = new LysFlash();
 
 // Buy tokens with builder pattern (simple API)
 const result = await new TransactionBuilder(client)
@@ -180,10 +180,10 @@ The client library provides secure wallet creation with **dual encryption** for 
 Create new wallets with server-side and client-side encryption:
 
 ```typescript
-import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
+import { LysFlash } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
 
-const client = new SolanaExecutionClient();
+const client = new LysFlash();
 
 // Your keypair for encryption (user's existing wallet)
 const userKeypair = Keypair.generate();
@@ -284,14 +284,14 @@ const result = await new TransactionBuilder(client)
 
 ### Client API
 
-The `SolanaExecutionClient` provides the low-level API for direct transaction execution.
+The `LysFlash` client provides the low-level API for direct transaction execution.
 
 ```typescript
-import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
+import { LysFlash } from '@lyslabs.ai/lys-flash';
 
-const client = new SolanaExecutionClient({
-  zmqAddress: 'ipc:///tmp/tx-executor.ipc',  // default
-  timeout: 30000,                             // 30 seconds
+const client = new LysFlash({
+  address: 'ipc:///tmp/tx-executor.ipc',  // default
+  timeout: 30000,                          // 30 seconds
   autoReconnect: true,
   verbose: false
 });
@@ -390,7 +390,7 @@ const result = await new TransactionBuilder(client)
 For remote or cloud deployments, use HTTP transport with API key authentication:
 
 ```typescript
-const client = new SolanaExecutionClient({
+const client = new LysFlash({
   address: 'https://api.example.com',
   apiKey: 'sk_live_your_api_key',  // Required for HTTP/HTTPS
   contentType: 'msgpack',          // 'msgpack' (default) or 'json'
@@ -428,11 +428,11 @@ The API key is sent via the `X-API-Key` HTTP header with each request.
 Create a new wallet with dual encryption:
 
 ```typescript
-import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
+import { LysFlash } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 
-const client = new SolanaExecutionClient();
+const client = new LysFlash();
 
 // Your keypair for encryption
 const userKeypair = Keypair.generate();
@@ -658,7 +658,7 @@ try {
 
 ```typescript
 // ZMQ Transport (local deployment)
-const zmqClient = new SolanaExecutionClient({
+const zmqClient = new LysFlash({
   address: "tcp://127.0.0.1:5555",  // TCP socket
   timeout: 60000,                    // 60 seconds
   autoReconnect: true,
@@ -669,7 +669,7 @@ const zmqClient = new SolanaExecutionClient({
 });
 
 // HTTP Transport (remote/cloud deployment)
-const httpClient = new SolanaExecutionClient({
+const httpClient = new LysFlash({
   address: "https://api.lyslabs.ai",
   apiKey: process.env.LYS_API_KEY!,  // From environment variable
   contentType: "msgpack",             // Binary format (faster)
@@ -683,17 +683,17 @@ const httpClient = new SolanaExecutionClient({
 
 ```typescript
 import {
-  SolanaExecutionClient,
+  LysFlash,
   TransactionBuilder,
   ExecutionError,
   ErrorCode
 } from '@lyslabs.ai/lys-flash';
 
 class TradingBot {
-  private client: SolanaExecutionClient;
+  private client: LysFlash;
 
   constructor() {
-    this.client = new SolanaExecutionClient({
+    this.client = new LysFlash({
       timeout: 30000,
       autoReconnect: true
     });

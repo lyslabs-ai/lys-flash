@@ -37,10 +37,10 @@ npm install @lyslabs.ai/lys-flash @solana/web3.js
 ## Quick Start
 
 ```typescript
-import { SolanaExecutionClient, TransactionBuilder } from '@lyslabs.ai/lys-flash';
+import { LysFlash, TransactionBuilder } from '@lyslabs.ai/lys-flash';
 
 // Create client
-const client = new SolanaExecutionClient();
+const client = new LysFlash();
 
 // Build and execute a transaction
 const result = await new TransactionBuilder(client)
@@ -70,7 +70,7 @@ client.close();
 ### Constructor
 
 ```typescript
-const builder = new TransactionBuilder(client: SolanaExecutionClient);
+const builder = new TransactionBuilder(client: LysFlash);
 ```
 
 ### Execution Methods
@@ -703,7 +703,7 @@ builder
 
 ```typescript
 // ✅ GOOD
-const client = new SolanaExecutionClient();
+const client = new LysFlash();
 
 async function trade1() {
   await new TransactionBuilder(client)
