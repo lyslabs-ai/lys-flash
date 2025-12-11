@@ -51,14 +51,39 @@ npm install @lyslabs.ai/lys-flash @solana/web3.js tweetnacl
 
 ## Quick Start
 
-### Option 1: Create a Wallet First (Recommended)
+### Step 1: Connect to the Execution Engine
 
 ```typescript
 import { SolanaExecutionClient } from '@lyslabs.ai/lys-flash';
+
+// Connect via ZeroMQ IPC (default, fastest)
+const client = new SolanaExecutionClient();
+
+// Or connect via ZeroMQ TCP
+const client = new SolanaExecutionClient({
+  zmqAddress: 'tcp://127.0.0.1:5555'
+});
+
+// Or connect via HTTP (auto-detected from URL scheme)
+const client = new SolanaExecutionClient({
+  zmqAddress: 'http://localhost:3000/api/execute'
+});
+
+// Or connect via HTTPS
+const client = new SolanaExecutionClient({
+  zmqAddress: 'https://api.example.com/execute'
+});
+```
+
+The client automatically detects the transport mode based on the URL scheme:
+- `ipc://` or `tcp://` → ZeroMQ transport (default, lowest latency)
+- `http://` or `https://` → HTTP transport (for remote/cloud deployments)
+
+### Step 2: Create a Wallet (Optional)
+
+```typescript
 import { Keypair } from '@solana/web3.js';
 import nacl from 'tweetnacl';
-
-const client = new SolanaExecutionClient();
 
 // Create a new wallet with dual encryption
 const userKeypair = Keypair.generate(); // Your encryption key
@@ -78,7 +103,7 @@ const walletKeypair = Keypair.fromSecretKey(new Uint8Array(secretKey!));
 // Now use walletKeypair for transactions
 ```
 
-### Option 2: Execute Transactions with Existing Wallet
+### Step 3: Execute Transactions
 
 ```typescript
 import { SolanaExecutionClient, TransactionBuilder } from '@lyslabs.ai/lys-flash';
