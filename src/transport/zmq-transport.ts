@@ -12,7 +12,7 @@ import { ExecutionError, ErrorCode, fromUnknownError } from '../errors';
  * @internal
  */
 export class ZMQTransport implements Transport {
-  private socket: zmq.Request | null = null;
+  private socket: zmq.Dealer | null = null;
   private config: BaseTransportConfig;
   private connected: boolean = false;
   private connecting: boolean = false;
@@ -37,7 +37,7 @@ export class ZMQTransport implements Transport {
       this.config.logger.debug(`Connecting to ZMQ socket: ${this.config.address}`);
 
       // Create new Request socket
-      this.socket = new zmq.Request({
+      this.socket = new zmq.Dealer({
         sendTimeout: this.config.timeout,
         receiveTimeout: this.config.timeout,
         linger: 0, // Don't wait for pending messages on close
@@ -126,24 +126,16 @@ export class ZMQTransport implements Transport {
       );
 
       // Send request
-      await this.socket!.send(serialized);
+      await this.socket!.send([Buffer.alloc(0), serialized]);
 
       // Wait for response with timeout
       const responseBuffer = await Promise.race([
-        this.socket!.receive(),
+        this.socket!.receive().then(([, data]) => data),
         this.createTimeoutPromise(),
       ]);
 
       // Deserialize response
-      const firstBuffer = responseBuffer[0];
-      if (!firstBuffer) {
-        throw new ExecutionError(
-          'Received empty response from ZMQ',
-          ErrorCode.NETWORK_ERROR,
-          'ZMQ'
-        );
-      }
-      const response = unpack(Buffer.from(firstBuffer)) as T;
+      const response = unpack(responseBuffer!) as T;
       this.config.logger.debug(
         'Received MessagePack response',
         this.config.verbose ? response : undefined
