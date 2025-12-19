@@ -126,8 +126,8 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("buyer_wallet")
   .setPriorityFee(1_000_000)       // 0.001 SOL priority fee
-  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
-  .setTransport("NONCE")            // Multi-broadcast
+  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
+  .setTransport("FLASH")            // Multi-broadcast
   .send();
 
 console.log("Transaction signature:", result.signature);
@@ -251,8 +251,8 @@ const result = await new TransactionBuilder(client)
     tokenAmountOut: 3_400_000_000
   })
   .setFeePayer(newWalletKeypair.publicKey.toBase58())
-  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
-  .setTransport("NONCE")
+  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -311,8 +311,8 @@ const result = await client.execute({
   },
   feePayer: "wallet",
   priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,            // Mandatory for NONCE
-  transport: "NONCE"
+  bribeLamports: 1_000_000,            // Mandatory for FLASH
+  transport: "FLASH"
 });
 
 // Get statistics
@@ -343,7 +343,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("wallet")
   .setPriorityFee(5_000_000)      // High priority
   .setBribe(1_000_000)            // Jito tip
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -385,7 +385,7 @@ The `rawTransaction()` method allows you to execute pre-built Solana transaction
 - **Supports both legacy `Transaction` and `VersionedTransaction` (v0)**
 - **Efficient binary transfer** - Transaction bytes sent directly via MessagePack (no base64 overhead)
 - **Server-side signing** - Transaction is signed by the server using wallet management
-- **All transport modes supported** - NONCE, ZERO_SLOT, JITO, VANILLA, SIMULATE, etc.
+- **All transport modes supported** - FLASH, ZERO_SLOT, JITO, VANILLA, SIMULATE, etc.
 
 #### Basic Usage
 
@@ -409,8 +409,8 @@ const result = await new TransactionBuilder(client)
   .rawTransaction({ transaction })
   .setFeePayer('SenderWalletPublicKey')  // Server signs with this wallet
   .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)                    // Required for NONCE
-  .setTransport('NONCE')
+  .setBribe(1_000_000)                    // Required for FLASH
+  .setTransport('FLASH')
   .send();
 
 console.log('Transaction signature:', result.signature);
@@ -439,7 +439,7 @@ const result = await new TransactionBuilder(client)
     ],
   })
   .setFeePayer('FeePayerPublicKey')
-  .setTransport('NONCE')
+  .setTransport('FLASH')
   .setBribe(1_000_000)
   .send();
 ```
@@ -477,7 +477,7 @@ const versionedTx = new VersionedTransaction(message);
 const result = await new TransactionBuilder(client)
   .rawTransaction({ transaction: versionedTx })
   .setFeePayer('FeePayerPublicKey')
-  .setTransport('NONCE')
+  .setTransport('FLASH')
   .setBribe(1_000_000)
   .send();
 ```
@@ -496,11 +496,11 @@ const simulation = await new TransactionBuilder(client)
 if (simulation.success) {
   console.log('Simulation passed, executing...');
 
-  // Execute with NONCE
+  // Execute with FLASH
   const result = await new TransactionBuilder(client)
     .rawTransaction({ transaction })
     .setFeePayer('WalletPublicKey')
-    .setTransport('NONCE')
+    .setTransport('FLASH')
     .setBribe(1_000_000)
     .send();
 
@@ -528,7 +528,7 @@ const result = await new TransactionBuilder(client)
     tokenAmountOut: 1_000_000_000,
   })
   .setFeePayer('Wallet')
-  .setTransport('NONCE')
+  .setTransport('FLASH')
   .setBribe(1_000_000)
   .send();
 
@@ -547,7 +547,7 @@ const result = await new TransactionBuilder(client)
 
 | Mode | Description |
 |------|-------------|
-| **NONCE** ⭐ | **Multi-broadcast to 5 endpoints (recommended)** |
+| **FLASH** ⭐ | **Multi-broadcast to 5 endpoints (recommended)** |
 | ZERO_SLOT | Ultra-fast specialized endpoint |
 | NOZOMI | Low-latency Temporal endpoint |
 | HELIUS_SENDER | Premium reliability |
@@ -555,7 +555,7 @@ const result = await new TransactionBuilder(client)
 | VANILLA | Standard RPC |
 | SIMULATE | Test without broadcasting |
 
-**Recommendation:** Use `NONCE` for production trading (multi-broadcast with redundancy).
+**Recommendation:** Use `FLASH` for production trading (multi-broadcast with redundancy).
 
 ### HTTP Transport & API Keys
 
@@ -654,8 +654,8 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("YourWallet")
   .setPriorityFee(5_000_000)
-  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
-  .setTransport("NONCE")
+  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
+  .setTransport("FLASH")
   .send();
 
 console.log("Bought tokens:", result.signature);
@@ -675,8 +675,8 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("YourWallet")
   .setPriorityFee(5_000_000)
-  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
-  .setTransport("NONCE")
+  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
+  .setTransport("FLASH")
   .send();
 
 console.log("Sold tokens:", result.signature);
@@ -709,8 +709,8 @@ const result = await new TransactionBuilder(client)
   })
   .setFeePayer("CreatorWallet")
   .setPriorityFee(10_000_000)
-  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
-  .setTransport("NONCE")
+  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
+  .setTransport("FLASH")
   .send();
 
 console.log("Created and bought:", result.signature);
@@ -728,12 +728,12 @@ const simulation = await new TransactionBuilder(client)
 if (simulation.success) {
   console.log("Simulation passed, executing...");
 
-  // Then execute with NONCE
+  // Then execute with FLASH
   const result = await new TransactionBuilder(client)
     .pumpFunBuy({ /* same params */ })
     .setFeePayer("wallet")
-    .setBribe(1_000_000)           // 0.001 SOL bribe (mandatory for NONCE)
-    .setTransport("NONCE")
+    .setBribe(1_000_000)           // 0.001 SOL bribe (mandatory for FLASH)
+    .setTransport("FLASH")
     .send();
 
   console.log("Executed:", result.signature);
@@ -782,8 +782,8 @@ import { ExecutionError, ErrorCode } from '@lyslabs.ai/lys-flash';
 try {
   const result = await new TransactionBuilder(client)
     .pumpFunBuy({ /* params */ })
-    .setBribe(1_000_000)           // 0.001 SOL bribe (mandatory for NONCE)
-    .setTransport("NONCE")
+    .setBribe(1_000_000)           // 0.001 SOL bribe (mandatory for FLASH)
+    .setTransport("FLASH")
     .send();
 
   console.log("Success:", result.signature);
@@ -896,7 +896,7 @@ class TradingBot {
       throw new Error(`Simulation failed: ${sim.error}`);
     }
 
-    // Execute with NONCE
+    // Execute with FLASH
     const result = await new TransactionBuilder(this.client)
       .pumpFunBuy({
         pool: mint,
@@ -908,7 +908,7 @@ class TradingBot {
       .setFeePayer(wallet)
       .setPriorityFee(5_000_000)      // High priority
       .setBribe(1_000_000)             // MEV protection
-      .setTransport("NONCE")
+      .setTransport("FLASH")
       .send();
 
     console.log(`Bought ${mint}`);
@@ -933,8 +933,8 @@ class TradingBot {
       })
       .setFeePayer(wallet)
       .setPriorityFee(5_000_000)
-      .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
-      .setTransport("NONCE")
+      .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
+      .setTransport("FLASH")
       .send();
 
     console.log(`Sold ${mint}`);
@@ -960,7 +960,7 @@ await bot.buyToken(
 ### Performance Tips
 
 1. **Reuse client instance** - Don't create new client for each transaction
-2. **Use NONCE transport** - Multi-broadcast for redundancy
+2. **Use FLASH transport** - Multi-broadcast for redundancy
 3. **Simulate important transactions** - Validate before sending
 4. **Batch operations** - Multiple operations in single transaction
 5. **Set appropriate priority fees** - Higher fees = faster landing

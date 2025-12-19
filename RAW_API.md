@@ -57,7 +57,7 @@ const result = await client.execute({
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
   bribeLamports: 1_000_000,        // Required for MEV protection (all transports except VANILLA/SIMULATE)
-  transport: "NONCE"
+  transport: "FLASH"
 });
 
 console.log("Transaction signature:", result.signature);
@@ -80,7 +80,7 @@ interface TransactionRequest {
   feePayer: string;                        // Fee payer wallet address (base58)
   priorityFeeLamports?: number;            // Priority fee (default: 1_000_000)
   bribeLamports?: number;                  // MEV protection bribe (mandatory for all transports except VANILLA and SIMULATE)
-  transport?: TransportMode;               // Transport mode (default: "NONCE")
+  transport?: TransportMode;               // Transport mode (default: "FLASH")
 }
 ```
 
@@ -102,7 +102,7 @@ interface TransactionResponse {
 
 | Mode | Description | MEV Protection | Bribe Required |
 |------|-------------|----------------|----------------|
-| **NONCE** ⭐ | Multi-broadcast to 5 endpoints (recommended) | Yes | **YES** (min 1_000_000) |
+| **FLASH** ⭐ | Multi-broadcast to 5 endpoints (recommended) | Yes | **YES** (min 1_000_000) |
 | ZERO_SLOT | Ultra-fast specialized endpoint | Yes | **YES** (min 1_000_000) |
 | NOZOMI | Low-latency Temporal endpoint | Yes | **YES** (min 1_000_000) |
 | HELIUS_SENDER | Premium reliability | Yes | **YES** (min 1_000_000) |
@@ -134,7 +134,7 @@ const result = await client.execute({
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
   bribeLamports: 1_000_000,           // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 
@@ -159,7 +159,7 @@ const result = await client.execute({
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
   bribeLamports: 1_000_000,               // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 
@@ -187,7 +187,7 @@ const result = await client.execute({
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
   bribeLamports: 1_000_000,               // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 
@@ -204,7 +204,7 @@ const result = await client.execute({
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
   bribeLamports: 1_000_000,               // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 
@@ -233,7 +233,7 @@ const result = await client.execute({
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
   bribeLamports: 1_000_000,               // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 
@@ -261,7 +261,7 @@ const result = await client.execute({
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
   bribeLamports: 1_000_000,               // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 
@@ -483,7 +483,7 @@ const result = await client.execute({
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
   bribeLamports: 1_000_000,               // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 
@@ -527,7 +527,7 @@ const result = await client.execute({
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
   bribeLamports: 1_000_000,               // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 
@@ -542,7 +542,7 @@ try {
     feePayer: "wallet",
     priorityFeeLamports: 1_000_000,
     bribeLamports: 1_000_000,
-    transport: "NONCE"
+    transport: "FLASH"
   });
 
   if (result.success) {
@@ -586,9 +586,9 @@ try {
 
 ## Best Practices
 
-### 1. Always Use NONCE for Production
+### 1. Always Use FLASH for Production
 
-NONCE transport provides the fastest and most reliable execution:
+FLASH transport provides the fastest and most reliable execution:
 
 ```typescript
 const result = await client.execute({
@@ -596,7 +596,7 @@ const result = await client.execute({
   feePayer: "wallet",
   priorityFeeLamports: 5_000_000,      // Higher priority for production
   bribeLamports: 1_000_000,            // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 
@@ -619,13 +619,13 @@ if (!simulation.success) {
   return;
 }
 
-// Then: Execute with NONCE
+// Then: Execute with FLASH
 const result = await client.execute({
   data: { /* same data */ },
   feePayer: "wallet",
   priorityFeeLamports: 5_000_000,
   bribeLamports: 1_000_000,            // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 
@@ -683,7 +683,7 @@ const result = await client.execute({
   feePayer: "wallet",
   priorityFeeLamports: 5_000_000,      // 0.005 SOL for important trades
   bribeLamports: 1_000_000,            // Required for MEV protection
-  transport: "NONCE"
+  transport: "FLASH"
 });
 ```
 

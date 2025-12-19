@@ -378,18 +378,18 @@ async function main() {
     console.log('\n7. Transport Modes');
     console.log('   ───────────────\n');
 
-    console.log('   NOTE: For production, use NONCE transport with bribe:');
+    console.log('   NOTE: For production, use FLASH transport with bribe:');
     console.log('   ');
     console.log('   const result = await client.execute({');
     console.log('     data: { /* ... */ },');
     console.log('     feePayer: "wallet",');
     console.log('     priorityFeeLamports: 5_000_000,      // Higher for production');
-    console.log('     bribeLamports: 1_000_000,            // Mandatory for NONCE');
-    console.log('     transport: "NONCE"                   // Multi-broadcast');
+    console.log('     bribeLamports: 1_000_000,            // Mandatory for FLASH');
+    console.log('     transport: "FLASH"                   // Multi-broadcast');
     console.log('   });');
     console.log('');
     console.log('   Available transports:');
-    console.log('   - NONCE        : Multi-broadcast with MEV protection [Requires bribe]');
+    console.log('   - FLASH        : Multi-broadcast with MEV protection [Requires bribe]');
     console.log('   - ZERO_SLOT    : Ultra-fast with MEV protection [Requires bribe]');
     console.log('   - NOZOMI       : Low-latency with MEV protection [Requires bribe]');
     console.log('   - HELIUS_SENDER: Premium reliability with MEV protection [Requires bribe]');

@@ -50,7 +50,7 @@ async function main() {
 
     if (buySimulation.success) {
       console.log('      ✓ Simulation passed');
-      console.log('      Ready to execute with NONCE transport');
+      console.log('      Ready to execute with FLASH transport');
     } else {
       console.log('      ✗ Simulation failed:', buySimulation.error);
     }
@@ -463,18 +463,18 @@ async function main() {
     console.log('\n8. Transport Modes & Production Usage');
     console.log('   ───────────────────────────────────\n');
 
-    console.log('   For production, use NONCE transport with bribe:');
+    console.log('   For production, use FLASH transport with bribe:');
     console.log('   ');
     console.log('   const result = await new TransactionBuilder(client)');
     console.log('     .pumpFunBuy({ /* ... */ })');
     console.log('     .setFeePayer("wallet")');
     console.log('     .setPriorityFee(5_000_000)      // Higher for production');
-    console.log('     .setBribe(1_000_000)            // Mandatory for NONCE');
-    console.log('     .setTransport("NONCE")          // Multi-broadcast');
+    console.log('     .setBribe(1_000_000)            // Mandatory for FLASH');
+    console.log('     .setTransport("FLASH")          // Multi-broadcast');
     console.log('     .send();');
     console.log('');
     console.log('   Available transports:');
-    console.log('   - NONCE        : Multi-broadcast with MEV protection [Requires bribe]');
+    console.log('   - FLASH        : Multi-broadcast with MEV protection [Requires bribe]');
     console.log('   - ZERO_SLOT    : Ultra-fast with MEV protection [Requires bribe]');
     console.log('   - NOZOMI       : Low-latency with MEV protection [Requires bribe]');
     console.log('   - HELIUS_SENDER: Premium reliability with MEV protection [Requires bribe]');
@@ -494,8 +494,8 @@ async function main() {
     console.log('   ──────────────\n');
 
     console.log('   ✓ Always simulate before production execution');
-    console.log('   ✓ Use NONCE transport for fastest execution');
-    console.log('   ✓ Set bribe (min 1_000_000) when using NONCE');
+    console.log('   ✓ Use FLASH transport for fastest execution');
+    console.log('   ✓ Set bribe (min 1_000_000) when using FLASH');
     console.log('   ✓ Provide coinCreator/poolCreator to avoid RPC requests');
     console.log('   ✓ Batch related operations for atomicity');
     console.log('   ✓ Set higher priority fees for important trades');

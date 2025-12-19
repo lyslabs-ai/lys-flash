@@ -6,7 +6,7 @@
  * @example
  * ```typescript
  * // Fastest: Multi-broadcast to all endpoints
- * transport: "NONCE"  // 40-100ms (recommended for production)
+ * transport: "FLASH"  // 40-100ms (recommended for production)
  *
  * // Fast: Single specialized endpoints
  * transport: "ZERO_SLOT"      // 40-150ms
@@ -30,7 +30,22 @@ export type TransportMode =
   | 'ZERO_SLOT'
   | 'HELIUS_SENDER'
   | 'JITO'
-  | 'NONCE';
+  | 'FLASH'
+  | 'NONCE'; // Internal alias for FLASH (sent to server)
+
+/**
+ * Server transport mode - the actual value sent to the execution engine
+ * FLASH is converted to NONCE when sending to the server
+ */
+export type ServerTransportMode = Exclude<TransportMode, 'FLASH'> | 'NONCE';
+
+/**
+ * Normalize transport mode for server communication
+ * Converts FLASH to NONCE (the server expects NONCE)
+ */
+export function normalizeTransportForServer(transport: TransportMode): ServerTransportMode {
+  return transport === 'FLASH' ? 'NONCE' : transport;
+}
 
 /**
  * Transport mode descriptions for documentation
@@ -42,7 +57,8 @@ export const TRANSPORT_DESCRIPTIONS: Record<TransportMode, string> = {
   ZERO_SLOT: '0Slot specialized endpoint (40-150ms, ultra-fast)',
   HELIUS_SENDER: 'Helius sender service (150-400ms, premium reliability)',
   JITO: 'Jito MEV-protected transactions (200-500ms, MEV protection)',
-  NONCE: 'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 5 endpoints in parallel)',
+  FLASH: 'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 5 endpoints in parallel)',
+  NONCE: 'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 5 endpoints in parallel)', // Internal alias for FLASH
 };
 
 /**
@@ -82,9 +98,14 @@ export const TRANSPORT_LATENCY: Record<
     max: 500,
     description: 'MEV-protected transactions',
   },
-  NONCE: {
+  FLASH: {
     min: 40,
     max: 100,
     description: 'Parallel multi-broadcast (fastest)',
+  },
+  NONCE: {
+    min: 40,
+    max: 100,
+    description: 'Parallel multi-broadcast (fastest)', // Internal alias for FLASH
   },
 };

@@ -56,7 +56,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
   .setBribe(1_000_000)             // Required for MEV protection
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 
 console.log("Transaction signature:", result.signature);
@@ -83,7 +83,7 @@ Execute the transaction and return the result.
 const result = await builder
   .pumpFunBuy({ /* ... */ })
   .setFeePayer("wallet")
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -122,7 +122,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
   .setBribe(1_000_000)                // Required for MEV protection
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -152,7 +152,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
   .setBribe(1_000_000)                    // Required for MEV protection
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -185,7 +185,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
   .setBribe(1_000_000)                    // Required for MEV protection
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -208,7 +208,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
   .setBribe(1_000_000)                    // Required for MEV protection
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -239,7 +239,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
   .setBribe(1_000_000)                    // Required for MEV protection
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -275,7 +275,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
   .setBribe(1_000_000)                    // Required for MEV protection
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -478,10 +478,10 @@ builder.setBribe(1_000_000)  // 0.001 SOL (required for MEV protection)
 
 ### `setTransport(mode: TransportMode)`
 
-Set the transport mode (default: "NONCE").
+Set the transport mode (default: "FLASH").
 
 ```typescript
-builder.setTransport("NONCE")       // Multi-broadcast (fastest)
+builder.setTransport("FLASH")       // Multi-broadcast (fastest)
 builder.setTransport("ZERO_SLOT")   // Ultra-fast single RPC
 builder.setTransport("NOZOMI")      // Low-latency
 builder.setTransport("VANILLA")     // Standard RPC
@@ -489,7 +489,7 @@ builder.setTransport("SIMULATE")    // Test without broadcasting
 ```
 
 **Available modes:**
-- `NONCE` - Multi-broadcast with MEV protection (requires bribe)
+- `FLASH` - Multi-broadcast with MEV protection (requires bribe)
 - `ZERO_SLOT` - Ultra-fast with MEV protection (requires bribe)
 - `NOZOMI` - Low-latency with MEV protection (requires bribe)
 - `HELIUS_SENDER` - Premium reliability with MEV protection (requires bribe)
@@ -531,7 +531,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
   .setBribe(1_000_000)                    // Required for MEV protection
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -564,7 +564,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
   .setBribe(1_000_000)                    // Required for MEV protection
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -580,7 +580,7 @@ try {
     .pumpFunBuy({ /* ... */ })
     .setFeePayer("wallet")
     .setBribe(1_000_000)
-    .setTransport("NONCE")
+    .setTransport("FLASH")
     .send();
 
   if (result.success) {
@@ -639,13 +639,13 @@ const result = await new TransactionBuilder(client)
   .pumpFunBuy({ /* same params */ })
   .setFeePayer("wallet")
   .setBribe(1_000_000)
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
 ### 2. Use MEV-Protected Transports for Production
 
-Use NONCE (recommended), ZERO_SLOT, NOZOMI, HELIUS_SENDER, or JITO for MEV protection:
+Use FLASH (recommended), ZERO_SLOT, NOZOMI, HELIUS_SENDER, or JITO for MEV protection:
 
 ```typescript
 const result = await new TransactionBuilder(client)
@@ -653,7 +653,7 @@ const result = await new TransactionBuilder(client)
   .setFeePayer("wallet")
   .setPriorityFee(5_000_000)      // Higher for important trades
   .setBribe(1_000_000)            // Required for MEV protection
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -685,7 +685,7 @@ const result = await new TransactionBuilder(client)
   .pumpFunBuy({ /* ... */ })        // Buy immediately
   .setFeePayer("wallet")
   .setBribe(1_000_000)
-  .setTransport("NONCE")
+  .setTransport("FLASH")
   .send();
 ```
 
@@ -696,7 +696,7 @@ Higher fees = faster landing:
 ```typescript
 builder
   .setPriorityFee(5_000_000)      // 0.005 SOL for high priority
-  .setBribe(1_000_000)            // 0.001 SOL (minimum for NONCE)
+  .setBribe(1_000_000)            // 0.001 SOL (minimum for FLASH)
 ```
 
 ### 6. Reuse Client Instance

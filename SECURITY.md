@@ -133,7 +133,7 @@ LYS Flash uses **dual encryption** for wallet security:
 **MEV Protection:**
 - Use `setBribe()` for Jito tips on high-value transactions
 - Monitor for sandwich attacks
-- Use multi-broadcast (NONCE mode) for redundancy
+- Use multi-broadcast (FLASH mode) for redundancy
 
 **Priority Fees:**
 - Set appropriate priority fees for time-sensitive transactions

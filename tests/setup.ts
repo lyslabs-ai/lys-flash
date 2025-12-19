@@ -110,7 +110,8 @@ export const LATENCY_TARGETS = {
   ZERO_SLOT: { min: 30, max: 200 }, // Ultra-fast with variance
   HELIUS_SENDER: { min: 100, max: 500 }, // Premium with variance
   JITO: { min: 150, max: 600 }, // MEV-protected with variance
-  NONCE: { min: 30, max: 150 }, // Multi-broadcast (fastest)
+  FLASH: { min: 30, max: 150 }, // Multi-broadcast (fastest) - alias for NONCE
+  NONCE: { min: 30, max: 150 }, // Multi-broadcast (fastest) - internal name for FLASH
 };
 
 /**

@@ -605,7 +605,7 @@ export interface SplTokenSyncNativeParams {
  * const result = await new TransactionBuilder(client)
  *   .rawTransaction({ transaction: tx })
  *   .setFeePayer(sender)
- *   .setTransport("NONCE")
+ *   .setTransport("FLASH")
  *   .setBribe(1_000_000)
  *   .send();
  * ```
@@ -715,7 +715,7 @@ export interface TransactionRequest {
   /**
    * Transport mode for execution
    *
-   * Recommended: "NONCE" for production (fastest, 40-100ms)
+   * Recommended: "FLASH" for production (fastest, 40-100ms)
    */
   transport: TransportMode;
 
@@ -725,7 +725,7 @@ export interface TransactionRequest {
    *
    * @example 1_000_000 // 0.001 SOL Jito tip
    *
-   * Only used with JITO or NONCE transport modes
+   * Only used with JITO or FLASH transport modes
    */
   bribeLamports?: number;
 }

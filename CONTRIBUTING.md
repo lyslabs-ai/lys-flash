@@ -349,8 +349,8 @@ npm run lint:fix
  * const result = await client.execute({
  *   data: { executionType: "PUMP_FUN", eventType: "BUY", ... },
  *   feePayer: "wallet",
- *   bribeLamports: 1_000_000,        // 0.001 SOL bribe (mandatory for NONCE)
- *   transport: "NONCE"
+ *   bribeLamports: 1_000_000,        // 0.001 SOL bribe (mandatory for FLASH)
+ *   transport: "FLASH"
  * });
  * ```
  */

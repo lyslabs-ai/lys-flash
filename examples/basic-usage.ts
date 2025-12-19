@@ -48,7 +48,7 @@ async function main() {
       return;
     }
 
-    console.log('\n3. Executing transaction with NONCE transport...');
+    console.log('\n3. Executing transaction with FLASH transport...');
 
     const result = await new TransactionBuilder(client)
       .pumpFunBuy({
@@ -61,7 +61,7 @@ async function main() {
       .setFeePayer('YourWalletAddress')
       .setPriorityFee(5_000_000) // Higher priority for production
       .setBribe(1_000_000) // Jito tip for MEV protection
-      .setTransport('NONCE') // Multi-broadcast (fastest)
+      .setTransport('FLASH') // Multi-broadcast (fastest)
       .send();
 
     if (result.success) {

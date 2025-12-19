@@ -4,7 +4,7 @@
 export interface BaseResponse {
   /**
    * Transport mode used for execution
-   * @example "NOZOMI", "NONCE", "VANILLA"
+   * @example "NOZOMI", "FLASH", "VANILLA"
    */
   transport: string;
 

@@ -606,27 +606,30 @@ describe('TransactionBuilder', () => {
       });
 
       it('should accept all transport modes', async () => {
-        const transports: Array<any> = [
-          'SIMULATE',
-          'VANILLA',
-          'NOZOMI',
-          'ZERO_SLOT',
-          'HELIUS_SENDER',
-          'JITO',
-          'NONCE',
+        // Transport modes and their expected values after normalization
+        // FLASH is normalized to NONCE when sent to server
+        const transports: Array<{ input: any; expected: string }> = [
+          { input: 'SIMULATE', expected: 'SIMULATE' },
+          { input: 'VANILLA', expected: 'VANILLA' },
+          { input: 'NOZOMI', expected: 'NOZOMI' },
+          { input: 'ZERO_SLOT', expected: 'ZERO_SLOT' },
+          { input: 'HELIUS_SENDER', expected: 'HELIUS_SENDER' },
+          { input: 'JITO', expected: 'JITO' },
+          { input: 'FLASH', expected: 'NONCE' }, // FLASH is normalized to NONCE
+          { input: 'NONCE', expected: 'NONCE' },
         ];
 
-        for (const transport of transports) {
+        for (const { input, expected } of transports) {
           const b = new TransactionBuilder(mockClient);
           await b
             .systemTransfer({ sender: 'a', recipient: 'b', lamports: 1000 })
             .setFeePayer('wallet')
-            .setTransport(transport)
+            .setTransport(input)
             .send();
 
           expect(mockClient.execute).toHaveBeenCalledWith(
             expect.objectContaining({
-              transport,
+              transport: expected,
             })
           );
         }

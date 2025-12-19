@@ -70,7 +70,7 @@ function isHTTPAddress(address: string): boolean {
  *   feePayer: "buyer_wallet",
  *   priorityFeeLamports: 1_000_000,
  *   bribeLamports: 1_000_000,
- *   transport: "NONCE"
+ *   transport: "FLASH"
  * });
  *
  * console.log("Signature:", result.signature);
@@ -225,8 +225,8 @@ export class LysFlash {
    *   },
    *   feePayer: "wallet",
    *   priorityFeeLamports: 1_000_000,
-   *   bribeLamports: 1_000_000,        // 0.001 SOL bribe (mandatory for NONCE)
-   *   transport: "NONCE"
+   *   bribeLamports: 1_000_000,        // 0.001 SOL bribe (mandatory for FLASH)
+   *   transport: "FLASH"
    * });
    * ```
    *

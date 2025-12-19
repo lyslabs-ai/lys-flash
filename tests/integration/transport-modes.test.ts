@@ -229,7 +229,7 @@ describe('Transport Modes Integration Tests', () => {
     );
   });
 
-  describe('NONCE Mode (Multi-Broadcast)', () => {
+  describe('FLASH/NONCE Mode (Multi-Broadcast)', () => {
     it(
       'should execute via multi-broadcast strategy',
       async () => {
@@ -259,7 +259,7 @@ describe('Transport Modes Integration Tests', () => {
     it(
       'should be default transport mode',
       async () => {
-        // Builder defaults to NONCE
+        // Builder defaults to FLASH, which is normalized to NONCE when sent to server
         const builder = new TransactionBuilder(client);
         const response = await builder
           .systemTransfer({
@@ -271,6 +271,7 @@ describe('Transport Modes Integration Tests', () => {
           .send();
 
         assertSuccessResponse(response);
+        // Server responds with NONCE (FLASH is normalized to NONCE)
         expect(response.transport).toBe('NONCE');
       },
       TEST_TIMEOUTS.INTEGRATION
@@ -282,8 +283,8 @@ describe('Transport Modes Integration Tests', () => {
       'should execute same operation across all modes',
       async () => {
         const modes: Array<
-          'SIMULATE' | 'VANILLA' | 'NOZOMI' | 'ZERO_SLOT' | 'HELIUS_SENDER' | 'JITO' | 'NONCE'
-        > = ['SIMULATE', 'VANILLA', 'NOZOMI', 'ZERO_SLOT', 'HELIUS_SENDER', 'JITO', 'NONCE'];
+          'SIMULATE' | 'VANILLA' | 'NOZOMI' | 'ZERO_SLOT' | 'HELIUS_SENDER' | 'JITO' | 'FLASH' | 'NONCE'
+        > = ['SIMULATE', 'VANILLA', 'NOZOMI', 'ZERO_SLOT', 'HELIUS_SENDER', 'JITO', 'FLASH', 'NONCE'];
 
         const results = await Promise.all(
           modes.map(async (mode) => {
@@ -352,7 +353,7 @@ describe('Transport Modes Integration Tests', () => {
     it(
       'should return consistent response structure across modes',
       async () => {
-        const modes: Array<'SIMULATE' | 'NONCE'> = ['SIMULATE', 'NONCE'];
+        const modes: Array<'SIMULATE' | 'FLASH' | 'NONCE'> = ['SIMULATE', 'FLASH', 'NONCE'];
 
         for (const mode of modes) {
           const response = await createTransferBuilder().setTransport(mode).send();

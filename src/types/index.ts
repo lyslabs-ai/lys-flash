@@ -18,8 +18,12 @@
  */
 
 // Transport types
-export type { TransportMode } from './transport';
-export { TRANSPORT_DESCRIPTIONS, TRANSPORT_LATENCY } from './transport';
+export type { TransportMode, ServerTransportMode } from './transport';
+export {
+  TRANSPORT_DESCRIPTIONS,
+  TRANSPORT_LATENCY,
+  normalizeTransportForServer,
+} from './transport';
 
 // Configuration types
 export type { ClientConfig, Logger, ClientStats, TransportConfig } from './config';

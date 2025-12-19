@@ -22,6 +22,7 @@ import {
   RawTransactionParams,
   TransactionResponse,
   SimulationResponse,
+  normalizeTransportForServer,
 } from './types';
 import { ExecutionError, ErrorCode } from './errors';
 
@@ -60,8 +61,8 @@ export interface RawTransactionInput {
  *   })
  *   .setFeePayer("wallet")
  *   .setPriorityFee(1_000_000)
- *   .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
- *   .setTransport("NONCE")
+ *   .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
+ *   .setTransport("FLASH")
  *   .send();
  * ```
  *
@@ -81,7 +82,7 @@ export class TransactionBuilder {
   private operations: OperationData[] = [];
   private feePayer?: string;
   private priorityFeeLamports: number = 1_000_000; // Default: 0.001 SOL
-  private transport: TransportMode = 'NONCE'; // Default: fastest
+  private transport: TransportMode = 'FLASH'; // Default: fastest
   private bribeLamports?: number;
 
   /**
@@ -467,7 +468,7 @@ export class TransactionBuilder {
    * const result = await new TransactionBuilder(client)
    *   .rawTransaction({ transaction: tx })
    *   .setFeePayer(sender)
-   *   .setTransport("NONCE")
+   *   .setTransport("FLASH")
    *   .setBribe(1_000_000)
    *   .send();
    * ```
@@ -481,7 +482,7 @@ export class TransactionBuilder {
    *     additionalSigners: [additionalWalletPubkey]
    *   })
    *   .setFeePayer(feePayerPubkey)
-   *   .setTransport("NONCE")
+   *   .setTransport("FLASH")
    *   .send();
    * ```
    */
@@ -553,7 +554,7 @@ export class TransactionBuilder {
    *
    * @example
    * ```typescript
-   * builder.setTransport("NONCE")       // Fastest (multi-broadcast)
+   * builder.setTransport("FLASH")       // Fastest (multi-broadcast)
    * builder.setTransport("ZERO_SLOT")   // Ultra-fast single RPC
    * builder.setTransport("NOZOMI")      // Low-latency
    * builder.setTransport("VANILLA")     // Standard RPC
@@ -612,7 +613,7 @@ export class TransactionBuilder {
       data: this.operations.length === 1 ? this.operations[0]! : this.operations,
       feePayer: this.feePayer!,
       priorityFeeLamports: this.priorityFeeLamports,
-      transport: this.transport,
+      transport: normalizeTransportForServer(this.transport),
       bribeLamports: this.bribeLamports,
     });
   }
@@ -703,7 +704,7 @@ export class TransactionBuilder {
     this.operations = [];
     this.feePayer = undefined;
     this.priorityFeeLamports = 1_000_000;
-    this.transport = 'NONCE';
+    this.transport = 'FLASH';
     this.bribeLamports = undefined;
     return this;
   }

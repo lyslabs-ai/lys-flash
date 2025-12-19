@@ -21,8 +21,8 @@
  *   })
  *   .setFeePayer("wallet")
  *   .setPriorityFee(1_000_000)
- *   .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for NONCE)
- *   .setTransport("NONCE")
+ *   .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
+ *   .setTransport("FLASH")
  *   .send();
  *
  * console.log("Signature:", result.signature);
