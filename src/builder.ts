@@ -1,3 +1,4 @@
+import { Transaction, VersionedTransaction, PublicKey } from '@solana/web3.js';
 import { LysFlash } from './client';
 import {
   TransportMode,
@@ -18,10 +19,28 @@ import {
   SplTokenMintToParams,
   SplTokenBurnParams,
   SplTokenSyncNativeParams,
+  RawTransactionParams,
   TransactionResponse,
   SimulationResponse,
 } from './types';
 import { ExecutionError, ErrorCode } from './errors';
+
+/**
+ * Input for raw transaction execution
+ */
+export interface RawTransactionInput {
+  /**
+   * Pre-built Solana transaction (not signed)
+   * Supports both legacy Transaction and VersionedTransaction (v0)
+   */
+  transaction: Transaction | VersionedTransaction;
+
+  /**
+   * Additional signer public keys (besides fee payer)
+   * Server wallet management will look up and sign with these wallets
+   */
+  additionalSigners?: (PublicKey | string)[];
+}
 
 /**
  * Builder for constructing and executing transactions with a fluent API
@@ -416,6 +435,75 @@ export class TransactionBuilder {
       eventType: 'SYNC_NATIVE',
       ...params,
     } as SplTokenSyncNativeParams);
+    return this;
+  }
+
+  // ============================================================================
+  // Raw Transaction Operations
+  // ============================================================================
+
+  /**
+   * Add a raw transaction for execution
+   *
+   * Execute a pre-built Solana transaction. The transaction should NOT be signed -
+   * the server will sign it using the feePayer wallet and any additional signers
+   * from its managed wallet pool.
+   *
+   * @param params - Raw transaction parameters
+   * @returns this (for method chaining)
+   *
+   * @example Simple transaction
+   * ```typescript
+   * import { Transaction, SystemProgram, PublicKey } from '@solana/web3.js';
+   *
+   * const tx = new Transaction().add(
+   *   SystemProgram.transfer({
+   *     fromPubkey: new PublicKey(sender),
+   *     toPubkey: new PublicKey(recipient),
+   *     lamports: 1_000_000
+   *   })
+   * );
+   *
+   * const result = await new TransactionBuilder(client)
+   *   .rawTransaction({ transaction: tx })
+   *   .setFeePayer(sender)
+   *   .setTransport("NONCE")
+   *   .setBribe(1_000_000)
+   *   .send();
+   * ```
+   *
+   * @example With additional signers
+   * ```typescript
+   * // When the transaction requires signatures from other managed wallets
+   * const result = await new TransactionBuilder(client)
+   *   .rawTransaction({
+   *     transaction: tx,
+   *     additionalSigners: [additionalWalletPubkey]
+   *   })
+   *   .setFeePayer(feePayerPubkey)
+   *   .setTransport("NONCE")
+   *   .send();
+   * ```
+   */
+  rawTransaction(params: RawTransactionInput): this {
+    // Serialize the transaction
+    const serialized = params.transaction.serialize({
+      requireAllSignatures: false,
+      verifySignatures: false,
+    });
+
+    // Convert PublicKey objects to base58 strings
+    const additionalSigners = params.additionalSigners?.map((signer) =>
+      typeof signer === 'string' ? signer : signer.toBase58()
+    );
+
+    this.operations.push({
+      executionType: 'RAW_TRANSACTION',
+      eventType: 'EXECUTE',
+      transactionBytes: serialized,
+      additionalSigners,
+    } as RawTransactionParams);
+
     return this;
   }
 

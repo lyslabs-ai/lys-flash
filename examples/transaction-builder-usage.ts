@@ -9,12 +9,7 @@
  * For low-level control, see raw-api-usage.ts
  */
 
-import {
-  LysFlash,
-  TransactionBuilder,
-  ExecutionError,
-  ErrorCode,
-} from '@lyslabs.ai/lys-flash';
+import { LysFlash, TransactionBuilder, ExecutionError, ErrorCode } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
 
 async function main() {
@@ -487,7 +482,9 @@ async function main() {
     console.log('   - VANILLA      : Standard RPC (no MEV protection, no bribe)');
     console.log('   - SIMULATE     : Testing only (no broadcast, no bribe)');
     console.log('');
-    console.log('   IMPORTANT: All transports except VANILLA and SIMULATE require bribe >= 1_000_000');
+    console.log(
+      '   IMPORTANT: All transports except VANILLA and SIMULATE require bribe >= 1_000_000'
+    );
 
     // ========================================================================
     // BEST PRACTICES

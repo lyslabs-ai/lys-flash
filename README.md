@@ -34,6 +34,7 @@
   - [Client API](#client-api)
   - [Builder API](#builder-api)
   - [Supported Operations](#supported-operations)
+  - [Raw Transactions](#raw-transactions)
   - [Transport Modes](#transport-modes)
 - [Examples](#examples)
 - [Advanced Usage](#advanced-usage)
@@ -148,6 +149,7 @@ For comprehensive guides and examples, see:
 
 - **[Raw API Examples](./examples/raw-api-usage.ts)** - Working examples using `client.execute()`
 - **[Transaction Builder Examples](./examples/transaction-builder-usage.ts)** - Working examples using `TransactionBuilder`
+- **[Raw Transaction Examples](./examples/raw-transaction-usage.ts)** - Execute pre-built `@solana/web3.js` transactions
 - **[Basic Usage](./examples/basic-usage.ts)** - Simple quick-start example
 - **[Wallet Management](./examples/wallet-management.ts)** - Secure wallet creation and management
 
@@ -370,6 +372,176 @@ const result = await new TransactionBuilder(client)
 - `splTokenMintTo()` - Mint tokens
 - `splTokenBurn()` - Burn tokens
 - `splTokenSyncNative()` - Sync wrapped SOL
+
+#### Raw Transaction (1 operation)
+- `rawTransaction()` - Execute a pre-built `@solana/web3.js` Transaction
+
+### Raw Transactions
+
+The `rawTransaction()` method allows you to execute pre-built Solana transactions from `@solana/web3.js`. This is useful when you need full control over transaction construction or want to execute transactions from other libraries.
+
+#### Key Features
+
+- **Supports both legacy `Transaction` and `VersionedTransaction` (v0)**
+- **Efficient binary transfer** - Transaction bytes sent directly via MessagePack (no base64 overhead)
+- **Server-side signing** - Transaction is signed by the server using wallet management
+- **All transport modes supported** - NONCE, ZERO_SLOT, JITO, VANILLA, SIMULATE, etc.
+
+#### Basic Usage
+
+```typescript
+import { Transaction, SystemProgram, PublicKey } from '@solana/web3.js';
+import { LysFlash, TransactionBuilder } from '@lyslabs.ai/lys-flash';
+
+const client = new LysFlash();
+
+// Build your transaction using @solana/web3.js
+const transaction = new Transaction().add(
+  SystemProgram.transfer({
+    fromPubkey: new PublicKey('SenderWalletPublicKey'),
+    toPubkey: new PublicKey('RecipientWalletPublicKey'),
+    lamports: 1_000_000, // 0.001 SOL
+  })
+);
+
+// Execute via LYS Flash
+const result = await new TransactionBuilder(client)
+  .rawTransaction({ transaction })
+  .setFeePayer('SenderWalletPublicKey')  // Server signs with this wallet
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)                    // Required for NONCE
+  .setTransport('NONCE')
+  .send();
+
+console.log('Transaction signature:', result.signature);
+```
+
+#### With Additional Signers
+
+When your transaction requires signatures from multiple managed wallets (not just the fee payer), specify them as additional signers:
+
+```typescript
+import { Transaction, PublicKey } from '@solana/web3.js';
+
+// Transaction that requires multiple signatures
+const transaction = new Transaction().add(
+  // ... instructions requiring multiple signers
+);
+
+const result = await new TransactionBuilder(client)
+  .rawTransaction({
+    transaction,
+    additionalSigners: [
+      'AdditionalSignerPublicKey1',
+      'AdditionalSignerPublicKey2',
+      // Or use PublicKey objects:
+      new PublicKey('AnotherSignerPublicKey'),
+    ],
+  })
+  .setFeePayer('FeePayerPublicKey')
+  .setTransport('NONCE')
+  .setBribe(1_000_000)
+  .send();
+```
+
+**Note:** Only provide **public keys** for additional signers. The server's wallet management system looks up the corresponding secret keys to sign the transaction. Secret keys are never sent over the wire.
+
+#### Using VersionedTransaction (v0)
+
+For transactions using Address Lookup Tables (ALTs):
+
+```typescript
+import {
+  VersionedTransaction,
+  TransactionMessage,
+  PublicKey,
+  SystemProgram,
+} from '@solana/web3.js';
+
+// Create a versioned transaction with lookup tables
+const message = new TransactionMessage({
+  payerKey: new PublicKey('FeePayerPublicKey'),
+  recentBlockhash: blockhash,
+  instructions: [
+    SystemProgram.transfer({
+      fromPubkey: new PublicKey('Sender'),
+      toPubkey: new PublicKey('Recipient'),
+      lamports: 1_000_000,
+    }),
+  ],
+}).compileToV0Message(addressLookupTableAccounts);
+
+const versionedTx = new VersionedTransaction(message);
+
+// Execute via LYS Flash
+const result = await new TransactionBuilder(client)
+  .rawTransaction({ transaction: versionedTx })
+  .setFeePayer('FeePayerPublicKey')
+  .setTransport('NONCE')
+  .setBribe(1_000_000)
+  .send();
+```
+
+#### Simulate Before Sending
+
+Always simulate important transactions first:
+
+```typescript
+// Simulate first
+const simulation = await new TransactionBuilder(client)
+  .rawTransaction({ transaction })
+  .setFeePayer('WalletPublicKey')
+  .simulate();
+
+if (simulation.success) {
+  console.log('Simulation passed, executing...');
+
+  // Execute with NONCE
+  const result = await new TransactionBuilder(client)
+    .rawTransaction({ transaction })
+    .setFeePayer('WalletPublicKey')
+    .setTransport('NONCE')
+    .setBribe(1_000_000)
+    .send();
+
+  console.log('Executed:', result.signature);
+} else {
+  console.error('Simulation failed:', simulation.error);
+  console.log('Logs:', simulation.logs);
+}
+```
+
+#### Combining with Other Operations
+
+Raw transactions can be batched with other operations:
+
+```typescript
+const result = await new TransactionBuilder(client)
+  // First: execute raw transaction
+  .rawTransaction({ transaction: myCustomTransaction })
+  // Then: do a Pump.fun buy
+  .pumpFunBuy({
+    pool: 'TokenMint',
+    poolAccounts: { coinCreator: 'Creator' },
+    user: 'Wallet',
+    solAmountIn: 1_000_000,
+    tokenAmountOut: 1_000_000_000,
+  })
+  .setFeePayer('Wallet')
+  .setTransport('NONCE')
+  .setBribe(1_000_000)
+  .send();
+
+// Both operations execute atomically
+```
+
+#### Important Notes
+
+1. **Transaction should NOT be signed** - The server handles all signing using its wallet management system
+2. **Fee payer must be specified** - The server needs to know which managed wallet to use for signing
+3. **Blockhash handling** - You can include a recent blockhash or leave it empty; the server may update it
+4. **Transaction size limit** - Maximum ~1232 bytes (Solana's limit)
+5. **Security** - Only public keys are sent for additional signers; secret keys never leave the server
 
 ### Transport Modes
 

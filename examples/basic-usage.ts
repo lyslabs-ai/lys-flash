@@ -9,12 +9,7 @@
  * - Getting statistics
  */
 
-import {
-  LysFlash,
-  TransactionBuilder,
-  ExecutionError,
-  ErrorCode,
-} from '@lyslabs.ai/lys-flash';
+import { LysFlash, TransactionBuilder, ExecutionError, ErrorCode } from '@lyslabs.ai/lys-flash';
 
 async function main() {
   console.log('LYS Flash - Basic Usage Example\n');

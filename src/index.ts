@@ -83,6 +83,9 @@ export type {
   SplTokenMintToParams,
   SplTokenBurnParams,
   SplTokenSyncNativeParams,
+
+  // Raw transaction
+  RawTransactionParams,
 } from './types';
 
 /**

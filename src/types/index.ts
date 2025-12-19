@@ -66,6 +66,9 @@ export type {
   SplTokenBurnParams,
   SplTokenSyncNativeParams,
 
+  // Raw transaction
+  RawTransactionParams,
+
   // Request types
   TransactionRequest,
   WalletCreationRequest,
