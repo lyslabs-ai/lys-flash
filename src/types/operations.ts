@@ -7,7 +7,12 @@ import { TransportMode } from './transport';
 /**
  * Execution type (SDK identifier)
  */
-export type ExecutionType = 'PUMP_FUN' | 'PUMP_FUN_AMM' | 'SYSTEM_TRANSFER' | 'SPL_TOKEN';
+export type ExecutionType =
+  | 'PUMP_FUN'
+  | 'PUMP_FUN_AMM'
+  | 'SYSTEM_TRANSFER'
+  | 'SPL_TOKEN'
+  | 'RAW_TRANSACTION';
 
 /**
  * Event type (operation identifier)
@@ -25,7 +30,8 @@ export type EventType =
   | 'REVOKE'
   | 'MINT_TO'
   | 'BURN'
-  | 'SYNC_NATIVE';
+  | 'SYNC_NATIVE'
+  | 'EXECUTE';
 
 // ============================================================================
 // Pump.fun Operations
@@ -574,6 +580,61 @@ export interface SplTokenSyncNativeParams {
 }
 
 // ============================================================================
+// Raw Transaction Operations
+// ============================================================================
+
+/**
+ * RAW_TRANSACTION EXECUTE operation
+ * Execute a pre-built Solana transaction
+ *
+ * The transaction should NOT be signed - the server will sign it using
+ * the feePayer wallet and any additional signers from its managed wallet pool.
+ *
+ * @example
+ * ```typescript
+ * import { Transaction, SystemProgram, PublicKey } from '@solana/web3.js';
+ *
+ * const tx = new Transaction().add(
+ *   SystemProgram.transfer({
+ *     fromPubkey: new PublicKey(sender),
+ *     toPubkey: new PublicKey(recipient),
+ *     lamports: 1_000_000
+ *   })
+ * );
+ *
+ * const result = await new TransactionBuilder(client)
+ *   .rawTransaction({ transaction: tx })
+ *   .setFeePayer(sender)
+ *   .setTransport("NONCE")
+ *   .setBribe(1_000_000)
+ *   .send();
+ * ```
+ */
+export interface RawTransactionParams {
+  executionType: 'RAW_TRANSACTION';
+  eventType: 'EXECUTE';
+
+  /**
+   * Serialized transaction bytes (Uint8Array)
+   *
+   * The library handles serialization - users pass Transaction object to the builder,
+   * which serializes it using:
+   * `transaction.serialize({ requireAllSignatures: false, verifySignatures: false })`
+   */
+  transactionBytes: Uint8Array;
+
+  /**
+   * Additional signer public keys (base58 encoded)
+   *
+   * Server wallet management will look up and sign with these wallets.
+   * Only needed for accounts that must sign besides the fee payer.
+   *
+   * @example ['AdditionalSignerPublicKey1', 'AdditionalSignerPublicKey2']
+   */
+  additionalSigners?: string[];
+}
+
+// ============================================================================
 // Union Types
 // ============================================================================
 
@@ -596,7 +657,8 @@ export type OperationData =
   | SplTokenRevokeParams
   | SplTokenMintToParams
   | SplTokenBurnParams
-  | SplTokenSyncNativeParams;
+  | SplTokenSyncNativeParams
+  | RawTransactionParams;
 
 // ============================================================================
 // Transaction Request

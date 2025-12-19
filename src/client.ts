@@ -1,6 +1,10 @@
 import { ZMQTransport } from './transport/zmq-transport';
 import { HTTPTransport } from './transport/http-transport';
-import { Transport, BaseTransportConfig, HTTPTransportConfig } from './transport/transport.interface';
+import {
+  Transport,
+  BaseTransportConfig,
+  HTTPTransportConfig,
+} from './transport/transport.interface';
 import {
   ClientConfig,
   ClientStats,
@@ -9,13 +13,16 @@ import {
   TransactionResponse,
   WalletCreationRequest,
   WalletCreationResponse,
+  RawTransactionParams,
 } from './types';
 import { ExecutionError, ErrorCode, fromUnknownError } from './errors';
 
 /**
  * Default client configuration
  */
-const DEFAULT_CONFIG: Required<Omit<ClientConfig, 'logger' | 'apiKey' | 'contentType' | 'zmqAddress'>> & {
+const DEFAULT_CONFIG: Required<
+  Omit<ClientConfig, 'logger' | 'apiKey' | 'contentType' | 'zmqAddress'>
+> & {
   logger: Logger;
   apiKey: string;
   contentType: 'json' | 'msgpack';
@@ -457,12 +464,87 @@ export class LysFlash {
         );
       }
 
+      // RAW_TRANSACTION has specific validation
+      if (operation.executionType === 'RAW_TRANSACTION') {
+        this.validateRawTransactionOperation(operation as RawTransactionParams);
+        continue;
+      }
+
       if (!operation.eventType) {
         throw new ExecutionError(
           'Missing eventType in operation',
           ErrorCode.INVALID_REQUEST,
           'CLIENT'
         );
+      }
+    }
+  }
+
+  /**
+   * Validate RAW_TRANSACTION operation
+   * @private
+   */
+  private validateRawTransactionOperation(operation: RawTransactionParams): void {
+    if (!operation.transactionBytes) {
+      throw new ExecutionError(
+        'Missing transactionBytes in RAW_TRANSACTION operation',
+        ErrorCode.INVALID_REQUEST,
+        'CLIENT'
+      );
+    }
+
+    if (!(operation.transactionBytes instanceof Uint8Array)) {
+      throw new ExecutionError(
+        'transactionBytes must be a Uint8Array',
+        ErrorCode.INVALID_REQUEST,
+        'CLIENT'
+      );
+    }
+
+    // Size validation (Solana tx limit: ~1232 bytes)
+    if (operation.transactionBytes.length < 100) {
+      throw new ExecutionError(
+        `Transaction too small (${operation.transactionBytes.length} bytes)`,
+        ErrorCode.INVALID_REQUEST,
+        'CLIENT'
+      );
+    }
+
+    if (operation.transactionBytes.length > 1500) {
+      throw new ExecutionError(
+        `Transaction too large (${operation.transactionBytes.length} bytes)`,
+        ErrorCode.INVALID_REQUEST,
+        'CLIENT'
+      );
+    }
+
+    // Validate additionalSigners if provided (public keys, base58)
+    if (operation.additionalSigners) {
+      if (!Array.isArray(operation.additionalSigners)) {
+        throw new ExecutionError(
+          'additionalSigners must be an array',
+          ErrorCode.INVALID_REQUEST,
+          'CLIENT'
+        );
+      }
+
+      for (let i = 0; i < operation.additionalSigners.length; i++) {
+        const signer = operation.additionalSigners[i];
+        if (typeof signer !== 'string') {
+          throw new ExecutionError(
+            `additionalSigners[${i}] must be a base58 string`,
+            ErrorCode.INVALID_REQUEST,
+            'CLIENT'
+          );
+        }
+        // Basic base58 validation (32-44 chars for Solana public keys)
+        if (signer.length < 32 || signer.length > 44) {
+          throw new ExecutionError(
+            `additionalSigners[${i}] is not a valid public key`,
+            ErrorCode.INVALID_REQUEST,
+            'CLIENT'
+          );
+        }
       }
     }
   }

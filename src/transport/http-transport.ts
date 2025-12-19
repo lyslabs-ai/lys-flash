@@ -78,7 +78,11 @@ export class HTTPTransport implements Transport {
       if (this.config.autoReconnect) {
         this.connect();
       } else {
-        throw new ExecutionError('Not connected to HTTP server', ErrorCode.CONNECTION_ERROR, 'HTTP');
+        throw new ExecutionError(
+          'Not connected to HTTP server',
+          ErrorCode.CONNECTION_ERROR,
+          'HTTP'
+        );
       }
     }
 
@@ -158,8 +162,7 @@ export class HTTPTransport implements Transport {
 
             // Handle HTTP error status codes
             if (res.statusCode && res.statusCode >= 400) {
-              const errorMessage =
-                (data as { error?: string })?.error || `HTTP ${res.statusCode}`;
+              const errorMessage = (data as { error?: string })?.error || `HTTP ${res.statusCode}`;
               reject(
                 new ExecutionError(
                   errorMessage,
@@ -193,7 +196,12 @@ export class HTTPTransport implements Transport {
 
         if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
           reject(
-            new ExecutionError(`Connection failed: ${error.message}`, ErrorCode.CONNECTION_ERROR, 'HTTP', error)
+            new ExecutionError(
+              `Connection failed: ${error.message}`,
+              ErrorCode.CONNECTION_ERROR,
+              'HTTP',
+              error
+            )
           );
         } else if (error.code === 'ETIMEDOUT' || error.message.includes('timeout')) {
           reject(
