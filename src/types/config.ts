@@ -1,3 +1,5 @@
+import type { Connection, Commitment } from '@solana/web3.js';
+
 /**
  * Configuration options for LYS Flash
  */
@@ -13,6 +15,27 @@ export interface ClientConfig {
    * @example "tcp://127.0.0.1:5555" // ZMQ via TCP
    */
   address?: string;
+
+  /**
+   * Solana RPC connection for DEX operations (Meteora, Raydium, etc.)
+   * Required when using DEX namespace methods that build transactions client-side.
+   * @example
+   * ```typescript
+   * import { Connection } from '@solana/web3.js';
+   *
+   * const client = new LysFlash({
+   *   address: 'ipc:///tmp/tx-executor.ipc',
+   *   connection: new Connection('https://api.mainnet-beta.solana.com'),
+   * });
+   * ```
+   */
+  connection?: Connection;
+
+  /**
+   * Commitment level for RPC requests (used with connection)
+   * @default 'confirmed'
+   */
+  commitment?: Commitment;
 
   /**
    * API key for HTTP transport (required when using http:// or https://)

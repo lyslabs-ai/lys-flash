@@ -1,5 +1,6 @@
 import { Transaction, VersionedTransaction, PublicKey } from '@solana/web3.js';
 import { LysFlash } from './client';
+import { MeteoraNamespace } from './meteora';
 import {
   TransportMode,
   OperationData,
@@ -84,6 +85,7 @@ export class TransactionBuilder {
   private priorityFeeLamports: number = 1_000_000; // Default: 0.001 SOL
   private transport: TransportMode = 'FLASH'; // Default: fastest
   private bribeLamports?: number;
+  private _meteoraNamespace?: MeteoraNamespace;
 
   /**
    * Create a new TransactionBuilder
@@ -92,6 +94,59 @@ export class TransactionBuilder {
    */
   constructor(client: LysFlash) {
     this.client = client;
+  }
+
+  /**
+   * Get the LysFlash client instance
+   *
+   * Used internally by namespace classes to access client configuration.
+   *
+   * @returns LysFlash client instance
+   */
+  getClient(): LysFlash {
+    return this.client;
+  }
+
+  // ============================================================================
+  // DEX Namespaces
+  // ============================================================================
+
+  /**
+   * Access Meteora operations (DBC, DAMM, DLMM)
+   *
+   * @returns MeteoraNamespace instance
+   *
+   * @example
+   * ```typescript
+   * import { Connection } from '@solana/web3.js';
+   *
+   * const connection = new Connection('https://api.mainnet-beta.solana.com');
+   * const client = new LysFlash({
+   *   address: 'ipc:///tmp/tx-executor.ipc',
+   *   connection,
+   * });
+   *
+   * // Access DBC via nested namespace
+   * const builder = await new TransactionBuilder(client)
+   *   .meteora.dbc.buy({
+   *     pool: poolAddress,
+   *     user: userWallet,
+   *     solAmountIn: 1_000_000_000,
+   *     minTokensOut: 1000000,
+   *   });
+   *
+   * const result = await builder
+   *   .setFeePayer(userWallet)
+   *   .setTransport('FLASH')
+   *   .setBribe(1_000_000)
+   *   .send();
+   * ```
+   */
+  get meteora(): MeteoraNamespace {
+    if (!this._meteoraNamespace) {
+      this._meteoraNamespace = new MeteoraNamespace(this);
+    }
+    return this._meteoraNamespace;
   }
 
   // ============================================================================
@@ -706,6 +761,7 @@ export class TransactionBuilder {
     this.priorityFeeLamports = 1_000_000;
     this.transport = 'FLASH';
     this.bribeLamports = undefined;
+    this._meteoraNamespace = undefined;
     return this;
   }
 
