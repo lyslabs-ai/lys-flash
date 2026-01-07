@@ -3,8 +3,8 @@
  *
  * Parent namespace that exposes sub-namespaces for each Meteora product:
  * - DBC (Dynamic Bonding Curve)
+ * - DAMM v2 (Dynamic AMM v2 / CP-AMM)
  * - DAMMv1 (future)
- * - DAMMv2 (future)
  * - DLMM (future)
  *
  * @module meteora/namespace
@@ -12,16 +12,17 @@
 
 import type { TransactionBuilder } from '../builder';
 import { DBCNamespace } from './dbc';
+import { DAMMv2Namespace } from './damm-v2';
 
 /**
  * Meteora Namespace for TransactionBuilder
  *
  * Parent namespace that provides access to all Meteora products:
  * - `dbc` - Dynamic Bonding Curve operations
+ * - `dammV2` - DAMM v2 (Dynamic AMM v2 / CP-AMM) operations
  *
  * Future products will be added as they are integrated:
  * - `dammV1` - DAMM v1 operations
- * - `dammV2` - DAMM v2 operations
  * - `dlmm` - DLMM operations
  *
  * @example
@@ -54,6 +55,7 @@ import { DBCNamespace } from './dbc';
 export class MeteoraNamespace {
   private builder: TransactionBuilder;
   private _dbc?: DBCNamespace;
+  private _dammV2?: DAMMv2Namespace;
 
   /**
    * Create MeteoraNamespace instance
@@ -99,13 +101,30 @@ export class MeteoraNamespace {
   //   return this._dammV1;
   // }
 
-  // Future: DAMM v2 operations
-  // get dammV2(): DAMMv2Namespace {
-  //   if (!this._dammV2) {
-  //     this._dammV2 = new DAMMv2Namespace(this.builder);
-  //   }
-  //   return this._dammV2;
-  // }
+  /**
+   * Access DAMM v2 (Dynamic AMM v2 / CP-AMM) operations
+   *
+   * @returns DAMMv2Namespace instance
+   *
+   * @example
+   * ```typescript
+   * // Buy tokens on DAMM v2 pool
+   * const builder = await new TransactionBuilder(client)
+   *   .meteora.dammV2.buy({
+   *     pool: poolAddress,
+   *     user: userWallet,
+   *     tokenMint: tokenAddress,
+   *     solAmountIn: 1_000_000_000,
+   *     minTokensOut: 1000000,
+   *   });
+   * ```
+   */
+  get dammV2(): DAMMv2Namespace {
+    if (!this._dammV2) {
+      this._dammV2 = new DAMMv2Namespace(this.builder);
+    }
+    return this._dammV2;
+  }
 
   // Future: DLMM operations
   // get dlmm(): DLMMNamespace {

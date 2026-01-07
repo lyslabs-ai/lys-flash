@@ -12,6 +12,9 @@
     "meteora",
     "dbc",
     "dynamic-bonding-curve",
+    "damm",
+    "damm-v2",
+    "cp-amm",
     "zeromq",
     "zmq",
     "high-performance",
@@ -82,6 +85,7 @@
     "msgpackr": "^1.11.0"
   },
   "devDependencies": {
+    "@meteora-ag/cp-amm-sdk": "^1.0.0",
     "@meteora-ag/dynamic-bonding-curve-sdk": "^1.0.0",
     "@solana/web3.js": "^1.95.0",
     "@types/bn.js": "^5.1.5",
@@ -104,10 +108,14 @@
     "@solana/web3.js": "^1.95.0",
     "tweetnacl": "^1.0.3",
     "@meteora-ag/dynamic-bonding-curve-sdk": "^1.0.0",
+    "@meteora-ag/cp-amm-sdk": "^1.0.0",
     "bn.js": "^5.2.0"
   },
   "peerDependenciesMeta": {
     "@meteora-ag/dynamic-bonding-curve-sdk": {
+      "optional": true
+    },
+    "@meteora-ag/cp-amm-sdk": {
       "optional": true
     },
     "bn.js": {

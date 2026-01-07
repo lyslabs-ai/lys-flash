@@ -40,7 +40,14 @@ export { TransactionBuilder } from './builder';
 export { ExecutionError, ErrorCode, fromUnknownError } from './errors';
 
 // Meteora integration
-export { MeteoraNamespace, DBCNamespace, DBCUtils } from './meteora';
+export {
+  MeteoraNamespace,
+  DBCNamespace,
+  DBCUtils,
+  DAMMv2Namespace,
+  DAMMv2Utils,
+  SOL_MINT,
+} from './meteora';
 
 // All types
 export * from './types';
@@ -113,6 +120,30 @@ export type {
   // State/query types
   DBCPoolState,
   DBCSwapQuote,
+} from './meteora';
+
+// Meteora DAMM v2 types (re-export for convenience)
+export type {
+  // Direction and mode types
+  DAMMv2SwapDirection,
+  DAMMv2SwapMode,
+  // swap() params
+  DAMMv2SwapParams,
+  DAMMv2BuyParams,
+  DAMMv2SellParams,
+  // swap2() params
+  DAMMv2Swap2BaseParams,
+  DAMMv2Swap2ExactInParams,
+  DAMMv2Swap2PartialFillParams,
+  DAMMv2Swap2ExactOutParams,
+  DAMMv2Swap2Params,
+  DAMMv2Buy2Params,
+  DAMMv2Sell2Params,
+  DAMMv2BuyExactOutParams,
+  DAMMv2SellExactOutParams,
+  // State/query types
+  DAMMv2PoolState,
+  DAMMv2SwapQuote,
 } from './meteora';
 
 /**
