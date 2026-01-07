@@ -48,6 +48,8 @@ export {
   DAMMv1Utils,
   DAMMv2Namespace,
   DAMMv2Utils,
+  DLMMNamespace,
+  DLMMUtils,
   SOL_MINT,
 } from './meteora';
 
@@ -159,10 +161,26 @@ export type {
   DAMMv1SwapQuote,
 } from './meteora';
 
+// Meteora DLMM types (re-export for convenience)
+export type {
+  // swap() params
+  DLMMSwapParams,
+  DLMMSwapExactOutParams,
+  DLMMBuyParams,
+  DLMMSellParams,
+  DLMMBuyExactOutParams,
+  DLMMSellExactOutParams,
+  // State/query types
+  DLMMPoolState,
+  DLMMActiveBin,
+  DLMMSwapQuote,
+  DLMMSwapQuoteExactOut,
+} from './meteora';
+
 /**
  * Library version
  */
-export const VERSION = '1.2.2';
+export const VERSION = '1.3.0';
 
 /**
  * Default address (ZMQ IPC)

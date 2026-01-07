@@ -5,7 +5,7 @@
  * - DBC (Dynamic Bonding Curve)
  * - DAMM v1 (Dynamic AMM v1)
  * - DAMM v2 (Dynamic AMM v2 / CP-AMM)
- * - DLMM (future)
+ * - DLMM (Dynamic Liquidity Market Maker)
  *
  * @module meteora/namespace
  */
@@ -14,6 +14,7 @@ import type { TransactionBuilder } from '../builder';
 import { DBCNamespace } from './dbc';
 import { DAMMv1Namespace } from './damm-v1';
 import { DAMMv2Namespace } from './damm-v2';
+import { DLMMNamespace } from './dlmm';
 
 /**
  * Meteora Namespace for TransactionBuilder
@@ -22,9 +23,7 @@ import { DAMMv2Namespace } from './damm-v2';
  * - `dbc` - Dynamic Bonding Curve operations
  * - `dammV1` - DAMM v1 (Dynamic AMM v1) operations
  * - `dammV2` - DAMM v2 (Dynamic AMM v2 / CP-AMM) operations
- *
- * Future products will be added as they are integrated:
- * - `dlmm` - DLMM operations
+ * - `dlmm` - DLMM (Dynamic Liquidity Market Maker) operations
  *
  * @example
  * ```typescript
@@ -58,6 +57,7 @@ export class MeteoraNamespace {
   private _dbc?: DBCNamespace;
   private _dammV1?: DAMMv1Namespace;
   private _dammV2?: DAMMv2Namespace;
+  private _dlmm?: DLMMNamespace;
 
   /**
    * Create MeteoraNamespace instance
@@ -141,11 +141,28 @@ export class MeteoraNamespace {
     return this._dammV2;
   }
 
-  // Future: DLMM operations
-  // get dlmm(): DLMMNamespace {
-  //   if (!this._dlmm) {
-  //     this._dlmm = new DLMMNamespace(this.builder);
-  //   }
-  //   return this._dlmm;
-  // }
+  /**
+   * Access DLMM (Dynamic Liquidity Market Maker) operations
+   *
+   * @returns DLMMNamespace instance
+   *
+   * @example
+   * ```typescript
+   * // Buy tokens on DLMM pool
+   * const builder = await new TransactionBuilder(client)
+   *   .meteora.dlmm.buy({
+   *     pool: poolAddress,
+   *     user: userWallet,
+   *     tokenMint: tokenAddress,
+   *     solAmountIn: 1_000_000_000,
+   *     minTokensOut: 1000000,
+   *   });
+   * ```
+   */
+  get dlmm(): DLMMNamespace {
+    if (!this._dlmm) {
+      this._dlmm = new DLMMNamespace(this.builder);
+    }
+    return this._dlmm;
+  }
 }

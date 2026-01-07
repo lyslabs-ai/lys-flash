@@ -5,7 +5,7 @@
  * - DBC (Dynamic Bonding Curve)
  * - DAMM v1 (Dynamic AMM v1)
  * - DAMM v2 (Dynamic AMM v2 / CP-AMM)
- * - Future: DLMM
+ * - DLMM (Dynamic Liquidity Market Maker)
  *
  * @module meteora
  */
@@ -97,3 +97,27 @@ export type {
   DAMMv1PoolState,
   DAMMv1SwapQuote,
 } from './damm-v1';
+
+// DLMM sub-module (re-export everything)
+export {
+  // Namespace class
+  DLMMNamespace,
+  // Static utilities
+  DLMMUtils,
+} from './dlmm';
+
+// DLMM types (re-export)
+export type {
+  // swap() params
+  DLMMSwapParams,
+  DLMMSwapExactOutParams,
+  DLMMBuyParams,
+  DLMMSellParams,
+  DLMMBuyExactOutParams,
+  DLMMSellExactOutParams,
+  // State/query types
+  DLMMPoolState,
+  DLMMActiveBin,
+  DLMMSwapQuote,
+  DLMMSwapQuoteExactOut,
+} from './dlmm';
