@@ -3,8 +3,9 @@
  *
  * Provides integration with Meteora protocols:
  * - DBC (Dynamic Bonding Curve)
+ * - DAMM v1 (Dynamic AMM v1)
  * - DAMM v2 (Dynamic AMM v2 / CP-AMM)
- * - Future: DAMM v1, DLMM
+ * - Future: DLMM
  *
  * @module meteora
  */
@@ -77,3 +78,22 @@ export type {
   DAMMv2PoolState,
   DAMMv2SwapQuote,
 } from './damm-v2';
+
+// DAMM v1 sub-module (re-export everything)
+export {
+  // Namespace class
+  DAMMv1Namespace,
+  // Static utilities
+  DAMMv1Utils,
+} from './damm-v1';
+
+// DAMM v1 types (re-export)
+export type {
+  // swap() params
+  DAMMv1SwapParams,
+  DAMMv1BuyParams,
+  DAMMv1SellParams,
+  // State/query types
+  DAMMv1PoolState,
+  DAMMv1SwapQuote,
+} from './damm-v1';

@@ -44,6 +44,8 @@ export {
   MeteoraNamespace,
   DBCNamespace,
   DBCUtils,
+  DAMMv1Namespace,
+  DAMMv1Utils,
   DAMMv2Namespace,
   DAMMv2Utils,
   SOL_MINT,
@@ -144,6 +146,17 @@ export type {
   // State/query types
   DAMMv2PoolState,
   DAMMv2SwapQuote,
+} from './meteora';
+
+// Meteora DAMM v1 types (re-export for convenience)
+export type {
+  // swap() params
+  DAMMv1SwapParams,
+  DAMMv1BuyParams,
+  DAMMv1SellParams,
+  // State/query types
+  DAMMv1PoolState,
+  DAMMv1SwapQuote,
 } from './meteora';
 
 /**
