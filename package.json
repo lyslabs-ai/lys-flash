@@ -9,6 +9,15 @@
     "trading-bot",
     "pump.fun",
     "pump-fun",
+    "meteora",
+    "dbc",
+    "dynamic-bonding-curve",
+    "damm",
+    "damm-v1",
+    "damm-v2",
+    "cp-amm",
+    "dynamic-amm",
+    "dlmm",
     "zeromq",
     "zmq",
     "high-performance",
@@ -79,8 +88,14 @@
     "msgpackr": "^1.11.0"
   },
   "devDependencies": {
+    "@meteora-ag/cp-amm-sdk": "^1.0.0",
+    "@meteora-ag/dlmm": "^1.0.0",
+    "@meteora-ag/dynamic-amm-sdk": "^1.0.0",
+    "@meteora-ag/dynamic-bonding-curve-sdk": "^1.0.0",
     "@solana/web3.js": "^1.95.0",
+    "@types/bn.js": "^5.1.5",
     "@types/node": "^20.0.0",
+    "bn.js": "^5.2.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitest/coverage-v8": "^1.0.0",
@@ -96,7 +111,29 @@
   },
   "peerDependencies": {
     "@solana/web3.js": "^1.95.0",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "@meteora-ag/dynamic-bonding-curve-sdk": "^1.0.0",
+    "@meteora-ag/dynamic-amm-sdk": "^1.0.0",
+    "@meteora-ag/cp-amm-sdk": "^1.0.0",
+    "@meteora-ag/dlmm": "^1.0.0",
+    "bn.js": "^5.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@meteora-ag/dynamic-bonding-curve-sdk": {
+      "optional": true
+    },
+    "@meteora-ag/dynamic-amm-sdk": {
+      "optional": true
+    },
+    "@meteora-ag/cp-amm-sdk": {
+      "optional": true
+    },
+    "@meteora-ag/dlmm": {
+      "optional": true
+    },
+    "bn.js": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=18.0.0"

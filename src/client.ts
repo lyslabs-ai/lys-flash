@@ -1,3 +1,4 @@
+import type { Connection, Commitment } from '@solana/web3.js';
 import { ZMQTransport } from './transport/zmq-transport';
 import { HTTPTransport } from './transport/http-transport';
 import {
@@ -21,7 +22,7 @@ import { ExecutionError, ErrorCode, fromUnknownError } from './errors';
  * Default client configuration
  */
 const DEFAULT_CONFIG: Required<
-  Omit<ClientConfig, 'logger' | 'apiKey' | 'contentType' | 'zmqAddress'>
+  Omit<ClientConfig, 'logger' | 'apiKey' | 'contentType' | 'zmqAddress' | 'connection' | 'commitment'>
 > & {
   logger: Logger;
   apiKey: string;
@@ -100,6 +101,8 @@ export class LysFlash {
   private config: typeof DEFAULT_CONFIG;
   private stats: ClientStats;
   private transportType: 'HTTP' | 'ZMQ';
+  private _connection?: Connection;
+  private _commitment: Commitment;
 
   /**
    * Create a new LysFlash client
@@ -116,6 +119,10 @@ export class LysFlash {
       address,
       logger: config?.logger || DEFAULT_CONFIG.logger,
     };
+
+    // Store connection for DEX operations (Meteora, Raydium, etc.)
+    this._connection = config?.connection;
+    this._commitment = config?.commitment || 'confirmed';
 
     // Determine transport type from address
     const useHTTP = isHTTPAddress(address);
@@ -186,6 +193,57 @@ export class LysFlash {
    */
   getTransportType(): 'HTTP' | 'ZMQ' {
     return this.transportType;
+  }
+
+  /**
+   * Get the configured Solana RPC connection
+   *
+   * @returns Connection instance or undefined if not configured
+   * @throws ExecutionError if connection is required but not configured
+   *
+   * @example
+   * ```typescript
+   * const connection = client.getConnection();
+   * if (connection) {
+   *   const balance = await connection.getBalance(publicKey);
+   * }
+   * ```
+   */
+  getConnection(): Connection | undefined {
+    return this._connection;
+  }
+
+  /**
+   * Get the configured Solana RPC connection (throws if not configured)
+   *
+   * @returns Connection instance
+   * @throws ExecutionError if connection is not configured
+   *
+   * @example
+   * ```typescript
+   * const connection = client.requireConnection();
+   * const balance = await connection.getBalance(publicKey);
+   * ```
+   */
+  requireConnection(): Connection {
+    if (!this._connection) {
+      throw new ExecutionError(
+        'Connection not configured. Set the connection option when creating LysFlash client.',
+        ErrorCode.INVALID_REQUEST,
+        'CLIENT'
+      );
+    }
+    return this._connection;
+  }
+
+  /**
+   * Get the configured commitment level
+   *
+   * @returns Commitment level ('processed', 'confirmed', or 'finalized')
+   * @default 'confirmed'
+   */
+  getCommitment(): Commitment {
+    return this._commitment;
   }
 
   /**

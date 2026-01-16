@@ -39,6 +39,20 @@ export { TransactionBuilder } from './builder';
 // Error handling
 export { ExecutionError, ErrorCode, fromUnknownError } from './errors';
 
+// Meteora integration
+export {
+  MeteoraNamespace,
+  DBCNamespace,
+  DBCUtils,
+  DAMMv1Namespace,
+  DAMMv1Utils,
+  DAMMv2Namespace,
+  DAMMv2Utils,
+  DLMMNamespace,
+  DLMMUtils,
+  SOL_MINT,
+} from './meteora';
+
 // All types
 export * from './types';
 
@@ -88,10 +102,85 @@ export type {
   RawTransactionParams,
 } from './types';
 
+// Meteora DBC types (re-export for convenience)
+export type {
+  // Direction and mode types
+  DBCSwapDirection,
+  DBCSwapMode,
+  // swap() params
+  DBCSwapParams,
+  DBCBuyParams,
+  DBCSellParams,
+  // swap2() params
+  DBCSwap2BaseParams,
+  DBCSwap2ExactInParams,
+  DBCSwap2PartialFillParams,
+  DBCSwap2ExactOutParams,
+  DBCSwap2Params,
+  DBCBuy2Params,
+  DBCSell2Params,
+  DBCBuyExactOutParams,
+  DBCSellExactOutParams,
+  // State/query types
+  DBCPoolState,
+  DBCSwapQuote,
+} from './meteora';
+
+// Meteora DAMM v2 types (re-export for convenience)
+export type {
+  // Direction and mode types
+  DAMMv2SwapDirection,
+  DAMMv2SwapMode,
+  // swap() params
+  DAMMv2SwapParams,
+  DAMMv2BuyParams,
+  DAMMv2SellParams,
+  // swap2() params
+  DAMMv2Swap2BaseParams,
+  DAMMv2Swap2ExactInParams,
+  DAMMv2Swap2PartialFillParams,
+  DAMMv2Swap2ExactOutParams,
+  DAMMv2Swap2Params,
+  DAMMv2Buy2Params,
+  DAMMv2Sell2Params,
+  DAMMv2BuyExactOutParams,
+  DAMMv2SellExactOutParams,
+  // State/query types
+  DAMMv2PoolState,
+  DAMMv2SwapQuote,
+} from './meteora';
+
+// Meteora DAMM v1 types (re-export for convenience)
+export type {
+  // swap() params
+  DAMMv1SwapParams,
+  DAMMv1BuyParams,
+  DAMMv1SellParams,
+  // State/query types
+  DAMMv1PoolState,
+  DAMMv1SwapQuote,
+} from './meteora';
+
+// Meteora DLMM types (re-export for convenience)
+export type {
+  // swap() params
+  DLMMSwapParams,
+  DLMMSwapExactOutParams,
+  DLMMBuyParams,
+  DLMMSellParams,
+  DLMMBuyExactOutParams,
+  DLMMSellExactOutParams,
+  // State/query types
+  DLMMPoolState,
+  DLMMActiveBin,
+  DLMMSwapQuote,
+  DLMMSwapQuoteExactOut,
+} from './meteora';
+
 /**
  * Library version
  */
-export const VERSION = '1.2.2';
+export const VERSION = '1.3.0';
 
 /**
  * Default address (ZMQ IPC)
