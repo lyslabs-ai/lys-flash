@@ -11,7 +11,7 @@
 ## Features
 
 - **🚀 Multi-Broadcast**: Multi-broadcast strategy for fast confirmations
-- **📦 24+ Operations**: Pump.fun, AMM, SPL Token, System Transfer
+- **📦 50+ Operations**: Pump.fun, Meteora (DBC, DAMM, DLMM), SPL Token, System Transfer
 - **🔐 Secure Wallet Creation**: Dual-encrypted wallet generation with user-side decryption
 - **🔧 Type-Safe**: Full TypeScript support with comprehensive types
 - **⚡ High Performance**: MessagePack over ZeroMQ for efficient communication
@@ -19,6 +19,7 @@
 - **🔄 Auto-Reconnect**: Automatic connection recovery
 - **📊 Statistics**: Built-in performance tracking
 - **🛡️ MEV Protection**: Jito integration for high-value transactions
+- **🌊 Meteora Integration**: Full support for DBC, DAMM v1/v2, and DLMM pools
 
 ## Table of Contents
 
@@ -49,6 +50,37 @@ npm install @lyslabs.ai/lys-flash @solana/web3.js tweetnacl
 ```
 
 **Note:** `tweetnacl` is required for wallet decryption on the client side.
+
+### Optional: Meteora Integration
+
+To use Meteora pool operations, install the corresponding SDK packages:
+
+```bash
+# For DBC (Dynamic Bonding Curve)
+npm install @meteora-ag/dynamic-bonding-curve-sdk
+
+# For DAMM v1 (Dynamic AMM)
+npm install @meteora-ag/dynamic-amm-sdk
+
+# For DAMM v2 (CP-AMM)
+npm install @meteora-ag/cp-amm-sdk
+
+# For DLMM (Dynamic Liquidity Market Maker)
+npm install @meteora-ag/dlmm
+```
+
+**Note:** Meteora operations require a `Connection` object to be provided when creating the `LysFlash` client:
+
+```typescript
+import { Connection } from '@solana/web3.js';
+import { LysFlash } from '@lyslabs.ai/lys-flash';
+
+const connection = new Connection('https://api.mainnet-beta.solana.com');
+const client = new LysFlash({
+  address: 'ipc:///tmp/tx-executor.ipc',
+  connection,  // Required for Meteora operations
+});
+```
 
 ## Quick Start
 
@@ -347,17 +379,68 @@ const result = await new TransactionBuilder(client)
   .send();
 ```
 
+#### Meteora Operations
+
+Meteora operations are accessed via the `.meteora` namespace:
+
+```typescript
+// DBC (Dynamic Bonding Curve)
+await new TransactionBuilder(client).meteora.dbc.buy({ ... });
+
+// DAMM v1 (Dynamic AMM)
+await new TransactionBuilder(client).meteora.dammV1.buy({ ... });
+
+// DAMM v2 (CP-AMM)
+await new TransactionBuilder(client).meteora.dammV2.buy({ ... });
+
+// DLMM (Dynamic Liquidity Market Maker)
+await new TransactionBuilder(client).meteora.dlmm.buy({ ... });
+```
+
 ### Supported Operations
 
 #### Pump.fun (4 operations)
 - `pumpFunBuy()` - Buy tokens on bonding curve
 - `pumpFunSell()` - Sell tokens on bonding curve
 - `pumpFunCreate()` - Create new token
-- `pumpFunMigrate()` - Migrate to Raydium AMM
+- `pumpFunMigrate()` - Migrate to Pump.fun AMM
 
 #### Pump.fun AMM (2 operations)
-- `pumpFunAmmBuy()` - Buy on Raydium AMM
-- `pumpFunAmmSell()` - Sell on Raydium AMM
+- `pumpFunAmmBuy()` - Buy on Pump.fun AMM
+- `pumpFunAmmSell()` - Sell on Pump.fun AMM
+
+#### Meteora DBC - Dynamic Bonding Curve (8 operations)
+- `meteora.dbc.buy()` - Buy tokens with SOL
+- `meteora.dbc.sell()` - Sell tokens for SOL
+- `meteora.dbc.swap()` - Generic swap with direction
+- `meteora.dbc.buy2()` - Buy with ExactIn mode (swap2)
+- `meteora.dbc.sell2()` - Sell with ExactIn mode (swap2)
+- `meteora.dbc.swap2()` - Advanced swap with mode selection (ExactIn/PartialFill/ExactOut)
+- `meteora.dbc.buyExactOut()` - Buy exact token amount
+- `meteora.dbc.sellExactOut()` - Sell for exact SOL amount
+
+#### Meteora DAMM v1 - Dynamic AMM v1 (3 operations)
+- `meteora.dammV1.buy()` - Buy tokens with SOL
+- `meteora.dammV1.sell()` - Sell tokens for SOL
+- `meteora.dammV1.swap()` - Generic swap
+
+#### Meteora DAMM v2 - Dynamic AMM v2 / CP-AMM (8 operations)
+- `meteora.dammV2.buy()` - Buy tokens with SOL
+- `meteora.dammV2.sell()` - Sell tokens for SOL
+- `meteora.dammV2.swap()` - Generic swap
+- `meteora.dammV2.buy2()` - Buy with ExactIn mode (swap2)
+- `meteora.dammV2.sell2()` - Sell with ExactIn mode (swap2)
+- `meteora.dammV2.swap2()` - Advanced swap with mode selection (ExactIn/PartialFill/ExactOut)
+- `meteora.dammV2.buyExactOut()` - Buy exact token amount
+- `meteora.dammV2.sellExactOut()` - Sell for exact SOL amount
+
+#### Meteora DLMM - Dynamic Liquidity Market Maker (6 operations)
+- `meteora.dlmm.buy()` - Buy tokens with SOL
+- `meteora.dlmm.sell()` - Sell tokens for SOL
+- `meteora.dlmm.swap()` - Generic swap
+- `meteora.dlmm.swapExactOut()` - Swap with exact output amount
+- `meteora.dlmm.buyExactOut()` - Buy exact token amount
+- `meteora.dlmm.sellExactOut()` - Sell for exact SOL amount
 
 #### System Transfer (1 operation)
 - `systemTransfer()` - Transfer native SOL
@@ -741,6 +824,192 @@ if (simulation.success) {
   console.error("Simulation failed:", simulation.error);
   console.log("Logs:", simulation.logs);
 }
+```
+
+### Meteora DBC (Dynamic Bonding Curve)
+
+```typescript
+import { Connection } from '@solana/web3.js';
+import { LysFlash, TransactionBuilder } from '@lyslabs.ai/lys-flash';
+
+// Connection is required for Meteora operations
+const connection = new Connection('https://api.mainnet-beta.solana.com');
+const client = new LysFlash({
+  address: 'ipc:///tmp/tx-executor.ipc',
+  connection,
+});
+
+// Buy tokens on DBC pool
+const result = await new TransactionBuilder(client)
+  .meteora.dbc.buy({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    solAmountIn: 1_000_000_000,    // 1 SOL
+    minTokensOut: 1000000,         // Min tokens
+  })
+  .setFeePayer("YourWallet")
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+
+console.log("Bought tokens:", result.signature);
+
+// Sell tokens on DBC pool
+const sellResult = await new TransactionBuilder(client)
+  .meteora.dbc.sell({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    tokenAmountIn: 1000000,        // Tokens to sell
+    minSolOut: 500_000_000,        // Min 0.5 SOL
+  })
+  .setFeePayer("YourWallet")
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+
+// Buy exact amount of tokens (ExactOut mode)
+const exactOutResult = await new TransactionBuilder(client)
+  .meteora.dbc.buyExactOut({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    amountOut: 1000000,            // Exact tokens desired
+    maximumAmountIn: 2_000_000_000, // Max SOL to pay
+  })
+  .setFeePayer("YourWallet")
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+```
+
+### Meteora DAMM v2 (CP-AMM)
+
+```typescript
+// Buy tokens on DAMM v2 pool
+const result = await new TransactionBuilder(client)
+  .meteora.dammV2.buy({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    tokenMint: "TokenMintAddress",
+    solAmountIn: 1_000_000_000,    // 1 SOL
+    minTokensOut: 1000000,         // Min tokens
+  })
+  .setFeePayer("YourWallet")
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+
+// Sell tokens on DAMM v2 pool
+const sellResult = await new TransactionBuilder(client)
+  .meteora.dammV2.sell({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    tokenMint: "TokenMintAddress",
+    tokenAmountIn: 1000000,        // Tokens to sell
+    minSolOut: 500_000_000,        // Min 0.5 SOL
+  })
+  .setFeePayer("YourWallet")
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+
+// Advanced swap with ExactOut mode
+const exactOutResult = await new TransactionBuilder(client)
+  .meteora.dammV2.swap2({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    inputMint: "So11111111111111111111111111111111111111112", // SOL
+    outputMint: "TokenMintAddress",
+    mode: "ExactOut",
+    amountOut: 1000000,            // Exact tokens desired
+    maximumAmountIn: 2_000_000_000, // Max SOL to pay
+  })
+  .setFeePayer("YourWallet")
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+```
+
+### Meteora DLMM (Dynamic Liquidity Market Maker)
+
+```typescript
+// Buy tokens on DLMM pool
+const result = await new TransactionBuilder(client)
+  .meteora.dlmm.buy({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    tokenMint: "TokenMintAddress",
+    solAmountIn: 1_000_000_000,    // 1 SOL
+    minTokensOut: 1000000,         // Min tokens
+  })
+  .setFeePayer("YourWallet")
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+
+// Sell tokens on DLMM pool
+const sellResult = await new TransactionBuilder(client)
+  .meteora.dlmm.sell({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    tokenMint: "TokenMintAddress",
+    tokenAmountIn: 1000000,        // Tokens to sell
+    minSolOut: 500_000_000,        // Min 0.5 SOL
+  })
+  .setFeePayer("YourWallet")
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+
+// Generic swap with explicit mints
+const swapResult = await new TransactionBuilder(client)
+  .meteora.dlmm.swap({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    inputMint: "So11111111111111111111111111111111111111112",
+    outputMint: "TokenMintAddress",
+    amountIn: 1_000_000_000,
+    minimumAmountOut: 1000000,
+  })
+  .setFeePayer("YourWallet")
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+```
+
+### Meteora DAMM v1 (Dynamic AMM)
+
+```typescript
+// Buy tokens on DAMM v1 pool
+const result = await new TransactionBuilder(client)
+  .meteora.dammV1.buy({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    tokenMint: "TokenMintAddress",
+    solAmountIn: 1_000_000_000,    // 1 SOL
+    minTokensOut: 1000000,         // Min tokens
+  })
+  .setFeePayer("YourWallet")
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+
+// Sell tokens on DAMM v1 pool
+const sellResult = await new TransactionBuilder(client)
+  .meteora.dammV1.sell({
+    pool: "PoolAddress",
+    user: "YourWallet",
+    tokenMint: "TokenMintAddress",
+    tokenAmountIn: 1000000,        // Tokens to sell
+    minSolOut: 500_000_000,        // Min 0.5 SOL
+  })
+  .setFeePayer("YourWallet")
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
 ```
 
 ### Multiple Operations (Batched)
