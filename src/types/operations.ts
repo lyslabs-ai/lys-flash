@@ -52,6 +52,12 @@ export interface PumpFunBuyParams {
   pool: string;
 
   /**
+   * Token program address
+   * @example "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+   */
+  tokenProgram: string;
+
+  /**
    * Pool-related accounts
    */
   poolAccounts: {
@@ -91,6 +97,12 @@ export interface PumpFunSellParams {
    * Token mint address
    */
   pool: string;
+
+  /**
+   * Token program address
+   * @example "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+   */
+  tokenProgram: string;
 
   /**
    * Pool-related accounts
@@ -215,6 +227,18 @@ export interface PumpFunAmmBuyParams {
   pool: string;
 
   /**
+   * Base token program address
+   * @example "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+   */
+  baseTokenProgram: string;
+
+  /**
+   * Quote token program address
+   * @example "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+   */
+  quoteTokenProgram: string;
+
+  /**
    * Pool-related accounts
    */
   poolAccounts: {
@@ -273,6 +297,18 @@ export interface PumpFunAmmSellParams {
    * AMM pool address
    */
   pool: string;
+
+  /**
+   * Base token program address
+   * @example "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+   */
+  baseTokenProgram: string;
+
+  /**
+   * Quote token program address
+   * @example "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+   */
+  quoteTokenProgram: string;
 
   /**
    * Pool-related accounts
