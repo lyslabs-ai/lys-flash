@@ -43,6 +43,7 @@ async function main() {
         user: '5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89',
         solAmountIn: 1_000_000, // 0.001 SOL
         tokenAmountOut: 3_400_000_000, // Min 3.4B tokens
+        mayhemModeEnabled: false,
       })
       .setFeePayer('5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89')
       .setPriorityFee(1_000_000)
@@ -66,6 +67,7 @@ async function main() {
         user: '5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89',
         tokenAmountIn: 3_400_000_000,
         minSolAmountOut: 0,
+        mayhemModeEnabled: false,
         closeAssociatedTokenAccount: false,
       })
       .setFeePayer('5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89')
@@ -148,6 +150,7 @@ async function main() {
         user: '5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89',
         solAmountIn: 10_000_000, // 0.01 SOL
         tokenAmountOut: 34_000_000_000,
+        mayhemModeEnabled: false,
       })
       .setFeePayer('5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89')
       .setPriorityFee(1_000_000)
@@ -444,6 +447,7 @@ async function main() {
         user: testUser,
         solAmountIn: 1_000_000,
         tokenAmountOut: 3_400_000_000,
+        mayhemModeEnabled: false,
       })
       .setFeePayer(testUser)
       .setPriorityFee(1_000_000)

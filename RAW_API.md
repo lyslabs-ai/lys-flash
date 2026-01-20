@@ -52,7 +52,8 @@ const result = await client.execute({
     },
     user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
     solAmountIn: 1_000_000,
-    tokenAmountOut: 3_400_000_000
+    tokenAmountOut: 3_400_000_000,
+    mayhemModeEnabled: false
   },
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
@@ -129,7 +130,8 @@ const result = await client.execute({
     },
     user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
     solAmountIn: 1_000_000,           // 0.001 SOL
-    tokenAmountOut: 3_400_000_000     // Minimum tokens expected
+    tokenAmountOut: 3_400_000_000,    // Minimum tokens expected
+    mayhemModeEnabled: false          // Enable Mayhem mode
   },
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
   priorityFeeLamports: 1_000_000,
@@ -154,6 +156,7 @@ const result = await client.execute({
     user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
     tokenAmountIn: 3_400_000_000,        // Tokens to sell
     minSolAmountOut: 0,                   // Minimum SOL expected
+    mayhemModeEnabled: false,             // Enable Mayhem mode
     closeAssociatedTokenAccount: false    // Reclaim rent (optional)
   },
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
@@ -477,7 +480,8 @@ const result = await client.execute({
       },
       user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
       solAmountIn: 10_000_000,
-      tokenAmountOut: 34_000_000_000
+      tokenAmountOut: 34_000_000_000,
+      mayhemModeEnabled: false
     }
   ],
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
@@ -521,7 +525,8 @@ const result = await client.execute({
       },
       user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
       solAmountIn: 1_000_000,
-      tokenAmountOut: 3_400_000_000
+      tokenAmountOut: 3_400_000_000,
+      mayhemModeEnabled: false
     }
   ],
   feePayer: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
@@ -642,6 +647,7 @@ const result = await client.execute({
     poolAccounts: {
       coinCreator: "4eUKGdDm7HFkZTYEsn1srZvRYRAMYt6c9eFb7QgTjuU3"  // Speeds up transaction
     },
+    mayhemModeEnabled: false,
     // ...
   },
   // ...

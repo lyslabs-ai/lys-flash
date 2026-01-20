@@ -154,7 +154,8 @@ const result = await new TransactionBuilder(client)
     poolAccounts: { coinCreator: "creator_address" },
     user: "buyer_wallet",
     solAmountIn: 1_000_000,        // 0.001 SOL
-    tokenAmountOut: 3_400_000_000   // Min 3.4B tokens
+    tokenAmountOut: 3_400_000_000, // Min 3.4B tokens
+    mayhemModeEnabled: false       // Enable Mayhem mode
   })
   .setFeePayer("buyer_wallet")
   .setPriorityFee(1_000_000)       // 0.001 SOL priority fee
@@ -280,7 +281,8 @@ const result = await new TransactionBuilder(client)
     poolAccounts: { coinCreator: "creator" },
     user: newWalletKeypair.publicKey.toBase58(), // New wallet
     solAmountIn: 1_000_000,
-    tokenAmountOut: 3_400_000_000
+    tokenAmountOut: 3_400_000_000,
+    mayhemModeEnabled: false
   })
   .setFeePayer(newWalletKeypair.publicKey.toBase58())
   .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
@@ -339,7 +341,8 @@ const result = await client.execute({
     poolAccounts: { coinCreator: "creator" },
     user: "wallet",
     solAmountIn: 1_000_000,
-    tokenAmountOut: 3_400_000_000
+    tokenAmountOut: 3_400_000_000,
+    mayhemModeEnabled: false
   },
   feePayer: "wallet",
   priorityFeeLamports: 1_000_000,
@@ -370,7 +373,8 @@ const result = await new TransactionBuilder(client)
     poolAccounts: { coinCreator: "creator" },
     user: "wallet",
     solAmountIn: 1_000_000,
-    tokenAmountOut: 3_400_000_000
+    tokenAmountOut: 3_400_000_000,
+    mayhemModeEnabled: false
   })
   .setFeePayer("wallet")
   .setPriorityFee(5_000_000)      // High priority
@@ -733,7 +737,8 @@ const result = await new TransactionBuilder(client)
     poolAccounts: { coinCreator: "CreatorWallet" },
     user: "YourWallet",
     solAmountIn: 10_000_000,        // 0.01 SOL
-    tokenAmountOut: 50_000_000_000  // Min 50B tokens
+    tokenAmountOut: 50_000_000_000, // Min 50B tokens
+    mayhemModeEnabled: false
   })
   .setFeePayer("YourWallet")
   .setPriorityFee(5_000_000)
@@ -754,6 +759,7 @@ const result = await new TransactionBuilder(client)
     user: "YourWallet",
     tokenAmountIn: 25_000_000_000,  // 25B tokens
     minSolAmountOut: 8_000_000,     // Min 0.008 SOL
+    mayhemModeEnabled: false,
     closeAssociatedTokenAccount: true  // Reclaim rent
   })
   .setFeePayer("YourWallet")
@@ -788,7 +794,8 @@ const result = await new TransactionBuilder(client)
     poolAccounts: { coinCreator: "CreatorWallet" },
     user: "BuyerWallet",
     solAmountIn: 10_000_000,
-    tokenAmountOut: 100_000_000_000
+    tokenAmountOut: 100_000_000_000,
+    mayhemModeEnabled: false
   })
   .setFeePayer("CreatorWallet")
   .setPriorityFee(10_000_000)
@@ -1032,7 +1039,8 @@ const result = await new TransactionBuilder(client)
     poolAccounts: { coinCreator: "creator" },
     user: "wallet1",
     solAmountIn: 5_000_000,
-    tokenAmountOut: 10_000_000_000
+    tokenAmountOut: 10_000_000_000,
+    mayhemModeEnabled: false
   })
   .setFeePayer("wallet1")
   .setPriorityFee(2_000_000)
@@ -1154,7 +1162,8 @@ class TradingBot {
         poolAccounts: { coinCreator: creator },
         user: wallet,
         solAmountIn: solAmount,
-        tokenAmountOut: minTokens
+        tokenAmountOut: minTokens,
+        mayhemModeEnabled: false
       })
       .setFeePayer(wallet)
       .setPriorityFee(1_000_000)
@@ -1172,7 +1181,8 @@ class TradingBot {
         poolAccounts: { coinCreator: creator },
         user: wallet,
         solAmountIn: solAmount,
-        tokenAmountOut: minTokens
+        tokenAmountOut: minTokens,
+        mayhemModeEnabled: false
       })
       .setFeePayer(wallet)
       .setPriorityFee(5_000_000)      // High priority
@@ -1198,6 +1208,7 @@ class TradingBot {
         user: wallet,
         tokenAmountIn: tokenAmount,
         minSolAmountOut: minSol,
+        mayhemModeEnabled: false,
         closeAssociatedTokenAccount: true
       })
       .setFeePayer(wallet)

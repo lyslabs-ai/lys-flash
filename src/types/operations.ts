@@ -83,6 +83,12 @@ export interface PumpFunBuyParams {
    * @example 3_400_000_000 // 3.4B tokens minimum
    */
   tokenAmountOut: number;
+
+  /**
+   * Whether to enable Mayhem mode
+   * @default false
+   */
+  mayhemModeEnabled: boolean;
 }
 
 /**
@@ -130,6 +136,12 @@ export interface PumpFunSellParams {
    * @example 500_000 // 0.0005 SOL minimum
    */
   minSolAmountOut: number;
+
+  /**
+   * Whether to enable Mayhem mode
+   * @default false
+   */
+  mayhemModeEnabled: boolean;
 
   /**
    * Whether to close the Associated Token Account after selling
@@ -277,12 +289,6 @@ export interface PumpFunAmmBuyParams {
    * Minimum tokens expected (slippage protection)
    */
   tokenAmountOut: number;
-
-  /**
-   * Whether to close the Associated Token Account after buying
-   * @default false
-   */
-  closeAssociatedTokenAccount?: boolean;
 }
 
 /**

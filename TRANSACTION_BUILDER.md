@@ -51,7 +51,8 @@ const result = await new TransactionBuilder(client)
     },
     user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
     solAmountIn: 1_000_000,
-    tokenAmountOut: 3_400_000_000
+    tokenAmountOut: 3_400_000_000,
+    mayhemModeEnabled: false
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
@@ -117,7 +118,8 @@ const result = await new TransactionBuilder(client)
     },
     user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
     solAmountIn: 1_000_000,           // 0.001 SOL
-    tokenAmountOut: 3_400_000_000     // Minimum tokens expected
+    tokenAmountOut: 3_400_000_000,    // Minimum tokens expected
+    mayhemModeEnabled: false          // Enable Mayhem mode
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
@@ -134,6 +136,7 @@ const result = await new TransactionBuilder(client)
 - `user` (string): Buyer wallet address
 - `solAmountIn` (number): SOL amount in lamports (1 SOL = 1_000_000_000)
 - `tokenAmountOut` (number): Minimum tokens expected (with decimals)
+- `mayhemModeEnabled` (boolean): Enable Mayhem mode (default: false)
 
 #### `pumpFunSell()` - Sell tokens on bonding curve
 
@@ -147,6 +150,7 @@ const result = await new TransactionBuilder(client)
     user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
     tokenAmountIn: 3_400_000_000,        // Tokens to sell
     minSolAmountOut: 0,                   // Minimum SOL expected
+    mayhemModeEnabled: false,             // Enable Mayhem mode
     closeAssociatedTokenAccount: false    // Reclaim rent (optional)
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
@@ -162,6 +166,7 @@ const result = await new TransactionBuilder(client)
 - `user` (string): Seller wallet address
 - `tokenAmountIn` (number): Tokens to sell (with decimals)
 - `minSolAmountOut` (number): Minimum SOL expected in lamports
+- `mayhemModeEnabled` (boolean): Enable Mayhem mode (default: false)
 - `closeAssociatedTokenAccount` (boolean, optional): Reclaim rent by closing ATA
 
 #### `pumpFunCreate()` - Create new token
@@ -526,7 +531,8 @@ const result = await new TransactionBuilder(client)
     },
     user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
     solAmountIn: 10_000_000,
-    tokenAmountOut: 34_000_000_000
+    tokenAmountOut: 34_000_000_000,
+    mayhemModeEnabled: false
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
@@ -559,7 +565,8 @@ const result = await new TransactionBuilder(client)
     },
     user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
     solAmountIn: 1_000_000,
-    tokenAmountOut: 3_400_000_000
+    tokenAmountOut: 3_400_000_000,
+    mayhemModeEnabled: false
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
@@ -668,6 +675,7 @@ const result = await new TransactionBuilder(client)
     poolAccounts: {
       coinCreator: "4eUKGdDm7HFkZTYEsn1srZvRYRAMYt6c9eFb7QgTjuU3"  // Faster execution
     },
+    mayhemModeEnabled: false,
     // ...
   })
   // ...
