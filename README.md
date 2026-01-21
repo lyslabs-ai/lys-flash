@@ -409,8 +409,9 @@ await new TransactionBuilder(client).meteora.dlmm.buy({ ... });
 - `pumpFunCreate()` - Create new token
 - `pumpFunMigrate()` - Migrate to Pump.fun AMM
 
-#### Pump.fun AMM (2 operations)
-- `pumpFunAmmBuy()` - Buy on Pump.fun AMM
+#### Pump.fun AMM (3 operations)
+- `pumpFunAmmBuy()` - Buy on Pump.fun AMM (specify max quote in, expected base out)
+- `pumpFunAmmBuyExactQuoteIn()` - Buy with exact quote amount (spend precise SOL)
 - `pumpFunAmmSell()` - Sell on Pump.fun AMM
 
 #### Meteora DBC - Dynamic Bonding Curve (8 operations)

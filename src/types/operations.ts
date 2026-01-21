@@ -19,6 +19,7 @@ export type ExecutionType =
  */
 export type EventType =
   | 'BUY'
+  | 'BUY_EXACT_QUOTE_IN'
   | 'SELL'
   | 'CREATE'
   | 'MIGRATE'
@@ -281,14 +282,26 @@ export interface PumpFunAmmBuyParams {
   user: string;
 
   /**
-   * Amount of SOL to spend (in lamports)
+   * Maximum amount of quote token to spend (in lamports)
    */
-  solAmountIn: number;
+  maxQuoteAmountIn: number;
 
   /**
-   * Minimum tokens expected (slippage protection)
+   * Expected base tokens to receive
    */
-  tokenAmountOut: number;
+  baseAmountOut: number;
+
+  /**
+   * Whether to close base token account after transaction
+   * @default false
+   */
+  closeBaseAssociatedTokenAccount?: boolean;
+
+  /**
+   * Whether to close quote token account after transaction
+   * @default false
+   */
+  closeQuoteAssociatedTokenAccount?: boolean;
 }
 
 /**
@@ -347,20 +360,104 @@ export interface PumpFunAmmSellParams {
   user: string;
 
   /**
-   * Amount of tokens to sell
+   * Amount of base tokens to sell
    */
-  tokenAmountIn: number;
+  baseAmountIn: number;
 
   /**
-   * Minimum SOL expected (slippage protection, in lamports)
+   * Minimum quote token expected (slippage protection, in lamports)
    */
-  minSolAmountOut: number;
+  minQuoteAmountOut: number;
 
   /**
-   * Whether to close the Associated Token Account after selling
+   * Whether to close base token account after transaction
    * @default false
    */
-  closeAssociatedTokenAccount?: boolean;
+  closeBaseAssociatedTokenAccount?: boolean;
+
+  /**
+   * Whether to close quote token account after transaction
+   * @default false
+   */
+  closeQuoteAssociatedTokenAccount?: boolean;
+}
+
+/**
+ * Pump.fun AMM BUY_EXACT_QUOTE_IN operation
+ * Buy tokens with exact quote amount (spend precise SOL amount)
+ */
+export interface PumpFunAmmBuyExactQuoteInParams {
+  executionType: 'PUMP_FUN_AMM';
+  eventType: 'BUY_EXACT_QUOTE_IN';
+
+  /**
+   * AMM pool address
+   */
+  pool: string;
+
+  /**
+   * Base token program address
+   * @example "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+   */
+  baseTokenProgram: string;
+
+  /**
+   * Quote token program address
+   * @example "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+   */
+  quoteTokenProgram: string;
+
+  /**
+   * Pool-related accounts
+   */
+  poolAccounts: {
+    /**
+     * Token mint (base mint)
+     */
+    baseMint: string;
+
+    /**
+     * Quote token mint (usually WSOL)
+     */
+    quoteMint: string;
+
+    /**
+     * Token creator address
+     */
+    coinCreator: string;
+
+    /**
+     * Pool creator address
+     */
+    poolCreator: string;
+  };
+
+  /**
+   * Buyer wallet address
+   */
+  user: string;
+
+  /**
+   * Exact amount of quote token to spend (in lamports)
+   */
+  spendableQuoteIn: number;
+
+  /**
+   * Minimum base tokens to receive (slippage protection)
+   */
+  minBaseAmountOut: number;
+
+  /**
+   * Whether to close base token account after transaction
+   * @default false
+   */
+  closeBaseAssociatedTokenAccount?: boolean;
+
+  /**
+   * Whether to close quote token account after transaction
+   * @default false
+   */
+  closeQuoteAssociatedTokenAccount?: boolean;
 }
 
 // ============================================================================
@@ -689,6 +786,7 @@ export type OperationData =
   | PumpFunCreateParams
   | PumpFunMigrateParams
   | PumpFunAmmBuyParams
+  | PumpFunAmmBuyExactQuoteInParams
   | PumpFunAmmSellParams
   | SystemTransferParams
   | SplTokenTransferParams

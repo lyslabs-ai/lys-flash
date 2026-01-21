@@ -9,6 +9,7 @@ import {
   PumpFunCreateParams,
   PumpFunMigrateParams,
   PumpFunAmmBuyParams,
+  PumpFunAmmBuyExactQuoteInParams,
   PumpFunAmmSellParams,
   SystemTransferParams,
   SplTokenTransferParams,
@@ -271,6 +272,24 @@ export class TransactionBuilder {
    *
    * @param params - AMM buy parameters
    * @returns this (for method chaining)
+   *
+   * @example
+   * ```typescript
+   * builder.pumpFunAmmBuy({
+   *   pool: "pool_address",
+   *   baseTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+   *   quoteTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+   *   poolAccounts: {
+   *     baseMint: "base_mint_address",
+   *     quoteMint: "So11111111111111111111111111111111111111112",
+   *     coinCreator: "creator_address",
+   *     poolCreator: "pool_creator_address"
+   *   },
+   *   user: "buyer_wallet",
+   *   maxQuoteAmountIn: 10_000_000,  // Max 0.01 SOL to spend
+   *   baseAmountOut: 1_000_000       // Expected tokens out
+   * })
+   * ```
    */
   pumpFunAmmBuy(params: Omit<PumpFunAmmBuyParams, 'executionType' | 'eventType'>): this {
     this.operations.push({
@@ -282,10 +301,67 @@ export class TransactionBuilder {
   }
 
   /**
+   * Add Pump.fun AMM BUY_EXACT_QUOTE_IN operation
+   *
+   * Spend an exact amount of quote tokens (SOL) and receive at least minimum base tokens.
+   * Use this when you want to spend a precise amount of SOL.
+   *
+   * @param params - AMM buy exact quote in parameters
+   * @returns this (for method chaining)
+   *
+   * @example
+   * ```typescript
+   * builder.pumpFunAmmBuyExactQuoteIn({
+   *   pool: "pool_address",
+   *   baseTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+   *   quoteTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+   *   poolAccounts: {
+   *     baseMint: "base_mint_address",
+   *     quoteMint: "So11111111111111111111111111111111111111112",
+   *     coinCreator: "creator_address",
+   *     poolCreator: "pool_creator_address"
+   *   },
+   *   user: "buyer_wallet",
+   *   spendableQuoteIn: 10_000_000,  // Exactly 0.01 SOL to spend
+   *   minBaseAmountOut: 900_000      // Minimum tokens to receive
+   * })
+   * ```
+   */
+  pumpFunAmmBuyExactQuoteIn(
+    params: Omit<PumpFunAmmBuyExactQuoteInParams, 'executionType' | 'eventType'>
+  ): this {
+    this.operations.push({
+      executionType: 'PUMP_FUN_AMM',
+      eventType: 'BUY_EXACT_QUOTE_IN',
+      ...params,
+    } as PumpFunAmmBuyExactQuoteInParams);
+    return this;
+  }
+
+  /**
    * Add Pump.fun AMM SELL operation
    *
    * @param params - AMM sell parameters
    * @returns this (for method chaining)
+   *
+   * @example
+   * ```typescript
+   * builder.pumpFunAmmSell({
+   *   pool: "pool_address",
+   *   baseTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+   *   quoteTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+   *   poolAccounts: {
+   *     baseMint: "base_mint_address",
+   *     quoteMint: "So11111111111111111111111111111111111111112",
+   *     coinCreator: "creator_address",
+   *     poolCreator: "pool_creator_address"
+   *   },
+   *   user: "seller_wallet",
+   *   baseAmountIn: 1_000_000,         // Tokens to sell
+   *   minQuoteAmountOut: 9_000_000,    // Min 0.009 SOL to receive
+   *   closeBaseAssociatedTokenAccount: false
+   * })
+   * ```
    */
   pumpFunAmmSell(params: Omit<PumpFunAmmSellParams, 'executionType' | 'eventType'>): this {
     this.operations.push({

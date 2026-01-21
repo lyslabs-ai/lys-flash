@@ -170,11 +170,13 @@ async function main() {
     console.log('\n4. Pump.fun AMM Operations');
     console.log('   ───────────────────────\n');
 
-    // Example 5: AMM BUY - Buy on AMM
+    // Example 5: AMM BUY - Buy on AMM (specify max quote in, expected base out)
     console.log('   a) Simulating Pump.fun AMM BUY...');
     const ammBuySimulation = await new TransactionBuilder(client)
       .pumpFunAmmBuy({
         pool: '9kSKBD8G7Qio51XsLm5yhWWZ72YDJuUeJ6PqDc2mWZe1',
+        baseTokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        quoteTokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
         poolAccounts: {
           baseMint: 'EZtWGQLW2ihjvJXiBRNVz7gUVgnyn9aRQUcQkCeepump',
           quoteMint: 'So11111111111111111111111111111111111111112',
@@ -182,8 +184,8 @@ async function main() {
           poolCreator: 'EXapcg7mPND38PKsSgB8iicv2CD1Gfy9VcC9HtdBrXsD', // Optional
         },
         user: '5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89',
-        solAmountIn: 10_000_000,
-        tokenAmountOut: 1_000_000,
+        maxQuoteAmountIn: 10_000_000, // Max 0.01 SOL to spend
+        baseAmountOut: 1_000_000, // Expected tokens out
       })
       .setFeePayer('5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89')
       .setPriorityFee(1_000_000)
@@ -195,11 +197,13 @@ async function main() {
       console.log('      ✗ Simulation failed:', ammBuySimulation.error);
     }
 
-    // Example 6: AMM SELL - Sell on AMM
-    console.log('\n   b) Simulating Pump.fun AMM SELL...');
-    const ammSellSimulation = await new TransactionBuilder(client)
-      .pumpFunAmmSell({
+    // Example 6: AMM BUY_EXACT_QUOTE_IN - Buy with exact quote amount
+    console.log('\n   b) Simulating Pump.fun AMM BUY_EXACT_QUOTE_IN...');
+    const ammBuyExactSimulation = await new TransactionBuilder(client)
+      .pumpFunAmmBuyExactQuoteIn({
         pool: '9kSKBD8G7Qio51XsLm5yhWWZ72YDJuUeJ6PqDc2mWZe1',
+        baseTokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        quoteTokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
         poolAccounts: {
           baseMint: 'EZtWGQLW2ihjvJXiBRNVz7gUVgnyn9aRQUcQkCeepump',
           quoteMint: 'So11111111111111111111111111111111111111112',
@@ -207,9 +211,36 @@ async function main() {
           poolCreator: 'EXapcg7mPND38PKsSgB8iicv2CD1Gfy9VcC9HtdBrXsD', // Optional
         },
         user: '5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89',
-        tokenAmountIn: 1_000_000,
-        minSolAmountOut: 0,
-        closeAssociatedTokenAccount: false,
+        spendableQuoteIn: 10_000_000, // Exactly 0.01 SOL to spend
+        minBaseAmountOut: 900_000, // Minimum tokens to receive
+      })
+      .setFeePayer('5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89')
+      .setPriorityFee(1_000_000)
+      .simulate();
+
+    if (ammBuyExactSimulation.success) {
+      console.log('      ✓ Simulation passed');
+    } else {
+      console.log('      ✗ Simulation failed:', ammBuyExactSimulation.error);
+    }
+
+    // Example 7: AMM SELL - Sell on AMM
+    console.log('\n   c) Simulating Pump.fun AMM SELL...');
+    const ammSellSimulation = await new TransactionBuilder(client)
+      .pumpFunAmmSell({
+        pool: '9kSKBD8G7Qio51XsLm5yhWWZ72YDJuUeJ6PqDc2mWZe1',
+        baseTokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        quoteTokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        poolAccounts: {
+          baseMint: 'EZtWGQLW2ihjvJXiBRNVz7gUVgnyn9aRQUcQkCeepump',
+          quoteMint: 'So11111111111111111111111111111111111111112',
+          coinCreator: '5VuTMuSbGbtuWsZuixbZxhD1DCuYv6ikzeM59a1XzjRN', // Optional
+          poolCreator: 'EXapcg7mPND38PKsSgB8iicv2CD1Gfy9VcC9HtdBrXsD', // Optional
+        },
+        user: '5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89',
+        baseAmountIn: 1_000_000, // Tokens to sell
+        minQuoteAmountOut: 0, // Min SOL to receive
+        closeBaseAssociatedTokenAccount: false,
       })
       .setFeePayer('5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89')
       .setPriorityFee(1_000_000)

@@ -54,6 +54,7 @@ export type {
 
   // Pump.fun AMM operations
   PumpFunAmmBuyParams,
+  PumpFunAmmBuyExactQuoteInParams,
   PumpFunAmmSellParams,
 
   // System transfer
