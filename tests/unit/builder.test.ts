@@ -613,6 +613,7 @@ describe('TransactionBuilder', () => {
           { input: 'VANILLA', expected: 'VANILLA' },
           { input: 'NOZOMI', expected: 'NOZOMI' },
           { input: 'ZERO_SLOT', expected: 'ZERO_SLOT' },
+          { input: 'LUNAR_LANDER', expected: 'LUNAR_LANDER' },
           { input: 'HELIUS_SENDER', expected: 'HELIUS_SENDER' },
           { input: 'JITO', expected: 'JITO' },
           { input: 'FLASH', expected: 'NONCE' }, // FLASH is normalized to NONCE

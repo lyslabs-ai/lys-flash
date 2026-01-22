@@ -473,7 +473,7 @@ The `rawTransaction()` method allows you to execute pre-built Solana transaction
 - **Supports both legacy `Transaction` and `VersionedTransaction` (v0)**
 - **Efficient binary transfer** - Transaction bytes sent directly via MessagePack (no base64 overhead)
 - **Server-side signing** - Transaction is signed by the server using wallet management
-- **All transport modes supported** - FLASH, ZERO_SLOT, JITO, VANILLA, SIMULATE, etc.
+- **All transport modes supported** - FLASH, ZERO_SLOT, LUNAR_LANDER, NOZOMI, JITO, VANILLA, SIMULATE, etc.
 
 #### Basic Usage
 

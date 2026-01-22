@@ -167,6 +167,34 @@ describe('Transport Modes Integration Tests', () => {
     );
   });
 
+  describe('LUNAR_LANDER Mode', () => {
+    it(
+      'should execute via HelloMoon Lunar Lander endpoint',
+      async () => {
+        const response = await createTransferBuilder().setTransport('LUNAR_LANDER').send();
+
+        assertSuccessResponse(response);
+        expect(response.transport).toBe('LUNAR_LANDER');
+        expect(response.signature).toBeDefined();
+      },
+      TEST_TIMEOUTS.INTEGRATION
+    );
+
+    it(
+      'should have low latency',
+      async () => {
+        const start = Date.now();
+        const response = await createTransferBuilder().setTransport('LUNAR_LANDER').send();
+        const latency = Date.now() - start;
+
+        assertSuccessResponse(response);
+        expect(latency).toBeGreaterThan(LATENCY_TARGETS.LUNAR_LANDER.min);
+        expect(latency).toBeLessThan(LATENCY_TARGETS.LUNAR_LANDER.max);
+      },
+      TEST_TIMEOUTS.INTEGRATION
+    );
+  });
+
   describe('HELIUS_SENDER Mode', () => {
     it(
       'should execute via Helius sender service',
@@ -283,8 +311,8 @@ describe('Transport Modes Integration Tests', () => {
       'should execute same operation across all modes',
       async () => {
         const modes: Array<
-          'SIMULATE' | 'VANILLA' | 'NOZOMI' | 'ZERO_SLOT' | 'HELIUS_SENDER' | 'JITO' | 'FLASH' | 'NONCE'
-        > = ['SIMULATE', 'VANILLA', 'NOZOMI', 'ZERO_SLOT', 'HELIUS_SENDER', 'JITO', 'FLASH', 'NONCE'];
+          'SIMULATE' | 'VANILLA' | 'NOZOMI' | 'ZERO_SLOT' | 'LUNAR_LANDER' | 'HELIUS_SENDER' | 'JITO' | 'FLASH' | 'NONCE'
+        > = ['SIMULATE', 'VANILLA', 'NOZOMI', 'ZERO_SLOT', 'LUNAR_LANDER', 'HELIUS_SENDER', 'JITO', 'FLASH', 'NONCE'];
 
         const results = await Promise.all(
           modes.map(async (mode) => {

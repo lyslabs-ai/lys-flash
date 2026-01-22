@@ -108,6 +108,7 @@ export const LATENCY_TARGETS = {
   VANILLA: { min: 200, max: 1000 }, // Standard RPC with variance
   NOZOMI: { min: 80, max: 400 }, // Low-latency with variance
   ZERO_SLOT: { min: 30, max: 200 }, // Ultra-fast with variance
+  LUNAR_LANDER: { min: 40, max: 150 }, // HelloMoon low-latency with variance
   HELIUS_SENDER: { min: 100, max: 500 }, // Premium with variance
   JITO: { min: 150, max: 600 }, // MEV-protected with variance
   FLASH: { min: 30, max: 150 }, // Multi-broadcast (fastest) - alias for NONCE

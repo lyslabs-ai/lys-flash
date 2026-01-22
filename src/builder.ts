@@ -685,11 +685,12 @@ export class TransactionBuilder {
    *
    * @example
    * ```typescript
-   * builder.setTransport("FLASH")       // Fastest (multi-broadcast)
-   * builder.setTransport("ZERO_SLOT")   // Ultra-fast single RPC
-   * builder.setTransport("NOZOMI")      // Low-latency
-   * builder.setTransport("VANILLA")     // Standard RPC
-   * builder.setTransport("SIMULATE")    // Test without broadcasting
+   * builder.setTransport("FLASH")        // Fastest (multi-broadcast)
+   * builder.setTransport("ZERO_SLOT")    // Ultra-fast single RPC
+   * builder.setTransport("LUNAR_LANDER") // HelloMoon low-latency
+   * builder.setTransport("NOZOMI")       // Low-latency
+   * builder.setTransport("VANILLA")      // Standard RPC
+   * builder.setTransport("SIMULATE")     // Test without broadcasting
    * ```
    */
   setTransport(mode: TransportMode): this {

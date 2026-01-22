@@ -281,6 +281,7 @@ async function main() {
     console.log('   Available transports for raw transactions:');
     console.log('   - FLASH        : Multi-broadcast with MEV protection [Requires bribe]');
     console.log('   - ZERO_SLOT    : Ultra-fast with MEV protection [Requires bribe]');
+    console.log('   - LUNAR_LANDER : HelloMoon low-latency with MEV protection [Requires bribe]');
     console.log('   - NOZOMI       : Low-latency with MEV protection [Requires bribe]');
     console.log('   - HELIUS_SENDER: Premium reliability [Requires bribe]');
     console.log('   - JITO         : MEV-protected via Jito [Requires bribe]');
