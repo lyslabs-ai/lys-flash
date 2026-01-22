@@ -103,8 +103,9 @@ interface TransactionResponse {
 
 | Mode | Description | MEV Protection | Bribe Required |
 |------|-------------|----------------|----------------|
-| **FLASH** ⭐ | Multi-broadcast to 5 endpoints (recommended) | Yes | **YES** (min 1_000_000) |
+| **FLASH** ⭐ | Multi-broadcast to 6 endpoints (recommended) | Yes | **YES** (min 1_000_000) |
 | ZERO_SLOT | Ultra-fast specialized endpoint | Yes | **YES** (min 1_000_000) |
+| LUNAR_LANDER | HelloMoon low-latency endpoint | Yes | **YES** (min 1_000_000) |
 | NOZOMI | Low-latency Temporal endpoint | Yes | **YES** (min 1_000_000) |
 | HELIUS_SENDER | Premium reliability | Yes | **YES** (min 1_000_000) |
 | JITO | MEV-protected via Jito | Yes | **YES** (min 1_000_000) |

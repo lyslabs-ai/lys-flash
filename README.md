@@ -635,8 +635,9 @@ const result = await new TransactionBuilder(client)
 
 | Mode | Description |
 |------|-------------|
-| **FLASH** ⭐ | **Multi-broadcast to 5 endpoints (recommended)** |
+| **FLASH** ⭐ | **Multi-broadcast to 6 endpoints (recommended)** |
 | ZERO_SLOT | Ultra-fast specialized endpoint |
+| LUNAR_LANDER | HelloMoon low-latency endpoint |
 | NOZOMI | Low-latency Temporal endpoint |
 | HELIUS_SENDER | Premium reliability |
 | JITO | MEV-protected transactions |

@@ -486,16 +486,18 @@ builder.setBribe(1_000_000)  // 0.001 SOL (required for MEV protection)
 Set the transport mode (default: "FLASH").
 
 ```typescript
-builder.setTransport("FLASH")       // Multi-broadcast (fastest)
-builder.setTransport("ZERO_SLOT")   // Ultra-fast single RPC
-builder.setTransport("NOZOMI")      // Low-latency
-builder.setTransport("VANILLA")     // Standard RPC
-builder.setTransport("SIMULATE")    // Test without broadcasting
+builder.setTransport("FLASH")        // Multi-broadcast (fastest)
+builder.setTransport("ZERO_SLOT")    // Ultra-fast single RPC
+builder.setTransport("LUNAR_LANDER") // HelloMoon low-latency
+builder.setTransport("NOZOMI")       // Low-latency
+builder.setTransport("VANILLA")      // Standard RPC
+builder.setTransport("SIMULATE")     // Test without broadcasting
 ```
 
 **Available modes:**
 - `FLASH` - Multi-broadcast with MEV protection (requires bribe)
 - `ZERO_SLOT` - Ultra-fast with MEV protection (requires bribe)
+- `LUNAR_LANDER` - HelloMoon low-latency with MEV protection (requires bribe)
 - `NOZOMI` - Low-latency with MEV protection (requires bribe)
 - `HELIUS_SENDER` - Premium reliability with MEV protection (requires bribe)
 - `JITO` - MEV-protected via Jito (requires bribe)
@@ -652,7 +654,7 @@ const result = await new TransactionBuilder(client)
 
 ### 2. Use MEV-Protected Transports for Production
 
-Use FLASH (recommended), ZERO_SLOT, NOZOMI, HELIUS_SENDER, or JITO for MEV protection:
+Use FLASH (recommended), ZERO_SLOT, LUNAR_LANDER, NOZOMI, HELIUS_SENDER, or JITO for MEV protection:
 
 ```typescript
 const result = await new TransactionBuilder(client)

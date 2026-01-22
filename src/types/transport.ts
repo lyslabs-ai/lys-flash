@@ -10,6 +10,7 @@
  *
  * // Fast: Single specialized endpoints
  * transport: "ZERO_SLOT"      // 40-150ms
+ * transport: "LUNAR_LANDER"   // 50-100ms
  * transport: "NOZOMI"         // 100-300ms
  * transport: "HELIUS_SENDER"  // 150-400ms
  *
@@ -28,6 +29,7 @@ export type TransportMode =
   | 'VANILLA'
   | 'NOZOMI'
   | 'ZERO_SLOT'
+  | 'LUNAR_LANDER'
   | 'HELIUS_SENDER'
   | 'JITO'
   | 'FLASH'
@@ -55,10 +57,11 @@ export const TRANSPORT_DESCRIPTIONS: Record<TransportMode, string> = {
   VANILLA: 'Standard RPC with SwQOS support (300-800ms)',
   NOZOMI: 'Temporal Nozomi low-latency endpoint (100-300ms)',
   ZERO_SLOT: '0Slot specialized endpoint (40-150ms, ultra-fast)',
+  LUNAR_LANDER: 'HelloMoon Lunar Lander low-latency endpoint (50-100ms)',
   HELIUS_SENDER: 'Helius sender service (150-400ms, premium reliability)',
   JITO: 'Jito MEV-protected transactions (200-500ms, MEV protection)',
-  FLASH: 'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 5 endpoints in parallel)',
-  NONCE: 'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 5 endpoints in parallel)', // Internal alias for FLASH
+  FLASH: 'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 6 endpoints in parallel)',
+  NONCE: 'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 6 endpoints in parallel)', // Internal alias for FLASH
 };
 
 /**
@@ -87,6 +90,11 @@ export const TRANSPORT_LATENCY: Record<
     min: 40,
     max: 150,
     description: 'Ultra-fast specialized endpoint',
+  },
+  LUNAR_LANDER: {
+    min: 50,
+    max: 100,
+    description: 'HelloMoon low-latency endpoint',
   },
   HELIUS_SENDER: {
     min: 150,
