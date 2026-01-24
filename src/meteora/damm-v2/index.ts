@@ -32,6 +32,7 @@ export type {
   // State/query types
   DAMMv2PoolState,
   DAMMv2SwapQuote,
+  DAMMv2SwapQuote2,
 } from './types';
 
 // Constants

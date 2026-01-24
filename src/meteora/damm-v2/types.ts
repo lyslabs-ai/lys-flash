@@ -455,7 +455,7 @@ export interface DAMMv2PoolState {
 }
 
 /**
- * Swap quote result from getQuote or getQuote2
+ * Swap quote result from getQuote
  */
 export interface DAMMv2SwapQuote {
   /**
@@ -492,4 +492,19 @@ export interface DAMMv2SwapQuote {
    * Price impact percentage (0-100)
    */
   priceImpact: number;
+}
+
+/**
+ * Extended swap quote result from getQuote2
+ */
+export interface DAMMv2SwapQuote2 extends DAMMv2SwapQuote {
+  /**
+   * Partner fee amount
+   */
+  partnerFee: BN;
+
+  /**
+   * Maximum amount in (for ExactOut mode)
+   */
+  maximumAmountIn?: BN;
 }
