@@ -120,6 +120,19 @@ const quote = await DAMMv2Utils.getQuote2(
   'ExactIn', // or 'ExactOut', 'PartialFill'
   100
 );
+
+// Returns:
+{
+  amountIn: BN;            // Input amount
+  amountOut: BN;           // Expected output amount
+  minimumAmountOut: BN;    // Min output with slippage
+  tradingFee: BN;          // Trading fee amount
+  protocolFee: BN;         // Protocol fee amount
+  referralFee: BN;         // Referral fee amount
+  partnerFee: BN;          // Partner fee amount
+  priceImpact: number;     // Price impact %
+  maximumAmountIn?: BN;    // Max input (ExactOut mode only)
+}
 ```
 
 ### TransactionBuilder Methods
@@ -354,6 +367,12 @@ interface DAMMv2SwapQuote {
   protocolFee: BN;
   referralFee: BN;
   priceImpact: number;
+}
+
+// Extended swap quote result (getQuote2)
+interface DAMMv2SwapQuote2 extends DAMMv2SwapQuote {
+  partnerFee: BN;          // Partner fee amount
+  maximumAmountIn?: BN;    // Max input (for ExactOut mode)
 }
 ```
 
