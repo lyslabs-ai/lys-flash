@@ -231,6 +231,8 @@ After migration to AMM, use these operations:
 const result = await new TransactionBuilder(client)
   .pumpFunAmmBuy({
     pool: "9kSKBD8G7Qio51XsLm5yhWWZ72YDJuUeJ6PqDc2mWZe1",
+    baseTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    quoteTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
     poolAccounts: {
       baseMint: "EZtWGQLW2ihjvJXiBRNVz7gUVgnyn9aRQUcQkCeepump",
       quoteMint: "So11111111111111111111111111111111111111112",
@@ -238,8 +240,8 @@ const result = await new TransactionBuilder(client)
       poolCreator: "EXapcg7mPND38PKsSgB8iicv2CD1Gfy9VcC9HtdBrXsD"   // Optional
     },
     user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
-    solAmountIn: 10_000_000,
-    tokenAmountOut: 1_000_000
+    maxQuoteAmountIn: 10_000_000,   // Max 0.01 SOL to spend
+    baseAmountOut: 1_000_000        // Expected tokens out
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
@@ -252,20 +254,26 @@ const result = await new TransactionBuilder(client)
 
 **Parameters:**
 - `pool` (string): AMM pool address
+- `baseTokenProgram` (string): Token program for base token
+- `quoteTokenProgram` (string): Token program for quote token
 - `poolAccounts.baseMint` (string): Base token mint
 - `poolAccounts.quoteMint` (string): Quote token mint (usually SOL)
 - `poolAccounts.coinCreator` (string, optional): Coin creator - speeds up execution
 - `poolAccounts.poolCreator` (string, optional): Pool creator - speeds up execution
 - `user` (string): Buyer wallet address
-- `solAmountIn` (number): SOL amount in lamports
-- `tokenAmountOut` (number): Minimum tokens expected
+- `maxQuoteAmountIn` (number): Maximum SOL amount to spend in lamports
+- `baseAmountOut` (number): Expected tokens to receive
 
-#### `pumpFunAmmSell()` - Sell on AMM
+#### `pumpFunAmmBuyExactQuoteIn()` - Buy on AMM with exact quote amount
+
+Use this when you want to spend an exact amount of SOL (quote) and receive at least a minimum amount of tokens (base).
 
 ```typescript
 const result = await new TransactionBuilder(client)
-  .pumpFunAmmSell({
+  .pumpFunAmmBuyExactQuoteIn({
     pool: "9kSKBD8G7Qio51XsLm5yhWWZ72YDJuUeJ6PqDc2mWZe1",
+    baseTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    quoteTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
     poolAccounts: {
       baseMint: "EZtWGQLW2ihjvJXiBRNVz7gUVgnyn9aRQUcQkCeepump",
       quoteMint: "So11111111111111111111111111111111111111112",
@@ -273,9 +281,8 @@ const result = await new TransactionBuilder(client)
       poolCreator: "EXapcg7mPND38PKsSgB8iicv2CD1Gfy9VcC9HtdBrXsD"   // Optional
     },
     user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
-    tokenAmountIn: 1_000_000,
-    minSolAmountOut: 0,
-    closeAssociatedTokenAccount: false
+    spendableQuoteIn: 10_000_000,    // Exactly 0.01 SOL to spend
+    minBaseAmountOut: 900_000        // Minimum tokens to receive
   })
   .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
   .setPriorityFee(1_000_000)
@@ -284,16 +291,60 @@ const result = await new TransactionBuilder(client)
   .send();
 ```
 
+**Note:** `coinCreator` and `poolCreator` in `poolAccounts` are **optional but recommended**. Providing them speeds up transaction building by avoiding additional RPC requests.
+
 **Parameters:**
 - `pool` (string): AMM pool address
+- `baseTokenProgram` (string): Token program for base token
+- `quoteTokenProgram` (string): Token program for quote token
+- `poolAccounts.baseMint` (string): Base token mint
+- `poolAccounts.quoteMint` (string): Quote token mint (usually SOL)
+- `poolAccounts.coinCreator` (string, optional): Coin creator - speeds up execution
+- `poolAccounts.poolCreator` (string, optional): Pool creator - speeds up execution
+- `user` (string): Buyer wallet address
+- `spendableQuoteIn` (number): Exact SOL amount to spend in lamports
+- `minBaseAmountOut` (number): Minimum tokens expected
+
+#### `pumpFunAmmSell()` - Sell on AMM
+
+```typescript
+const result = await new TransactionBuilder(client)
+  .pumpFunAmmSell({
+    pool: "9kSKBD8G7Qio51XsLm5yhWWZ72YDJuUeJ6PqDc2mWZe1",
+    baseTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    quoteTokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    poolAccounts: {
+      baseMint: "EZtWGQLW2ihjvJXiBRNVz7gUVgnyn9aRQUcQkCeepump",
+      quoteMint: "So11111111111111111111111111111111111111112",
+      coinCreator: "5VuTMuSbGbtuWsZuixbZxhD1DCuYv6ikzeM59a1XzjRN",   // Optional
+      poolCreator: "EXapcg7mPND38PKsSgB8iicv2CD1Gfy9VcC9HtdBrXsD"   // Optional
+    },
+    user: "5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89",
+    baseAmountIn: 1_000_000,              // Tokens to sell
+    minQuoteAmountOut: 9_000_000,         // Min 0.009 SOL to receive
+    closeBaseAssociatedTokenAccount: false
+  })
+  .setFeePayer("5ZkoYMeNTjUA56k6rXSyRb9zf1HzR8SZ5YdYM2edfK89")
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)                    // Required for MEV protection
+  .setTransport("FLASH")
+  .send();
+```
+
+**Note:** `coinCreator` and `poolCreator` in `poolAccounts` are **optional but recommended**. Providing them speeds up transaction building by avoiding additional RPC requests.
+
+**Parameters:**
+- `pool` (string): AMM pool address
+- `baseTokenProgram` (string): Token program for base token
+- `quoteTokenProgram` (string): Token program for quote token
 - `poolAccounts.baseMint` (string): Base token mint
 - `poolAccounts.quoteMint` (string): Quote token mint
 - `poolAccounts.coinCreator` (string, optional): Coin creator - speeds up execution
 - `poolAccounts.poolCreator` (string, optional): Pool creator - speeds up execution
 - `user` (string): Seller wallet address
-- `tokenAmountIn` (number): Tokens to sell
-- `minSolAmountOut` (number): Minimum SOL expected
-- `closeAssociatedTokenAccount` (boolean, optional): Reclaim rent
+- `baseAmountIn` (number): Tokens to sell
+- `minQuoteAmountOut` (number): Minimum SOL expected in lamports
+- `closeBaseAssociatedTokenAccount` (boolean, optional): Reclaim rent by closing base token ATA
 
 ### System Transfer
 

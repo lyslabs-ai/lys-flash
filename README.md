@@ -178,6 +178,18 @@ For comprehensive guides and examples, see:
 - **[Raw API Guide](./RAW_API.md)** - Complete guide to using `client.execute()` for direct transaction execution with maximum control
 - **[Transaction Builder Guide](./TRANSACTION_BUILDER.md)** - Complete guide to using the fluent `TransactionBuilder` API (recommended)
 
+### Protocol Integration Guides
+
+#### Pump.fun
+- **[Pump.fun Bonding Curve](./PUMPFUN.md)** - Trading on bonding curve (buy, sell, create, migrate)
+- **[Pump.fun AMM](./PUMPFUN_AMM.md)** - Post-graduation AMM trading with swap calculations
+
+#### Meteora
+- **[Meteora DBC](./METEORA_DBC.md)** - Dynamic Bonding Curve integration
+- **[Meteora DAMM v1](./METEORA_DAMM_V1.md)** - Dynamic AMM v1 integration
+- **[Meteora DAMM v2](./METEORA_DAMM_V2.md)** - Dynamic AMM v2 / CP-AMM integration
+- **[Meteora DLMM](./METEORA_DLMM.md)** - Dynamic Liquidity Market Maker integration
+
 ### Examples
 
 - **[Raw API Examples](./examples/raw-api-usage.ts)** - Working examples using `client.execute()`
