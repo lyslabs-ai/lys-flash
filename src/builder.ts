@@ -1,6 +1,7 @@
 import { Transaction, VersionedTransaction, PublicKey } from '@solana/web3.js';
 import { LysFlash } from './client';
 import { MeteoraNamespace } from './meteora';
+import { RaydiumNamespace } from './raydium';
 import {
   TransportMode,
   OperationData,
@@ -87,6 +88,7 @@ export class TransactionBuilder {
   private transport: TransportMode = 'FLASH'; // Default: fastest
   private bribeLamports?: number;
   private _meteoraNamespace?: MeteoraNamespace;
+  private _raydiumNamespace?: RaydiumNamespace;
 
   /**
    * Create a new TransactionBuilder
@@ -148,6 +150,45 @@ export class TransactionBuilder {
       this._meteoraNamespace = new MeteoraNamespace(this);
     }
     return this._meteoraNamespace;
+  }
+
+  /**
+   * Access Raydium operations (LaunchPad, CLMM, CPMM, AMMv4)
+   *
+   * @returns RaydiumNamespace instance
+   *
+   * @example
+   * ```typescript
+   * import { Connection } from '@solana/web3.js';
+   *
+   * const connection = new Connection('https://api.mainnet-beta.solana.com');
+   * const client = new LysFlash({
+   *   address: 'ipc:///tmp/tx-executor.ipc',
+   *   connection,
+   * });
+   *
+   * // Access CLMM via nested namespace
+   * const builder = await new TransactionBuilder(client)
+   *   .raydium.clmm.buy({
+   *     pool: poolAddress,
+   *     user: userWallet,
+   *     tokenMint: tokenAddress,
+   *     solAmountIn: 1_000_000_000,
+   *     minTokensOut: 1000000,
+   *   });
+   *
+   * const result = await builder
+   *   .setFeePayer(userWallet)
+   *   .setTransport('FLASH')
+   *   .setBribe(1_000_000)
+   *   .send();
+   * ```
+   */
+  get raydium(): RaydiumNamespace {
+    if (!this._raydiumNamespace) {
+      this._raydiumNamespace = new RaydiumNamespace(this);
+    }
+    return this._raydiumNamespace;
   }
 
   // ============================================================================
@@ -839,6 +880,7 @@ export class TransactionBuilder {
     this.transport = 'FLASH';
     this.bribeLamports = undefined;
     this._meteoraNamespace = undefined;
+    this._raydiumNamespace = undefined;
     return this;
   }
 

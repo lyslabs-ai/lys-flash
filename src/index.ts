@@ -53,6 +53,26 @@ export {
   SOL_MINT,
 } from './meteora';
 
+// Raydium integration
+export {
+  RaydiumNamespace,
+  // LaunchPad
+  RaydiumLaunchPadNamespace,
+  RaydiumLaunchPadUtils,
+  RAYDIUM_LAUNCHPAD_PROGRAM_ID,
+  // CLMM
+  RaydiumCLMMNamespace,
+  RaydiumCLMMUtils,
+  RAYDIUM_CLMM_PROGRAM_ID,
+  // CPMM
+  RaydiumCPMMNamespace,
+  RaydiumCPMMUtils,
+  // AMMv4
+  RaydiumAMMv4Namespace,
+  RaydiumAMMv4Utils,
+  AMMV4_FEE_BPS,
+} from './raydium';
+
 // All types
 export * from './types';
 
@@ -177,10 +197,77 @@ export type {
   DLMMSwapQuoteExactOut,
 } from './meteora';
 
+// Raydium LaunchPad types (re-export for convenience)
+export type {
+  // Direction types
+  RaydiumLaunchPadSwapDirection,
+  // Swap params
+  RaydiumLaunchPadSwapParams,
+  RaydiumLaunchPadBuyParams,
+  RaydiumLaunchPadSellParams,
+  // State/query types
+  RaydiumLaunchPadPoolState,
+  RaydiumLaunchPadSwapQuote,
+} from './raydium';
+
+// Raydium CLMM types (re-export for convenience)
+export type {
+  // Direction and mode types
+  RaydiumCLMMSwapDirection,
+  RaydiumCLMMSwapMode,
+  // Swap params
+  RaydiumCLMMSwapParams,
+  RaydiumCLMMSwapExactOutParams,
+  RaydiumCLMMBuyParams,
+  RaydiumCLMMSellParams,
+  RaydiumCLMMBuyExactOutParams,
+  RaydiumCLMMSellExactOutParams,
+  // State/query types
+  RaydiumCLMMPoolState,
+  RaydiumCLMMSwapQuote,
+  RaydiumCLMMSwapQuoteExactOut,
+} from './raydium';
+
+// Raydium CPMM types (re-export for convenience)
+export type {
+  // Direction and mode types
+  RaydiumCPMMSwapDirection,
+  RaydiumCPMMSwapMode,
+  // Swap params
+  RaydiumCPMMSwapParams,
+  RaydiumCPMMSwapExactOutParams,
+  RaydiumCPMMBuyParams,
+  RaydiumCPMMSellParams,
+  RaydiumCPMMBuyExactOutParams,
+  RaydiumCPMMSellExactOutParams,
+  // State/query types
+  RaydiumCPMMPoolState,
+  RaydiumCPMMSwapQuote,
+  RaydiumCPMMSwapQuoteExactOut,
+} from './raydium';
+
+// Raydium AMMv4 types (re-export for convenience)
+export type {
+  // Direction and mode types
+  RaydiumAMMv4SwapDirection,
+  RaydiumAMMv4SwapMode,
+  // Swap params
+  RaydiumAMMv4SwapParams,
+  RaydiumAMMv4SwapExactOutParams,
+  RaydiumAMMv4BuyParams,
+  RaydiumAMMv4SellParams,
+  RaydiumAMMv4BuyExactOutParams,
+  RaydiumAMMv4SellExactOutParams,
+  // State/query types
+  RaydiumAMMv4PoolState,
+  RaydiumAMMv4SwapQuote,
+  RaydiumAMMv4SwapQuoteExactOut,
+} from './raydium';
+
 /**
  * Library version
  */
-export const VERSION = '1.4.0';
+export const VERSION = '1.5.0';
 
 /**
  * Default address (ZMQ IPC)

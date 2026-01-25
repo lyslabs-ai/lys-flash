@@ -18,6 +18,11 @@
     "cp-amm",
     "dynamic-amm",
     "dlmm",
+    "raydium",
+    "raydium-clmm",
+    "raydium-cpmm",
+    "raydium-ammv4",
+    "raydium-launchpad",
     "zeromq",
     "zmq",
     "high-performance",
@@ -92,6 +97,7 @@
     "@meteora-ag/dlmm": "^1.0.0",
     "@meteora-ag/dynamic-amm-sdk": "^1.0.0",
     "@meteora-ag/dynamic-bonding-curve-sdk": "^1.0.0",
+    "@raydium-io/raydium-sdk-v2": "^0.2.32-alpha",
     "@solana/web3.js": "^1.95.0",
     "@types/bn.js": "^5.1.5",
     "@types/node": "^20.0.0",
@@ -116,6 +122,7 @@
     "@meteora-ag/dynamic-amm-sdk": "^1.0.0",
     "@meteora-ag/cp-amm-sdk": "^1.0.0",
     "@meteora-ag/dlmm": "^1.0.0",
+    "@raydium-io/raydium-sdk-v2": "^0.2.32-alpha",
     "bn.js": "^5.2.0"
   },
   "peerDependenciesMeta": {
@@ -129,6 +136,9 @@
       "optional": true
     },
     "@meteora-ag/dlmm": {
+      "optional": true
+    },
+    "@raydium-io/raydium-sdk-v2": {
       "optional": true
     },
     "bn.js": {
