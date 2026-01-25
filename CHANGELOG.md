@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-01-25
+
 ### Added
+- Raydium DEX integration with LaunchPad, CLMM, CPMM, and AMMv4 support
 - LUNAR_LANDER transport mode for HelloMoon low-latency endpoint
 - `pumpFunAmmBuyExactQuoteIn` operation for Pump.fun AMM
 - `mayhemModeEnabled` field for PumpFun operations
@@ -17,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated AMM parameter names for consistency
 
 ### Documentation
+- Added Raydium LaunchPad, CLMM, CPMM, and AMMv4 documentation
 - Added Pump.fun and Pump.fun AMM documentation
 - Added Meteora integration documentation
 - Added `getQuote2` return type and `DAMMv2SwapQuote2` type to DAMM v2 documentation
@@ -71,7 +75,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ZMQ-based communication
 - Basic transaction execution functionality
 
-[Unreleased]: https://github.com/cubedro/lys-flash/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/cubedro/lys-flash/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/cubedro/lys-flash/compare/v1.4.0...v1.8.0
 [1.4.0]: https://github.com/cubedro/lys-flash/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/cubedro/lys-flash/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/cubedro/lys-flash/compare/v1.2.0...v1.2.2
