@@ -51,25 +51,22 @@ npm install @lyslabs.ai/lys-flash @solana/web3.js tweetnacl
 
 **Note:** `tweetnacl` is required for wallet decryption on the client side.
 
-### Optional: Meteora Integration
+### RPC Connection (Required for Meteora & Raydium)
 
-To use Meteora pool operations, install the corresponding SDK packages:
+Meteora and Raydium integrations **require** a Solana RPC connection. These DEXs build transactions client-side using their SDKs, which need RPC access to fetch pool data.
 
-```bash
-# For DBC (Dynamic Bonding Curve)
-npm install @meteora-ag/dynamic-bonding-curve-sdk
+**Features requiring RPC:**
 
-# For DAMM v1 (Dynamic AMM)
-npm install @meteora-ag/dynamic-amm-sdk
+| Feature | RPC Required | Reason |
+|---------|--------------|--------|
+| Pump.fun | No | Server-side transaction building |
+| Pump.fun AMM | No | Server-side transaction building |
+| SPL Token | No | Server-side transaction building |
+| System Transfer | No | Server-side transaction building |
+| **Meteora** | **Yes** | Client-side SDK fetches pool data |
+| **Raydium** | **Yes** | Client-side SDK fetches pool data |
 
-# For DAMM v2 (CP-AMM)
-npm install @meteora-ag/cp-amm-sdk
-
-# For DLMM (Dynamic Liquidity Market Maker)
-npm install @meteora-ag/dlmm
-```
-
-**Note:** Meteora operations require a `Connection` object to be provided when creating the `LysFlash` client:
+**Configuration:**
 
 ```typescript
 import { Connection } from '@solana/web3.js';
@@ -78,8 +75,37 @@ import { LysFlash } from '@lyslabs.ai/lys-flash';
 const connection = new Connection('https://api.mainnet-beta.solana.com');
 const client = new LysFlash({
   address: 'ipc:///tmp/tx-executor.ipc',
-  connection,  // Required for Meteora operations
+  connection,                    // Required for Meteora/Raydium
+  commitment: 'confirmed',       // Optional (default: 'confirmed')
 });
+```
+
+**Commitment levels:**
+- `'processed'` - Fastest, may roll back
+- `'confirmed'` - Default, balanced
+- `'finalized'` - Slowest, guaranteed
+
+**Without RPC configured:**
+```
+ExecutionError: Connection not configured. Set the connection option when creating LysFlash client.
+```
+
+**Recommended RPC providers:**
+- Helius, QuickNode, Triton, or your own node
+
+### Optional Peer Dependencies
+
+Install the SDK packages for the DEX products you need:
+
+```bash
+# Meteora
+npm install @meteora-ag/dynamic-bonding-curve-sdk  # DBC
+npm install @meteora-ag/dynamic-amm-sdk            # DAMM v1
+npm install @meteora-ag/cp-amm-sdk                 # DAMM v2
+npm install @meteora-ag/dlmm                       # DLMM
+
+# Raydium
+npm install @raydium-io/raydium-sdk-v2             # All Raydium products
 ```
 
 ## Quick Start
