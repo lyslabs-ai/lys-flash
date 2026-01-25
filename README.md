@@ -11,7 +11,7 @@
 ## Features
 
 - **🚀 Multi-Broadcast**: Multi-broadcast strategy for fast confirmations
-- **📦 50+ Operations**: Pump.fun, Meteora (DBC, DAMM, DLMM), SPL Token, System Transfer
+- **📦 50+ Operations**: Pump.fun, Meteora (DBC, DAMM, DLMM), Raydium (LaunchPad, CLMM, CPMM, AMMv4), SPL Token, System Transfer
 - **🔐 Secure Wallet Creation**: Dual-encrypted wallet generation with user-side decryption
 - **🔧 Type-Safe**: Full TypeScript support with comprehensive types
 - **⚡ High Performance**: MessagePack over ZeroMQ for efficient communication
@@ -175,20 +175,26 @@ For comprehensive guides and examples, see:
 
 ### API Documentation
 
-- **[Raw API Guide](./RAW_API.md)** - Complete guide to using `client.execute()` for direct transaction execution with maximum control
-- **[Transaction Builder Guide](./TRANSACTION_BUILDER.md)** - Complete guide to using the fluent `TransactionBuilder` API (recommended)
+- **[Raw API Guide](./docs/RAW_API.md)** - Complete guide to using `client.execute()` for direct transaction execution with maximum control
+- **[Transaction Builder Guide](./docs/TRANSACTION_BUILDER.md)** - Complete guide to using the fluent `TransactionBuilder` API (recommended)
 
 ### Protocol Integration Guides
 
 #### Pump.fun
-- **[Pump.fun Bonding Curve](./PUMPFUN.md)** - Trading on bonding curve (buy, sell, create, migrate)
-- **[Pump.fun AMM](./PUMPFUN_AMM.md)** - Post-graduation AMM trading with swap calculations
+- **[Pump.fun Bonding Curve](./docs/PUMPFUN.md)** - Trading on bonding curve (buy, sell, create, migrate)
+- **[Pump.fun AMM](./docs/PUMPFUN_AMM.md)** - Post-graduation AMM trading with swap calculations
 
 #### Meteora
-- **[Meteora DBC](./METEORA_DBC.md)** - Dynamic Bonding Curve integration
-- **[Meteora DAMM v1](./METEORA_DAMM_V1.md)** - Dynamic AMM v1 integration
-- **[Meteora DAMM v2](./METEORA_DAMM_V2.md)** - Dynamic AMM v2 / CP-AMM integration
-- **[Meteora DLMM](./METEORA_DLMM.md)** - Dynamic Liquidity Market Maker integration
+- **[Meteora DBC](./docs/METEORA_DBC.md)** - Dynamic Bonding Curve integration
+- **[Meteora DAMM v1](./docs/METEORA_DAMM_V1.md)** - Dynamic AMM v1 integration
+- **[Meteora DAMM v2](./docs/METEORA_DAMM_V2.md)** - Dynamic AMM v2 / CP-AMM integration
+- **[Meteora DLMM](./docs/METEORA_DLMM.md)** - Dynamic Liquidity Market Maker integration
+
+#### Raydium
+- **[Raydium LaunchPad](./docs/RAYDIUM_LAUNCHPAD.md)** - LaunchPad token launches
+- **[Raydium CLMM](./docs/RAYDIUM_CLMM.md)** - Concentrated Liquidity Market Maker
+- **[Raydium CPMM](./docs/RAYDIUM_CPMM.md)** - Constant Product Market Maker
+- **[Raydium AMMv4](./docs/RAYDIUM_AMMV4.md)** - AMM v4 pools
 
 ### Examples
 
@@ -200,7 +206,8 @@ For comprehensive guides and examples, see:
 
 ### Other Guides
 
-- **[Wallet Management](./WALLET_MANAGEMENT.md)** - Wallet creation, encryption, and security
+- **[Wallet Management](./docs/WALLET_MANAGEMENT.md)** - Wallet creation, encryption, and security
+- **[DEX Integration Guide](./docs/DEX_INTEGRATION_GUIDE.md)** - How to integrate new DEXs
 - **[Security Policy](./SECURITY.md)** - Security best practices and policies
 - **[Contributing](./CONTRIBUTING.md)** - How to contribute to the project
 
@@ -1263,7 +1270,7 @@ await bot.buyToken(
 ## API Documentation
 
 For complete API documentation with all types and methods, see:
-- [Wallet Management Guide](./WALLET_MANAGEMENT.md)
+- [Wallet Management Guide](./docs/WALLET_MANAGEMENT.md)
 - [Security Policy](./SECURITY.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 

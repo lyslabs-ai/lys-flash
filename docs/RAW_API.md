@@ -708,8 +708,8 @@ console.log(`Connected: ${stats.connected}`);
 ## See Also
 
 - [Transaction Builder API](./TRANSACTION_BUILDER.md) - Higher-level fluent API
-- [Examples](./examples/raw-api-usage.ts) - Complete working examples
-- [README](./README.md) - Main documentation
+- [Examples](../examples/raw-api-usage.ts) - Complete working examples
+- [README](../README.md) - Main documentation
 - [Wallet Management](./WALLET_MANAGEMENT.md) - Wallet creation guide
 
 ## Support

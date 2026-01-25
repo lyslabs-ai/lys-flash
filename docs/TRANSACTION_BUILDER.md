@@ -787,8 +787,8 @@ process.on('exit', () => client.close());
 ## See Also
 
 - [Raw API Documentation](./RAW_API.md) - Low-level API for advanced use cases
-- [Examples](./examples/transaction-builder-usage.ts) - Complete working examples
-- [README](./README.md) - Main documentation
+- [Examples](../examples/transaction-builder-usage.ts) - Complete working examples
+- [README](../README.md) - Main documentation
 - [Wallet Management](./WALLET_MANAGEMENT.md) - Wallet creation guide
 
 ## Support

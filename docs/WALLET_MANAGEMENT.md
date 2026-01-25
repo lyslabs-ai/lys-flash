@@ -65,7 +65,7 @@ if (decryptedSecretKey) {
 
 ## Complete Example
 
-See [examples/wallet-management.ts](./examples/wallet-management.ts) for a full implementation including:
+See [examples/wallet-management.ts](../examples/wallet-management.ts) for a full implementation including:
 
 - Wallet creation
 - Secure storage (encrypted JSON)
@@ -325,8 +325,8 @@ There's no hard limit, but implement rate limiting to prevent abuse. Recommended
 ## Support
 
 - [GitHub Issues](https://github.com/lyslabs-ai/lys-flash/issues)
-- [Main README](./README.md)
-- [Examples](./examples/)
+- [Main README](../README.md)
+- [Examples](../examples/)
 
 ## License
 
