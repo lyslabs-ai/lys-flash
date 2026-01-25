@@ -65,7 +65,7 @@ export interface PumpFunBuyParams {
     /**
      * Token creator wallet address
      */
-    coinCreator: string;
+    coinCreator: string | null;
   };
 
   /**
@@ -118,7 +118,7 @@ export interface PumpFunSellParams {
     /**
      * Token creator wallet address
      */
-    coinCreator: string;
+    coinCreator: string | null;
   };
 
   /**
@@ -268,7 +268,7 @@ export interface PumpFunAmmBuyParams {
     /**
      * Token creator address
      */
-    coinCreator: string;
+    coinCreator: string | null;
 
     /**
      * Pool creator address
@@ -346,7 +346,7 @@ export interface PumpFunAmmSellParams {
     /**
      * Token creator address
      */
-    coinCreator: string;
+    coinCreator: string | null;
 
     /**
      * Pool creator address
@@ -424,7 +424,7 @@ export interface PumpFunAmmBuyExactQuoteInParams {
     /**
      * Token creator address
      */
-    coinCreator: string;
+    coinCreator: string | null;
 
     /**
      * Pool creator address
