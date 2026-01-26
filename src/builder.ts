@@ -659,8 +659,30 @@ export class TransactionBuilder {
    * ```
    */
   rawTransaction(params: RawTransactionInput): this {
+    const tx = params.transaction;
+
+    // Placeholder blockhash for serialization - will be replaced at execution time
+    // Required because some SDKs (Raydium, Meteora) don't set blockhash until execute()
+    const PLACEHOLDER_BLOCKHASH = '11111111111111111111111111111111';
+
+    // Add placeholder blockhash if missing
+    if (tx instanceof Transaction) {
+      // Legacy Transaction - can mutate directly
+      if (!tx.recentBlockhash) {
+        tx.recentBlockhash = PLACEHOLDER_BLOCKHASH;
+      }
+    } else {
+      // VersionedTransaction - check if blockhash is missing in message
+      if (!tx.message.recentBlockhash) {
+        // VersionedTransaction messages are immutable, but the message should
+        // always have a blockhash. If not, we need to set it on the message object
+        // which is technically mutable before serialization
+        (tx.message as { recentBlockhash: string }).recentBlockhash = PLACEHOLDER_BLOCKHASH;
+      }
+    }
+
     // Serialize the transaction
-    const serialized = params.transaction.serialize({
+    const serialized = tx.serialize({
       requireAllSignatures: false,
       verifySignatures: false,
     });
