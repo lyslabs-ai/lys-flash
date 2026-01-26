@@ -82,10 +82,14 @@ export class RaydiumLaunchPadNamespace {
     const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
     const TOKEN_2022_PROGRAM_ID = new PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
 
+    const user =
+      typeof params.user === 'string' ? new PublicKey(params.user) : params.user;
+
     const raydium = await Raydium.load({
       connection,
       cluster: 'mainnet',
       disableFeatureCheck: true,
+      owner: user,
     });
 
     const poolAddress =

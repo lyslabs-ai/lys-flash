@@ -83,10 +83,14 @@ export class RaydiumCLMMNamespace {
 
     const { Raydium, TxVersion, PoolUtils } = await import('@raydium-io/raydium-sdk-v2');
 
+    const user =
+      typeof params.user === 'string' ? new PublicKey(params.user) : params.user;
+
     const raydium = await Raydium.load({
       connection,
       cluster: 'mainnet',
       disableFeatureCheck: true,
+      owner: user,
     });
 
     const poolAddress =
@@ -169,10 +173,14 @@ export class RaydiumCLMMNamespace {
 
     const { Raydium, TxVersion, PoolUtils } = await import('@raydium-io/raydium-sdk-v2');
 
+    const user =
+      typeof params.user === 'string' ? new PublicKey(params.user) : params.user;
+
     const raydium = await Raydium.load({
       connection,
       cluster: 'mainnet',
       disableFeatureCheck: true,
+      owner: user,
     });
 
     const poolAddress =
