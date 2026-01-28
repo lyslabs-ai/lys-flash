@@ -80,9 +80,17 @@ export interface RawTransactionInput {
  *   .send();
  * ```
  */
+type DeferredRawOperation = {
+  _deferred: true;
+  transaction: Transaction | VersionedTransaction;
+  additionalSigners?: (PublicKey | string)[];
+};
+
+type BuilderOperation = OperationData | DeferredRawOperation;
+
 export class TransactionBuilder {
   private client: LysFlash;
-  private operations: OperationData[] = [];
+  private operations: BuilderOperation[] = [];
   private feePayer?: string;
   private priorityFeeLamports: number = 1_000_000; // Default: 0.001 SOL
   private transport: TransportMode = 'FLASH'; // Default: fastest
@@ -659,45 +667,11 @@ export class TransactionBuilder {
    * ```
    */
   rawTransaction(params: RawTransactionInput): this {
-    const tx = params.transaction;
-
-    // Placeholder blockhash for serialization - will be replaced at execution time
-    // Required because some SDKs (Raydium, Meteora) don't set blockhash until execute()
-    const PLACEHOLDER_BLOCKHASH = '11111111111111111111111111111111';
-
-    // Add placeholder blockhash if missing
-    if (tx instanceof Transaction) {
-      // Legacy Transaction - can mutate directly
-      if (!tx.recentBlockhash) {
-        tx.recentBlockhash = PLACEHOLDER_BLOCKHASH;
-      }
-    } else {
-      // VersionedTransaction - check if blockhash is missing in message
-      if (!tx.message.recentBlockhash) {
-        // VersionedTransaction messages are immutable, but the message should
-        // always have a blockhash. If not, we need to set it on the message object
-        // which is technically mutable before serialization
-        (tx.message as { recentBlockhash: string }).recentBlockhash = PLACEHOLDER_BLOCKHASH;
-      }
-    }
-
-    // Serialize the transaction
-    const serialized = tx.serialize({
-      requireAllSignatures: false,
-      verifySignatures: false,
-    });
-
-    // Convert PublicKey objects to base58 strings
-    const additionalSigners = params.additionalSigners?.map((signer) =>
-      typeof signer === 'string' ? signer : signer.toBase58()
-    );
-
     this.operations.push({
-      executionType: 'RAW_TRANSACTION',
-      eventType: 'EXECUTE',
-      transactionBytes: serialized,
-      additionalSigners,
-    } as RawTransactionParams);
+      _deferred: true,
+      transaction: params.transaction,
+      additionalSigners: params.additionalSigners,
+    });
 
     return this;
   }
@@ -804,9 +778,63 @@ export class TransactionBuilder {
   async send(): Promise<TransactionResponse> {
     this.validate();
 
+    const resolvedOperations: OperationData[] = this.operations.map((operation) => {
+      if ((operation as DeferredRawOperation)._deferred) {
+        const deferred = operation as DeferredRawOperation;
+        const tx = deferred.transaction;
+
+        // Placeholder blockhash for serialization - will be replaced at execution time
+        // Required because some SDKs (Raydium, Meteora) don't set blockhash until execute()
+        const PLACEHOLDER_BLOCKHASH = '11111111111111111111111111111111';
+
+        if (tx instanceof Transaction) {
+          // Legacy Transaction - can mutate directly
+          if (!tx.recentBlockhash) {
+            tx.recentBlockhash = PLACEHOLDER_BLOCKHASH;
+          }
+
+          // Ensure fee payer is set on legacy transactions before serialization
+          if (!tx.feePayer && this.feePayer) {
+            tx.feePayer = new PublicKey(this.feePayer);
+          }
+        } else {
+          // VersionedTransaction - check if blockhash is missing in message
+          if (!tx.message.recentBlockhash) {
+            // VersionedTransaction messages are immutable, but the message should
+            // always have a blockhash. If not, we need to set it on the message object
+            // which is technically mutable before serialization
+            (tx.message as { recentBlockhash: string }).recentBlockhash = PLACEHOLDER_BLOCKHASH;
+          }
+        }
+
+        const serialized = tx.serialize({
+          requireAllSignatures: false,
+          verifySignatures: false,
+        });
+
+        const additionalSigners = deferred.additionalSigners?.map((signer) =>
+          typeof signer === 'string' ? signer : signer.toBase58()
+        );
+
+        return {
+          executionType: 'RAW_TRANSACTION',
+          eventType: 'EXECUTE',
+          transactionBytes: serialized,
+          additionalSigners,
+        } as RawTransactionParams;
+      }
+
+      return operation as OperationData;
+    });
+
+    const requestData: OperationData | OperationData[] =
+      resolvedOperations.length === 1
+        ? (resolvedOperations[0] as OperationData)
+        : resolvedOperations;
+
     return this.client.execute({
-      data: this.operations.length === 1 ? this.operations[0]! : this.operations,
-      feePayer: this.feePayer!,
+      data: requestData,
+      feePayer: this.feePayer as string,
       priorityFeeLamports: this.priorityFeeLamports,
       transport: normalizeTransportForServer(this.transport),
       bribeLamports: this.bribeLamports,
