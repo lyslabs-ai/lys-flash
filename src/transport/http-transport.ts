@@ -1,8 +1,10 @@
 import * as http from 'http';
 import * as https from 'https';
 import { pack, unpack } from 'msgpackr';
-import { Transport, HTTPTransportConfig } from './transport.interface';
+import nacl from 'tweetnacl';
+import { Transport, HTTPTransportConfig, SigningKeypair } from './transport.interface';
 import { ExecutionError, ErrorCode, fromUnknownError } from '../errors';
+import { base58Encode } from '../utils/base58';
 
 /**
  * HTTP transport layer with keep-alive connections
@@ -73,7 +75,7 @@ export class HTTPTransport implements Transport {
   /**
    * Send request and wait for response
    */
-  async request<T>(message: unknown): Promise<T> {
+  async request<T>(message: unknown, signingKeypair?: SigningKeypair): Promise<T> {
     if (!this.connected) {
       if (this.config.autoReconnect) {
         this.connect();
@@ -107,7 +109,7 @@ export class HTTPTransport implements Transport {
     );
 
     try {
-      const response = await this.makeRequest(endpoint, body, contentType);
+      const response = await this.makeRequest(endpoint, body, contentType, signingKeypair);
       this.config.logger.debug('Received response', this.config.verbose ? response : undefined);
       return response as T;
     } catch (error) {
@@ -122,23 +124,47 @@ export class HTTPTransport implements Transport {
   }
 
   /**
+   * Sign a request body with Ed25519 for external API key authentication.
+   * Returns the base58-encoded signature and the timestamp string.
+   * @private
+   */
+  private signRequest(body: Buffer, keypair: SigningKeypair): { signature: string; timestamp: string } {
+    const timestampMs = Date.now();
+    const timestampBytes = Buffer.alloc(8);
+    timestampBytes.writeBigUInt64BE(BigInt(timestampMs));
+    const message = Buffer.concat([timestampBytes, body]);
+    const sig = nacl.sign.detached(message, keypair.secretKey);
+    return { signature: base58Encode(sig), timestamp: timestampMs.toString() };
+  }
+
+  /**
    * Make HTTP request
    * @private
    */
-  private makeRequest(endpoint: string, body: Buffer, contentType: string): Promise<unknown> {
+  private makeRequest(endpoint: string, body: Buffer, contentType: string, signingKeypair?: SigningKeypair): Promise<unknown> {
     return new Promise((resolve, reject) => {
       const url = new URL(endpoint, this.baseUrl);
+
+      const headers: Record<string, string | number> = {
+        'Content-Type': contentType,
+        'Content-Length': body.length,
+        'X-API-Key': this.config.apiKey,
+      };
+
+      // Add Ed25519 request signing headers when a signing keypair is provided
+      if (signingKeypair) {
+        const { signature, timestamp } = this.signRequest(body, signingKeypair);
+        headers['X-Signature'] = signature;
+        headers['X-Timestamp'] = timestamp;
+      }
+
       const options: http.RequestOptions = {
         hostname: url.hostname,
         port: url.port || (this.isHttps ? 443 : 80),
         path: url.pathname,
         method: 'POST',
         agent: this.agent,
-        headers: {
-          'Content-Type': contentType,
-          'Content-Length': body.length,
-          'X-API-Key': this.config.apiKey,
-        },
+        headers,
         timeout: this.config.timeout,
       };
 

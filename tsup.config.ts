@@ -14,6 +14,7 @@ export default defineConfig({
   external: [
     'zeromq',                     // Don't bundle dependencies
     'msgpackr',
-    '@solana/web3.js'
+    '@solana/web3.js',
+    'tweetnacl',
   ],
 });

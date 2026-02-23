@@ -26,7 +26,7 @@ export {
 } from './transport';
 
 // Configuration types
-export type { ClientConfig, Logger, ClientStats, TransportConfig } from './config';
+export type { ClientConfig, ClientMode, Logger, ClientStats, TransportConfig } from './config';
 
 // Response types
 export type {

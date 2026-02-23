@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { SolanaExecutionClient } from '../../src/client';
+import { SolanaExecutionClient, LysFlash } from '../../src/client';
 import { ExecutionError, ErrorCode } from '../../src/errors';
 
 describe('SolanaExecutionClient', () => {
@@ -302,6 +302,43 @@ describe('SolanaExecutionClient', () => {
     it('should return boolean', () => {
       const connected = client.isConnected();
       expect(typeof connected).toBe('boolean');
+    });
+  });
+
+  describe('Factory Methods', () => {
+    it('LysFlash.internal() should create client with internal mode', () => {
+      client = LysFlash.internal();
+      expect(client.getClientMode()).toBe('internal');
+    });
+
+    it('LysFlash.external() should create client with external mode', () => {
+      client = LysFlash.external();
+      expect(client.getClientMode()).toBe('external');
+    });
+
+    it('LysFlash.internal() should accept config', () => {
+      client = LysFlash.internal({
+        zmqAddress: 'tcp://localhost:5555',
+        timeout: 60000,
+      });
+      expect(client).toBeInstanceOf(LysFlash);
+      expect(client.getClientMode()).toBe('internal');
+    });
+
+    it('LysFlash.external() should accept config', () => {
+      client = LysFlash.external({
+        zmqAddress: 'tcp://localhost:5555',
+        timeout: 60000,
+      });
+      expect(client).toBeInstanceOf(LysFlash);
+      expect(client.getClientMode()).toBe('external');
+    });
+  });
+
+  describe('getClientMode()', () => {
+    it('should default to internal for constructor', () => {
+      client = new SolanaExecutionClient();
+      expect(client.getClientMode()).toBe('internal');
     });
   });
 });

@@ -14,13 +14,23 @@ import { LysFlash, TransactionBuilder, ExecutionError, ErrorCode } from '@lyslab
 async function main() {
   console.log('LYS Flash - Basic Usage Example\n');
 
-  // Create client
+  // Create client (ZMQ transport - default)
   console.log('1. Creating client...');
   const client = new LysFlash({
     address: 'ipc:///tmp/tx-executor.ipc',
     timeout: 30000,
     verbose: true,
   });
+
+  // Alternative: HTTP transport with external API key (signing via Signer on builder)
+  // import { Keypair } from '@solana/web3.js';
+  // import { Signer } from '@lyslabs.ai/lys-flash';
+  // const client = LysFlash.external({
+  //   address: 'https://api.example.com',
+  //   apiKey: 'sk_live_your_key',
+  // });
+  // const signer = new Signer(Keypair.fromSecretKey(mySecretKey));
+  // // Pass signer to each builder: new TransactionBuilder(client, signer)
 
   console.log('   ✓ Client created\n');
 

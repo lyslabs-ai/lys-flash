@@ -1,6 +1,6 @@
 import * as zmq from 'zeromq';
 import { pack, unpack } from 'msgpackr';
-import { Transport, BaseTransportConfig } from './transport.interface';
+import { Transport, BaseTransportConfig, SigningKeypair } from './transport.interface';
 import { ExecutionError, ErrorCode, fromUnknownError } from '../errors';
 
 /**
@@ -108,7 +108,7 @@ export class ZMQTransport implements Transport {
    * @returns Response (MessagePack decoded)
    * @throws ExecutionError on timeout, network error, or serialization error
    */
-  async request<T>(message: unknown): Promise<T> {
+  async request<T>(message: unknown, _signingKeypair?: SigningKeypair): Promise<T> {
     if (!this.connected || !this.socket) {
       if (this.config.autoReconnect) {
         this.reconnect();

@@ -28,6 +28,43 @@ For low-level control, see the [Raw API Documentation](./RAW_API.md).
 - [Error Handling](#error-handling)
 - [Best Practices](#best-practices)
 
+## HTTP Authentication & Signer
+
+When using HTTP transport, an API key is always required. External API keys additionally require Ed25519 request signing via a `Signer` on each `TransactionBuilder`. See the [HTTP Transport & API Keys](../README.md#http-transport--api-keys) section of the README for full details.
+
+```typescript
+import { Keypair } from '@solana/web3.js';
+import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
+
+// Internal API key (no signing)
+const internalClient = LysFlash.internal({
+  address: 'https://api.example.com',
+  apiKey: 'sk_live_internal_key',
+});
+
+// External API key (signing required per builder)
+const externalClient = LysFlash.external({
+  address: 'https://api.example.com',
+  apiKey: 'sk_live_external_key',
+});
+
+const signer = new Signer(Keypair.fromSecretKey(mySecretKey));
+
+await new TransactionBuilder(externalClient, signer)
+  .pumpFunBuy({ /* ... */ })
+  .setFeePayer('wallet')
+  .send();
+
+// Or set signer fluently
+await new TransactionBuilder(externalClient)
+  .setSigner(signer)
+  .pumpFunBuy({ /* ... */ })
+  .setFeePayer('wallet')
+  .send();
+```
+
+**Note:** Signing is only used with HTTP transport. ZMQ transport does not support or require request signing.
+
 ## Installation
 
 ```bash
@@ -71,8 +108,11 @@ client.close();
 ### Constructor
 
 ```typescript
-const builder = new TransactionBuilder(client: LysFlash);
+const builder = new TransactionBuilder(client: LysFlash, signer?: Signer);
 ```
+
+- `client` - LysFlash client instance
+- `signer` - Optional `Signer` for HTTP request signing (required for external API keys)
 
 ### Execution Methods
 

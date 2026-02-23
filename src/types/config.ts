@@ -143,6 +143,13 @@ export interface ClientStats {
 }
 
 /**
+ * Client mode determines whether HTTP request signing is required.
+ * - `'internal'` — Trusted backend-to-backend communication, no signing needed.
+ * - `'external'` — External API key usage, Ed25519 request signing required via `Signer`.
+ */
+export type ClientMode = 'internal' | 'external';
+
+/**
  * Transport configuration for ZMQ
  * @internal
  */

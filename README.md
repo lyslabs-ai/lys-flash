@@ -693,16 +693,84 @@ const result = await new TransactionBuilder(client)
 
 ### HTTP Transport & API Keys
 
-For remote or cloud deployments, use HTTP transport with API key authentication:
+For remote or cloud deployments, use HTTP transport with API key authentication. There are two types of API keys:
+
+#### Internal API Keys
+
+Internal keys are used for trusted backend-to-backend communication. No request signing is required:
 
 ```typescript
+// Explicit internal mode (recommended)
+const client = LysFlash.internal({
+  address: 'https://api.example.com',
+  apiKey: 'sk_live_your_internal_key',
+  contentType: 'msgpack',
+});
+
+// new LysFlash() also defaults to internal mode (backward compatible)
 const client = new LysFlash({
   address: 'https://api.example.com',
-  apiKey: 'sk_live_your_api_key',  // Required for HTTP/HTTPS
-  contentType: 'msgpack',          // 'msgpack' (default) or 'json'
-  timeout: 30000,                  // Request timeout in ms
+  apiKey: 'sk_live_your_internal_key',
 });
 ```
+
+#### External API Keys
+
+External keys require Ed25519 request signing for each request. Use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder`:
+
+```typescript
+import { Keypair } from '@solana/web3.js';
+import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
+
+const client = LysFlash.external({
+  address: 'https://api.example.com',
+  apiKey: 'sk_live_your_external_key',
+  contentType: 'msgpack',
+});
+
+// Create a signer from your keypair (public key must be registered with the server)
+const signer = new Signer(Keypair.fromSecretKey(mySecretKey));
+
+// Every builder must be given a signer for external clients
+await new TransactionBuilder(client, signer)
+  .pumpFunBuy({ /* ... */ })
+  .setFeePayer('wallet')
+  .send();
+
+// Different builders can use different signers (multi-wallet support)
+const signerB = new Signer(Keypair.fromSecretKey(otherSecretKey));
+await new TransactionBuilder(client, signerB)
+  .pumpFunSell({ /* ... */ })
+  .setFeePayer('other_wallet')
+  .send();
+```
+
+Each `Signer` wraps a `Keypair` and automatically signs every HTTP request. If you forget to provide a signer on an external client, `send()` will throw an error.
+
+**When is signing required?**
+
+- **Internal keys** - No signing needed. Use `LysFlash.internal()` or `new LysFlash()` for trusted backend-to-backend environments.
+- **External keys** - Signing is **required**. Use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder`. Any API key created through the developer portal is an external key. The keypair's public key must match the one registered with your API key on the server.
+
+**Note:** Signing is only used with HTTP transport. ZMQ transport does not support or require request signing.
+
+**Signature protocol (for reference):**
+
+Each request includes three authentication headers:
+
+| Header | Value |
+|--------|-------|
+| `X-API-Key` | Your API key string |
+| `X-Timestamp` | `Date.now()` in milliseconds (string) |
+| `X-Signature` | Base58-encoded Ed25519 detached signature |
+
+The signed message is constructed as:
+
+```
+message = timestamp_as_u64_big_endian_bytes (8 bytes) + serialized_request_body
+```
+
+The server validates that the timestamp is within a 60-second window and that the signature matches the public key registered with the API key. Replay protection prevents reuse of the same timestamp.
 
 **Configuration options:**
 
@@ -724,8 +792,6 @@ const client = new LysFlash({
 **Content Types:**
 - `msgpack` - Binary format, 2-3x smaller payloads, faster serialization (recommended)
 - `json` - Text format, easier debugging
-
-The API key is sent via the `X-API-Key` HTTP header with each request.
 
 ## Examples
 

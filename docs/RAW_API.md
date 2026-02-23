@@ -23,6 +23,34 @@ For a higher-level, more convenient API, see the [Transaction Builder API](./TRA
 - [Error Handling](#error-handling)
 - [Best Practices](#best-practices)
 
+## HTTP Authentication
+
+When using HTTP transport, an API key is always required. For external API keys, use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder` (see [Transaction Builder docs](./TRANSACTION_BUILDER.md#http-authentication--signer)).
+
+For raw `client.execute()` calls with external keys, you can pass a `SigningKeypair` directly:
+
+```typescript
+import { Keypair } from '@solana/web3.js';
+import { LysFlash, Signer } from '@lyslabs.ai/lys-flash';
+
+// Internal (no signing)
+const client = LysFlash.internal({
+  address: 'https://api.example.com',
+  apiKey: 'sk_live_internal_key',
+});
+
+// External (signing required — pass keypair to execute/createWallet/ping)
+const client = LysFlash.external({
+  address: 'https://api.example.com',
+  apiKey: 'sk_live_external_key',
+});
+
+const signer = new Signer(Keypair.fromSecretKey(mySecretKey));
+const result = await client.execute(request, signer.toSigningKeypair());
+```
+
+**Note:** Signing is only used with HTTP transport. ZMQ transport does not support or require request signing.
+
 ## Installation
 
 ```bash

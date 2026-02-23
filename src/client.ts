@@ -8,6 +8,7 @@ import {
 } from './transport/transport.interface';
 import {
   ClientConfig,
+  ClientMode,
   ClientStats,
   Logger,
   TransactionRequest,
@@ -16,6 +17,7 @@ import {
   WalletCreationResponse,
   RawTransactionParams,
 } from './types';
+import type { SigningKeypair } from './transport/transport.interface';
 import { ExecutionError, ErrorCode, fromUnknownError } from './errors';
 
 /**
@@ -103,13 +105,66 @@ export class LysFlash {
   private transportType: 'HTTP' | 'ZMQ';
   private _connection?: Connection;
   private _commitment: Commitment;
+  private _clientMode: ClientMode;
 
   /**
-   * Create a new LysFlash client
+   * Create an internal-mode client (no request signing required).
+   * Use this for trusted backend-to-backend communication with internal API keys.
+   *
+   * @param config - Client configuration options
+   *
+   * @example
+   * ```typescript
+   * const client = LysFlash.internal({
+   *   address: 'https://api.example.com',
+   *   apiKey: 'internal_key',
+   * });
+   * ```
+   */
+  static internal(config?: ClientConfig): LysFlash {
+    const client = new LysFlash(config);
+    client._clientMode = 'internal';
+    return client;
+  }
+
+  /**
+   * Create an external-mode client (request signing required via Signer on TransactionBuilder).
+   * Builders must be given a `Signer` or `send()` will throw.
+   *
+   * @param config - Client configuration options
+   *
+   * @example
+   * ```typescript
+   * const client = LysFlash.external({
+   *   address: 'https://api.example.com',
+   *   apiKey: 'external_key',
+   * });
+   *
+   * const signer = new Signer(keypair);
+   * await new TransactionBuilder(client, signer)
+   *   .pumpFunBuy({ ... })
+   *   .setFeePayer('wallet')
+   *   .send();
+   * ```
+   */
+  static external(config?: ClientConfig): LysFlash {
+    const client = new LysFlash(config);
+    client._clientMode = 'external';
+    return client;
+  }
+
+  /**
+   * Create a new LysFlash client.
+   *
+   * Defaults to `'internal'` mode (no signing required).
+   * Prefer using the static factory methods `LysFlash.internal()` or `LysFlash.external()`
+   * to explicitly set the client mode.
    *
    * @param config - Client configuration options
    */
   constructor(config?: ClientConfig) {
+    this._clientMode = 'internal';
+
     // Merge config with defaults, handle backward compatibility
     const address = config?.address || config?.zmqAddress || DEFAULT_CONFIG.address;
 
@@ -193,6 +248,13 @@ export class LysFlash {
    */
   getTransportType(): 'HTTP' | 'ZMQ' {
     return this.transportType;
+  }
+
+  /**
+   * Get the client mode (internal or external).
+   */
+  getClientMode(): ClientMode {
+    return this._clientMode;
   }
 
   /**
@@ -302,7 +364,7 @@ export class LysFlash {
    * });
    * ```
    */
-  async execute(request: TransactionRequest): Promise<TransactionResponse> {
+  async execute(request: TransactionRequest, signingKeypair?: SigningKeypair): Promise<TransactionResponse> {
     const startTime = Date.now();
     this.stats.requestsSent++;
 
@@ -310,8 +372,7 @@ export class LysFlash {
       // Validate request
       this.validateTransactionRequest(request);
 
-      // Send request via ZMQ transport
-      const response = await this.transport.request<TransactionResponse>(request);
+      const response = await this.transport.request<TransactionResponse>(request, signingKeypair);
 
       // Update statistics
       const latency = Date.now() - startTime;
@@ -368,7 +429,7 @@ export class LysFlash {
    * );
    * ```
    */
-  async createWallet(userPublicKey: string): Promise<WalletCreationResponse> {
+  async createWallet(userPublicKey: string, signingKeypair?: SigningKeypair): Promise<WalletCreationResponse> {
     this.stats.requestsSent++;
 
     try {
@@ -377,7 +438,7 @@ export class LysFlash {
         userPublicKey,
       };
 
-      const response = await this.transport.request<WalletCreationResponse>(request);
+      const response = await this.transport.request<WalletCreationResponse>(request, signingKeypair);
 
       this.stats.requestsSuccessful++;
 
@@ -399,10 +460,9 @@ export class LysFlash {
    * @returns true if connected and responsive
    * @throws ExecutionError if ping fails
    */
-  async ping(): Promise<boolean> {
+  async ping(signingKeypair?: SigningKeypair): Promise<boolean> {
     try {
-      // Send a simple request to check connectivity
-      await this.transport.request({ type: 'PING' });
+      await this.transport.request({ type: 'PING' }, signingKeypair);
       return true;
     } catch (error) {
       if (error instanceof ExecutionError) {

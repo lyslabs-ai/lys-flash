@@ -8,16 +8,30 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TransactionBuilder } from '../../src/builder';
 import { SolanaExecutionClient } from '../../src/client';
+import { Signer } from '../../src/signer';
 import { ExecutionError, ErrorCode } from '../../src/errors';
 
 // Create mock client for testing
-function createMockClient(): SolanaExecutionClient {
+function createMockClient(mode: 'internal' | 'external' = 'internal'): SolanaExecutionClient {
   return {
     execute: vi.fn().mockResolvedValue({
       success: true,
       signature: '5VBxKxAh...',
       transport: 'NONCE',
       error: null,
+    }),
+    getClientMode: vi.fn().mockReturnValue(mode),
+  } as any;
+}
+
+// Create a mock Signer (avoid real Keypair dependency in unit tests)
+function createMockSigner(): Signer {
+  return {
+    publicKey: new Uint8Array(32),
+    secretKey: new Uint8Array(64),
+    toSigningKeypair: vi.fn().mockReturnValue({
+      publicKey: new Uint8Array(32),
+      secretKey: new Uint8Array(64),
     }),
   } as any;
 }
@@ -1054,6 +1068,111 @@ describe('TransactionBuilder', () => {
         .send();
 
       expect(mockClient.execute).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  // ============================================================================
+  // Signer Support
+  // ============================================================================
+
+  describe('Signer Support', () => {
+    it('should accept signer in constructor', async () => {
+      const externalClient = createMockClient('external');
+      const signer = createMockSigner();
+      const b = new TransactionBuilder(externalClient, signer);
+
+      await b
+        .systemTransfer({ sender: 'a', recipient: 'b', lamports: 1000 })
+        .setFeePayer('wallet')
+        .send();
+
+      expect(externalClient.execute).toHaveBeenCalledTimes(1);
+      expect(signer.toSigningKeypair).toHaveBeenCalled();
+    });
+
+    it('should accept signer via setSigner()', async () => {
+      const externalClient = createMockClient('external');
+      const signer = createMockSigner();
+      const b = new TransactionBuilder(externalClient);
+
+      await b
+        .setSigner(signer)
+        .systemTransfer({ sender: 'a', recipient: 'b', lamports: 1000 })
+        .setFeePayer('wallet')
+        .send();
+
+      expect(externalClient.execute).toHaveBeenCalledTimes(1);
+      expect(signer.toSigningKeypair).toHaveBeenCalled();
+    });
+
+    it('should throw when external client has no signer', async () => {
+      const externalClient = createMockClient('external');
+      const b = new TransactionBuilder(externalClient);
+
+      await expect(
+        b
+          .systemTransfer({ sender: 'a', recipient: 'b', lamports: 1000 })
+          .setFeePayer('wallet')
+          .send()
+      ).rejects.toThrow('Signer required for external API keys');
+    });
+
+    it('should work without signer for internal client', async () => {
+      const internalClient = createMockClient('internal');
+      const b = new TransactionBuilder(internalClient);
+
+      await b
+        .systemTransfer({ sender: 'a', recipient: 'b', lamports: 1000 })
+        .setFeePayer('wallet')
+        .send();
+
+      expect(internalClient.execute).toHaveBeenCalledTimes(1);
+    });
+
+    it('setSigner() should return this for method chaining', () => {
+      const signer = createMockSigner();
+      const result = builder.setSigner(signer);
+      expect(result).toBe(builder);
+    });
+
+    it('should preserve signer after reset()', async () => {
+      const externalClient = createMockClient('external');
+      const signer = createMockSigner();
+      const b = new TransactionBuilder(externalClient, signer);
+
+      // First send
+      await b
+        .systemTransfer({ sender: 'a', recipient: 'b', lamports: 1000 })
+        .setFeePayer('wallet')
+        .send();
+
+      // Reset and send again — signer should persist
+      await b
+        .reset()
+        .systemTransfer({ sender: 'c', recipient: 'd', lamports: 2000 })
+        .setFeePayer('wallet')
+        .send();
+
+      expect(externalClient.execute).toHaveBeenCalledTimes(2);
+    });
+
+    it('should pass signingKeypair to client.execute()', async () => {
+      const externalClient = createMockClient('external');
+      const signer = createMockSigner();
+      const b = new TransactionBuilder(externalClient, signer);
+
+      await b
+        .systemTransfer({ sender: 'a', recipient: 'b', lamports: 1000 })
+        .setFeePayer('wallet')
+        .send();
+
+      expect(externalClient.execute).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.objectContaining({
+          publicKey: expect.any(Uint8Array),
+          secretKey: expect.any(Uint8Array),
+        })
+      );
     });
   });
 });

@@ -35,6 +35,7 @@
 // Core classes
 export { LysFlash, SolanaExecutionClient } from './client';
 export { TransactionBuilder } from './builder';
+export { Signer } from './signer';
 
 // Error handling
 export { ExecutionError, ErrorCode, fromUnknownError } from './errors';
@@ -80,6 +81,7 @@ export * from './types';
 export type {
   // Client & config
   ClientConfig,
+  ClientMode,
   ClientStats,
   Logger,
 

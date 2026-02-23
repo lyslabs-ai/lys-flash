@@ -1,5 +1,6 @@
 import { Transaction, VersionedTransaction, PublicKey } from '@solana/web3.js';
 import { LysFlash } from './client';
+import { Signer } from './signer';
 import { MeteoraNamespace } from './meteora';
 import { RaydiumNamespace } from './raydium';
 import {
@@ -90,6 +91,7 @@ type BuilderOperation = OperationData | DeferredRawOperation;
 
 export class TransactionBuilder {
   private client: LysFlash;
+  private signer?: Signer;
   private operations: BuilderOperation[] = [];
   private feePayer?: string;
   private priorityFeeLamports: number = 1_000_000; // Default: 0.001 SOL
@@ -102,9 +104,22 @@ export class TransactionBuilder {
    * Create a new TransactionBuilder
    *
    * @param client - LysFlash client instance
+   * @param signer - Optional Signer for HTTP request signing (required for external API keys)
    */
-  constructor(client: LysFlash) {
+  constructor(client: LysFlash, signer?: Signer) {
     this.client = client;
+    this.signer = signer;
+  }
+
+  /**
+   * Set or replace the signer for HTTP request signing.
+   *
+   * @param signer - Signer instance wrapping an Ed25519 keypair
+   * @returns this (for method chaining)
+   */
+  setSigner(signer: Signer): this {
+    this.signer = signer;
+    return this;
   }
 
   /**
@@ -832,13 +847,18 @@ export class TransactionBuilder {
         ? (resolvedOperations[0] as OperationData)
         : resolvedOperations;
 
-    return this.client.execute({
-      data: requestData,
-      feePayer: this.feePayer as string,
-      priorityFeeLamports: this.priorityFeeLamports,
-      transport: normalizeTransportForServer(this.transport),
-      bribeLamports: this.bribeLamports,
-    });
+    const signingKeypair = this.signer?.toSigningKeypair();
+
+    return this.client.execute(
+      {
+        data: requestData,
+        feePayer: this.feePayer as string,
+        priorityFeeLamports: this.priorityFeeLamports,
+        transport: normalizeTransportForServer(this.transport),
+        bribeLamports: this.bribeLamports,
+      },
+      signingKeypair,
+    );
   }
 
   /**
@@ -888,6 +908,14 @@ export class TransactionBuilder {
     if (this.operations.length === 0) {
       throw new ExecutionError(
         'No operations added. Use methods like pumpFunBuy(), systemTransfer(), etc. to add operations.',
+        ErrorCode.INVALID_REQUEST,
+        'BUILDER'
+      );
+    }
+
+    if (this.client.getClientMode() === 'external' && !this.signer) {
+      throw new ExecutionError(
+        'Signer required for external API keys. Pass a Signer to the TransactionBuilder constructor or use setSigner().',
         ErrorCode.INVALID_REQUEST,
         'BUILDER'
       );

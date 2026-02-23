@@ -23,7 +23,7 @@ export interface Transport {
    * @param message - Message to send
    * @returns Response from server
    */
-  request<T>(message: unknown): Promise<T>;
+  request<T>(message: unknown, signingKeypair?: SigningKeypair): Promise<T>;
 
   /**
    * Get number of reconnection attempts
@@ -47,6 +47,15 @@ export interface BaseTransportConfig {
   reconnectDelay: number;
   logger: TransportLogger;
   verbose?: boolean;
+}
+
+/**
+ * Raw Ed25519 keypair for request signing (transport-level, no @solana/web3.js dependency)
+ * @internal
+ */
+export interface SigningKeypair {
+  publicKey: Uint8Array;
+  secretKey: Uint8Array;
 }
 
 /**
