@@ -1,8 +1,6 @@
 # @lyslabs.ai/lys-flash
 
-> High-performance TypeScript client for Solana Execution Engine
->
-> Transaction execution for trading bots on Solana
+> High-performance TypeScript client for the LYS Solana Execution Engine — ultra-low latency transaction execution for trading bots.
 
 [![npm version](https://img.shields.io/npm/v/@lyslabs.ai/lys-flash.svg)](https://www.npmjs.com/package/@lyslabs.ai/lys-flash)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -10,8 +8,8 @@
 
 ## Features
 
-- **🚀 Multi-Broadcast**: Multi-broadcast strategy for fast confirmations
-- **📦 50+ Operations**: Pump.fun, Meteora (DBC, DAMM, DLMM), Raydium (LaunchPad, CLMM, CPMM, AMMv4), SPL Token, System Transfer
+- **🚀 Multi-Broadcast**: Multi-broadcast strategy for fast, reliable confirmations
+- **📦 50+ Operations**: Pump.fun, Meteora (DBC, DAMM v1/v2, DLMM), Raydium (LaunchPad, CLMM, CPMM, AMMv4), SPL Token, System Transfer
 - **🔐 Secure Wallet Creation**: Dual-encrypted wallet generation with user-side decryption
 - **🔧 Type-Safe**: Full TypeScript support with comprehensive types
 - **⚡ High Performance**: MessagePack over ZeroMQ for efficient communication
@@ -19,29 +17,27 @@
 - **🔄 Auto-Reconnect**: Automatic connection recovery
 - **📊 Statistics**: Built-in performance tracking
 - **🛡️ MEV Protection**: Jito integration for high-value transactions
-- **🌊 Meteora Integration**: Full support for DBC, DAMM v1/v2, and DLMM pools
 
 ## Table of Contents
 
 - [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Detailed Documentation](#detailed-documentation)
-- [Prerequisites](#prerequisites)
-- [Wallet Management](#wallet-management)
-  - [Creating Wallets](#creating-wallets)
-  - [Decrypting Wallets](#decrypting-wallets)
-  - [Security](#security)
+- [Getting Started](#getting-started)
+- [Connection Modes](#connection-modes)
+- [API Keys & Authentication](#api-keys--authentication)
 - [Usage](#usage)
-  - [Client API](#client-api)
   - [Builder API](#builder-api)
+  - [Client API](#client-api)
   - [Supported Operations](#supported-operations)
   - [Raw Transactions](#raw-transactions)
   - [Transport Modes](#transport-modes)
-- [Examples](#examples)
+- [Wallet Management](#wallet-management)
+- [Error Handling](#error-handling)
 - [Advanced Usage](#advanced-usage)
-- [API Documentation](#api-documentation)
+- [Detailed Documentation](#detailed-documentation)
 - [Contributing](#contributing)
 - [License](#license)
+
+---
 
 ## Installation
 
@@ -49,13 +45,11 @@
 npm install @lyslabs.ai/lys-flash @solana/web3.js tweetnacl
 ```
 
-**Note:** `tweetnacl` is required for wallet decryption on the client side.
+> `tweetnacl` is required for client-side wallet decryption.
 
 ### RPC Connection (Required for Meteora & Raydium)
 
-Meteora and Raydium integrations **require** a Solana RPC connection. These DEXs build transactions client-side using their SDKs, which need RPC access to fetch pool data.
-
-**Features requiring RPC:**
+Meteora and Raydium integrations **require** a Solana RPC connection — these DEXs build transactions client-side using their SDKs, which need RPC access to fetch pool data.
 
 | Feature | RPC Required | Reason |
 |---------|--------------|--------|
@@ -66,32 +60,17 @@ Meteora and Raydium integrations **require** a Solana RPC connection. These DEXs
 | **Meteora** | **Yes** | Client-side SDK fetches pool data |
 | **Raydium** | **Yes** | Client-side SDK fetches pool data |
 
-**Configuration:**
-
 ```typescript
 import { Connection } from '@solana/web3.js';
 import { LysFlash } from '@lyslabs.ai/lys-flash';
 
 const connection = new Connection('https://api.mainnet-beta.solana.com');
-const client = new LysFlash({
-  address: 'ipc:///tmp/tx-executor.ipc',
-  connection,                    // Required for Meteora/Raydium
-  commitment: 'confirmed',       // Optional (default: 'confirmed')
+const client = LysFlash.external({
+  address: 'http://execution.lyslabs-stage.xyz:3001',
+  apiKey: process.env.LYS_API_KEY!,
+  connection,  // Required for Meteora/Raydium
 });
 ```
-
-**Commitment levels:**
-- `'processed'` - Fastest, may roll back
-- `'confirmed'` - Default, balanced
-- `'finalized'` - Slowest, guaranteed
-
-**Without RPC configured:**
-```
-ExecutionError: Connection not configured. Set the connection option when creating LysFlash client.
-```
-
-**Recommended RPC providers:**
-- Helius, QuickNode, Triton, or your own node
 
 ### Optional Peer Dependencies
 
@@ -108,630 +87,111 @@ npm install @meteora-ag/dlmm                       # DLMM
 npm install @raydium-io/raydium-sdk-v2             # All Raydium products
 ```
 
-## Quick Start
+---
 
-### Step 1: Connect to the Execution Engine
+## Getting Started
 
-```typescript
-import { LysFlash } from '@lyslabs.ai/lys-flash';
+### Step 1: Get an API Key
 
-// Connect via ZeroMQ IPC (default, fastest - no API key required)
-const client = new LysFlash();
+Generate your API key at **[https://dev.lyslabs.ai/api-keys](https://dev.lyslabs.ai/api-keys)**.
 
-// Or connect via ZeroMQ TCP
-const client = new LysFlash({
-  address: 'tcp://127.0.0.1:5555'
-});
+Store it as an environment variable:
 
-// Or connect via HTTP (API key required)
-const client = new LysFlash({
-  address: 'http://localhost:3000',
-  apiKey: 'sk_live_your_api_key'
-});
-
-// Or connect via HTTPS (API key required)
-const client = new LysFlash({
-  address: 'https://api.example.com',
-  apiKey: 'sk_live_your_api_key',
-  contentType: 'msgpack'  // or 'json' (default: 'msgpack')
-});
+```bash
+export LYS_API_KEY=sk_live_your_key_here
 ```
 
-The client automatically detects the transport mode based on the URL scheme:
-- `ipc://` or `tcp://` → ZeroMQ transport (default, lowest latency, no API key)
-- `http://` or `https://` → HTTP transport (requires API key, for remote/cloud deployments)
+### Step 2: Connect to the Execution Engine
 
-### Step 2: Create a Wallet (Optional)
+The execution engine endpoint is `http://execution.lyslabs-stage.xyz:3001`.
+
+API keys from the portal are **external keys** — they require Ed25519 request signing. Use `LysFlash.external()`:
 
 ```typescript
+import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
-import nacl from 'tweetnacl';
 
-// Create a new wallet with dual encryption
-const userKeypair = Keypair.generate(); // Your encryption key
-const wallet = await client.createWallet(userKeypair.publicKey.toBase58());
+const client = LysFlash.external({
+  address: 'http://execution.lyslabs-stage.xyz:3001',
+  apiKey: process.env.LYS_API_KEY!,
+});
 
-console.log("New wallet created:", wallet.publicKey);
-
-// Decrypt to use the wallet
-const secretKey = nacl.box.open(
-  Buffer.from(wallet.encryptedSecretKey, 'base64'),
-  Buffer.from(wallet.nonce, 'base64'),
-  Buffer.from(wallet.ephemeralPublicKey, 'base64'),
-  userKeypair.secretKey
-);
-
-const walletKeypair = Keypair.fromSecretKey(new Uint8Array(secretKey!));
-// Now use walletKeypair for transactions
+// Create a signer from your keypair (public key must be registered with the key on the portal)
+const signer = new Signer(Keypair.fromSecretKey(yourSecretKey));
 ```
 
-### Step 3: Execute Transactions
+### Step 3: Execute a Transaction
 
 ```typescript
-import { LysFlash, TransactionBuilder } from '@lyslabs.ai/lys-flash';
-
-// Create client
-const client = new LysFlash();
-
-// Buy tokens with builder pattern (simple API)
-const result = await new TransactionBuilder(client)
+const result = await new TransactionBuilder(client, signer)
   .pumpFunBuy({
-    pool: "mint_address_here",
-    poolAccounts: { coinCreator: "creator_address" },
-    user: "buyer_wallet",
-    solAmountIn: 1_000_000,        // 0.001 SOL
-    tokenAmountOut: 3_400_000_000, // Min 3.4B tokens
-    mayhemModeEnabled: false       // Enable Mayhem mode
+    pool: "TokenMintAddress",
+    poolAccounts: { coinCreator: "CreatorWallet" },
+    user: "YourWallet",
+    solAmountIn: 10_000_000,        // 0.01 SOL
+    tokenAmountOut: 50_000_000_000, // Minimum tokens expected
+    mayhemModeEnabled: false,
   })
-  .setFeePayer("buyer_wallet")
-  .setPriorityFee(1_000_000)       // 0.001 SOL priority fee
-  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
-  .setTransport("FLASH")            // Multi-broadcast
+  .setFeePayer("YourWallet")
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)              // Required for FLASH transport
+  .setTransport("FLASH")
   .send();
 
 console.log("Transaction signature:", result.signature);
-
-// Clean up
 client.close();
 ```
 
-## Detailed Documentation
+---
 
-For comprehensive guides and examples, see:
+## Connection Modes
 
-### API Documentation
+The client auto-detects the transport based on the URL scheme:
 
-- **[Raw API Guide](./docs/RAW_API.md)** - Complete guide to using `client.execute()` for direct transaction execution with maximum control
-- **[Transaction Builder Guide](./docs/TRANSACTION_BUILDER.md)** - Complete guide to using the fluent `TransactionBuilder` API (recommended)
-
-### Protocol Integration Guides
-
-#### Pump.fun
-- **[Pump.fun Bonding Curve](./docs/PUMPFUN.md)** - Trading on bonding curve (buy, sell, create, migrate)
-- **[Pump.fun AMM](./docs/PUMPFUN_AMM.md)** - Post-graduation AMM trading with swap calculations
-
-#### Meteora
-- **[Meteora DBC](./docs/METEORA_DBC.md)** - Dynamic Bonding Curve integration
-- **[Meteora DAMM v1](./docs/METEORA_DAMM_V1.md)** - Dynamic AMM v1 integration
-- **[Meteora DAMM v2](./docs/METEORA_DAMM_V2.md)** - Dynamic AMM v2 / CP-AMM integration
-- **[Meteora DLMM](./docs/METEORA_DLMM.md)** - Dynamic Liquidity Market Maker integration
-
-#### Raydium
-- **[Raydium LaunchPad](./docs/RAYDIUM_LAUNCHPAD.md)** - LaunchPad token launches
-- **[Raydium CLMM](./docs/RAYDIUM_CLMM.md)** - Concentrated Liquidity Market Maker
-- **[Raydium CPMM](./docs/RAYDIUM_CPMM.md)** - Constant Product Market Maker
-- **[Raydium AMMv4](./docs/RAYDIUM_AMMV4.md)** - AMM v4 pools
-
-### Examples
-
-- **[Raw API Examples](./examples/raw-api-usage.ts)** - Working examples using `client.execute()`
-- **[Transaction Builder Examples](./examples/transaction-builder-usage.ts)** - Working examples using `TransactionBuilder`
-- **[Raw Transaction Examples](./examples/raw-transaction-usage.ts)** - Execute pre-built `@solana/web3.js` transactions
-- **[Basic Usage](./examples/basic-usage.ts)** - Simple quick-start example
-- **[Wallet Management](./examples/wallet-management.ts)** - Secure wallet creation and management
-
-### Other Guides
-
-- **[Wallet Management](./docs/WALLET_MANAGEMENT.md)** - Wallet creation, encryption, and security
-- **[DEX Integration Guide](./docs/DEX_INTEGRATION_GUIDE.md)** - How to integrate new DEXs
-- **[Security Policy](./SECURITY.md)** - Security best practices and policies
-- **[Contributing](./CONTRIBUTING.md)** - How to contribute to the project
-
-**Note:** For Pump.fun and Pump.fun AMM operations, providing `coinCreator` and `poolCreator` in `poolAccounts` is **optional but recommended**. These fields speed up transaction building by avoiding additional RPC requests to fetch pool metadata.
-
-## Prerequisites
-
-**Required:**
-- Node.js 18+
-- Solana Execution Engine running (see main repo)
-- ZeroMQ socket accessible
-
-**Recommended for production:**
-- Multiple RPC endpoints configured
-- gRPC monitoring enabled
-- Nonce pool configured
-
-## Wallet Management
-
-The client library provides secure wallet creation with **dual encryption** for maximum security.
-
-### Creating Wallets
-
-Create new wallets with server-side and client-side encryption:
+| URL Scheme | Transport | API Key | Use Case |
+|------------|-----------|---------|----------|
+| `ipc://` | ZeroMQ IPC | Not required | Local deployment (fastest) |
+| `tcp://` | ZeroMQ TCP | Not required | Local network deployment |
+| `http://` or `https://` | HTTP | **Required** | Remote/cloud deployment |
 
 ```typescript
-import { LysFlash } from '@lyslabs.ai/lys-flash';
-import { Keypair } from '@solana/web3.js';
-
+// Local deployment via ZeroMQ IPC (no API key needed)
 const client = new LysFlash();
-
-// Your keypair for encryption (user's existing wallet)
-const userKeypair = Keypair.generate();
-
-// Create new wallet
-const wallet = await client.createWallet(
-  userKeypair.publicKey.toBase58()
-);
-
-console.log("New wallet created!");
-console.log("Public key:", wallet.publicKey);
-console.log("Encrypted secret key:", wallet.encryptedSecretKey);
-```
-
-**Response format:**
-```typescript
-{
-  success: true,
-  publicKey: string,              // New wallet address
-  encryptedSecretKey: string,     // User-encrypted (base64)
-  nonce: string,                  // Encryption nonce (base64)
-  ephemeralPublicKey: string      // For decryption (base64)
-}
-```
-
-### Decrypting Wallets
-
-Decrypt the wallet secret key on the client side:
-
-```typescript
-import { Keypair } from '@solana/web3.js';
-import nacl from 'tweetnacl';
-
-// User's keypair (same one used for creation)
-const userKeypair = Keypair.fromSecretKey(yourSecretKey);
-
-// Decrypt the secret key
-const decryptedSecretKey = nacl.box.open(
-  Buffer.from(wallet.encryptedSecretKey, 'base64'),
-  Buffer.from(wallet.nonce, 'base64'),
-  Buffer.from(wallet.ephemeralPublicKey, 'base64'),
-  userKeypair.secretKey
-);
-
-if (!decryptedSecretKey) {
-  throw new Error("Failed to decrypt wallet");
-}
-
-// Create Keypair from decrypted secret
-const newWalletKeypair = Keypair.fromSecretKey(
-  new Uint8Array(decryptedSecretKey)
-);
-
-console.log("Decrypted wallet:", newWalletKeypair.publicKey.toBase58());
-
-// Now you can use this wallet for transactions
-const result = await new TransactionBuilder(client)
-  .pumpFunBuy({
-    pool: "mint_address",
-    poolAccounts: { coinCreator: "creator" },
-    user: newWalletKeypair.publicKey.toBase58(), // New wallet
-    solAmountIn: 1_000_000,
-    tokenAmountOut: 3_400_000_000,
-    mayhemModeEnabled: false
-  })
-  .setFeePayer(newWalletKeypair.publicKey.toBase58())
-  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
-  .setTransport("FLASH")
-  .send();
-```
-
-### Security
-
-**Dual Encryption System:**
-
-1. **Server-side encryption (AES-256-GCM)**
-   - Wallet secret keys are encrypted with a master secret on the server
-   - Stored securely in `wallets.json`
-   - In-memory cache for O(1) lookup
-
-2. **Client-side encryption (TweetNaCl box)**
-   - Secret keys are encrypted with the user's Ed25519 public key
-   - Only the user can decrypt with their private key
-   - Ed25519 keys are converted to Curve25519 for encryption
-
-**Security guarantees:**
-- Server never stores plaintext secret keys
-- Only the user can decrypt their wallets
-- Perfect forward secrecy
-- Secure key conversion (Ed25519 → Curve25519)
-
-**Best practices:**
-- Store encrypted wallets securely (database, encrypted storage)
-- Never log or transmit plaintext secret keys
-- Use environment variables for the user's keypair
-- Rotate master secret regularly (server-side)
-
-## Usage
-
-### Client API
-
-The `LysFlash` client provides the low-level API for direct transaction execution.
-
-```typescript
-import { LysFlash } from '@lyslabs.ai/lys-flash';
-
-const client = new LysFlash({
-  address: 'ipc:///tmp/tx-executor.ipc',  // default
-  timeout: 30000,                          // 30 seconds
-  autoReconnect: true,
-  verbose: false
-});
-
-// Execute transaction (raw API)
-const result = await client.execute({
-  data: {
-    executionType: "PUMP_FUN",
-    eventType: "BUY",
-    pool: "mint_address",
-    poolAccounts: { coinCreator: "creator" },
-    user: "wallet",
-    solAmountIn: 1_000_000,
-    tokenAmountOut: 3_400_000_000,
-    mayhemModeEnabled: false
-  },
-  feePayer: "wallet",
-  priorityFeeLamports: 1_000_000,
-  bribeLamports: 1_000_000,            // Mandatory for FLASH
-  transport: "FLASH"
-});
-
-// Get statistics
-const stats = client.getStats();
-console.log("Success rate:",
-  (stats.requestsSuccessful / stats.requestsSent * 100).toFixed(2) + "%"
-);
-
-// Clean up
-client.close();
-```
-
-### Builder API
-
-The `TransactionBuilder` provides a fluent API for easy transaction composition.
-
-```typescript
-import { TransactionBuilder } from '@lyslabs.ai/lys-flash';
-
-const result = await new TransactionBuilder(client)
-  .pumpFunBuy({
-    pool: "mint",
-    poolAccounts: { coinCreator: "creator" },
-    user: "wallet",
-    solAmountIn: 1_000_000,
-    tokenAmountOut: 3_400_000_000,
-    mayhemModeEnabled: false
-  })
-  .setFeePayer("wallet")
-  .setPriorityFee(5_000_000)      // High priority
-  .setBribe(1_000_000)            // Jito tip
-  .setTransport("FLASH")
-  .send();
-```
-
-#### Meteora Operations
-
-Meteora operations are accessed via the `.meteora` namespace:
-
-```typescript
-// DBC (Dynamic Bonding Curve)
-await new TransactionBuilder(client).meteora.dbc.buy({ ... });
-
-// DAMM v1 (Dynamic AMM)
-await new TransactionBuilder(client).meteora.dammV1.buy({ ... });
-
-// DAMM v2 (CP-AMM)
-await new TransactionBuilder(client).meteora.dammV2.buy({ ... });
-
-// DLMM (Dynamic Liquidity Market Maker)
-await new TransactionBuilder(client).meteora.dlmm.buy({ ... });
-```
-
-### Supported Operations
-
-#### Pump.fun (4 operations)
-- `pumpFunBuy()` - Buy tokens on bonding curve
-- `pumpFunSell()` - Sell tokens on bonding curve
-- `pumpFunCreate()` - Create new token
-- `pumpFunMigrate()` - Migrate to Pump.fun AMM
-
-#### Pump.fun AMM (3 operations)
-- `pumpFunAmmBuy()` - Buy on Pump.fun AMM (specify max quote in, expected base out)
-- `pumpFunAmmBuyExactQuoteIn()` - Buy with exact quote amount (spend precise SOL)
-- `pumpFunAmmSell()` - Sell on Pump.fun AMM
-
-#### Meteora DBC - Dynamic Bonding Curve (8 operations)
-- `meteora.dbc.buy()` - Buy tokens with SOL
-- `meteora.dbc.sell()` - Sell tokens for SOL
-- `meteora.dbc.swap()` - Generic swap with direction
-- `meteora.dbc.buy2()` - Buy with ExactIn mode (swap2)
-- `meteora.dbc.sell2()` - Sell with ExactIn mode (swap2)
-- `meteora.dbc.swap2()` - Advanced swap with mode selection (ExactIn/PartialFill/ExactOut)
-- `meteora.dbc.buyExactOut()` - Buy exact token amount
-- `meteora.dbc.sellExactOut()` - Sell for exact SOL amount
-
-#### Meteora DAMM v1 - Dynamic AMM v1 (3 operations)
-- `meteora.dammV1.buy()` - Buy tokens with SOL
-- `meteora.dammV1.sell()` - Sell tokens for SOL
-- `meteora.dammV1.swap()` - Generic swap
-
-#### Meteora DAMM v2 - Dynamic AMM v2 / CP-AMM (8 operations)
-- `meteora.dammV2.buy()` - Buy tokens with SOL
-- `meteora.dammV2.sell()` - Sell tokens for SOL
-- `meteora.dammV2.swap()` - Generic swap
-- `meteora.dammV2.buy2()` - Buy with ExactIn mode (swap2)
-- `meteora.dammV2.sell2()` - Sell with ExactIn mode (swap2)
-- `meteora.dammV2.swap2()` - Advanced swap with mode selection (ExactIn/PartialFill/ExactOut)
-- `meteora.dammV2.buyExactOut()` - Buy exact token amount
-- `meteora.dammV2.sellExactOut()` - Sell for exact SOL amount
-
-#### Meteora DLMM - Dynamic Liquidity Market Maker (6 operations)
-- `meteora.dlmm.buy()` - Buy tokens with SOL
-- `meteora.dlmm.sell()` - Sell tokens for SOL
-- `meteora.dlmm.swap()` - Generic swap
-- `meteora.dlmm.swapExactOut()` - Swap with exact output amount
-- `meteora.dlmm.buyExactOut()` - Buy exact token amount
-- `meteora.dlmm.sellExactOut()` - Sell for exact SOL amount
-
-#### System Transfer (1 operation)
-- `systemTransfer()` - Transfer native SOL
-
-#### SPL Token (9 operations)
-- `splTokenTransfer()` - Transfer tokens
-- `splTokenTransferChecked()` - Transfer with validation
-- `splTokenCreateATA()` - Create Associated Token Account
-- `splTokenCloseAccount()` - Close token account
-- `splTokenApprove()` - Approve delegate
-- `splTokenRevoke()` - Revoke delegate
-- `splTokenMintTo()` - Mint tokens
-- `splTokenBurn()` - Burn tokens
-- `splTokenSyncNative()` - Sync wrapped SOL
-
-#### Raw Transaction (1 operation)
-- `rawTransaction()` - Execute a pre-built `@solana/web3.js` Transaction
-
-### Raw Transactions
-
-The `rawTransaction()` method allows you to execute pre-built Solana transactions from `@solana/web3.js`. This is useful when you need full control over transaction construction or want to execute transactions from other libraries.
-
-#### Key Features
-
-- **Supports both legacy `Transaction` and `VersionedTransaction` (v0)**
-- **Efficient binary transfer** - Transaction bytes sent directly via MessagePack (no base64 overhead)
-- **Server-side signing** - Transaction is signed by the server using wallet management
-- **All transport modes supported** - FLASH, ZERO_SLOT, LUNAR_LANDER, NOZOMI, JITO, VANILLA, SIMULATE, etc.
-
-#### Basic Usage
-
-```typescript
-import { Transaction, SystemProgram, PublicKey } from '@solana/web3.js';
-import { LysFlash, TransactionBuilder } from '@lyslabs.ai/lys-flash';
-
-const client = new LysFlash();
-
-// Build your transaction using @solana/web3.js
-const transaction = new Transaction().add(
-  SystemProgram.transfer({
-    fromPubkey: new PublicKey('SenderWalletPublicKey'),
-    toPubkey: new PublicKey('RecipientWalletPublicKey'),
-    lamports: 1_000_000, // 0.001 SOL
-  })
-);
-
-// Execute via LYS Flash
-const result = await new TransactionBuilder(client)
-  .rawTransaction({ transaction })
-  .setFeePayer('SenderWalletPublicKey')  // Server signs with this wallet
-  .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)                    // Required for FLASH
-  .setTransport('FLASH')
-  .send();
-
-console.log('Transaction signature:', result.signature);
-```
-
-#### With Additional Signers
-
-When your transaction requires signatures from multiple managed wallets (not just the fee payer), specify them as additional signers:
-
-```typescript
-import { Transaction, PublicKey } from '@solana/web3.js';
-
-// Transaction that requires multiple signatures
-const transaction = new Transaction().add(
-  // ... instructions requiring multiple signers
-);
-
-const result = await new TransactionBuilder(client)
-  .rawTransaction({
-    transaction,
-    additionalSigners: [
-      'AdditionalSignerPublicKey1',
-      'AdditionalSignerPublicKey2',
-      // Or use PublicKey objects:
-      new PublicKey('AnotherSignerPublicKey'),
-    ],
-  })
-  .setFeePayer('FeePayerPublicKey')
-  .setTransport('FLASH')
-  .setBribe(1_000_000)
-  .send();
-```
-
-**Note:** Only provide **public keys** for additional signers. The server's wallet management system looks up the corresponding secret keys to sign the transaction. Secret keys are never sent over the wire.
-
-#### Using VersionedTransaction (v0)
-
-For transactions using Address Lookup Tables (ALTs):
-
-```typescript
-import {
-  VersionedTransaction,
-  TransactionMessage,
-  PublicKey,
-  SystemProgram,
-} from '@solana/web3.js';
-
-// Create a versioned transaction with lookup tables
-const message = new TransactionMessage({
-  payerKey: new PublicKey('FeePayerPublicKey'),
-  recentBlockhash: blockhash,
-  instructions: [
-    SystemProgram.transfer({
-      fromPubkey: new PublicKey('Sender'),
-      toPubkey: new PublicKey('Recipient'),
-      lamports: 1_000_000,
-    }),
-  ],
-}).compileToV0Message(addressLookupTableAccounts);
-
-const versionedTx = new VersionedTransaction(message);
-
-// Execute via LYS Flash
-const result = await new TransactionBuilder(client)
-  .rawTransaction({ transaction: versionedTx })
-  .setFeePayer('FeePayerPublicKey')
-  .setTransport('FLASH')
-  .setBribe(1_000_000)
-  .send();
-```
-
-#### Simulate Before Sending
-
-Always simulate important transactions first:
-
-```typescript
-// Simulate first
-const simulation = await new TransactionBuilder(client)
-  .rawTransaction({ transaction })
-  .setFeePayer('WalletPublicKey')
-  .simulate();
-
-if (simulation.success) {
-  console.log('Simulation passed, executing...');
-
-  // Execute with FLASH
-  const result = await new TransactionBuilder(client)
-    .rawTransaction({ transaction })
-    .setFeePayer('WalletPublicKey')
-    .setTransport('FLASH')
-    .setBribe(1_000_000)
-    .send();
-
-  console.log('Executed:', result.signature);
-} else {
-  console.error('Simulation failed:', simulation.error);
-  console.log('Logs:', simulation.logs);
-}
-```
-
-#### Combining with Other Operations
-
-Raw transactions can be batched with other operations:
-
-```typescript
-const result = await new TransactionBuilder(client)
-  // First: execute raw transaction
-  .rawTransaction({ transaction: myCustomTransaction })
-  // Then: do a Pump.fun buy
-  .pumpFunBuy({
-    pool: 'TokenMint',
-    poolAccounts: { coinCreator: 'Creator' },
-    user: 'Wallet',
-    solAmountIn: 1_000_000,
-    tokenAmountOut: 1_000_000_000,
-  })
-  .setFeePayer('Wallet')
-  .setTransport('FLASH')
-  .setBribe(1_000_000)
-  .send();
-
-// Both operations execute atomically
-```
-
-#### Important Notes
-
-1. **Transaction should NOT be signed** - The server handles all signing using its wallet management system
-2. **Fee payer must be specified** - The server needs to know which managed wallet to use for signing
-3. **Blockhash handling** - You can include a recent blockhash or leave it empty; the server may update it
-4. **Transaction size limit** - Maximum ~1232 bytes (Solana's limit)
-5. **Security** - Only public keys are sent for additional signers; secret keys never leave the server
-
-### Transport Modes
-
-| Mode | Description |
-|------|-------------|
-| **FLASH** ⭐ | **Multi-broadcast to 6 endpoints (recommended)** |
-| ZERO_SLOT | Ultra-fast specialized endpoint |
-| LUNAR_LANDER | HelloMoon low-latency endpoint |
-| NOZOMI | Low-latency Temporal endpoint |
-| HELIUS_SENDER | Premium reliability |
-| JITO | MEV-protected transactions |
-| VANILLA | Standard RPC |
-| SIMULATE | Test without broadcasting |
-
-**Recommendation:** Use `FLASH` for production trading (multi-broadcast with redundancy).
-
-### HTTP Transport & API Keys
-
-For remote or cloud deployments, use HTTP transport with API key authentication. There are two types of API keys:
-
-#### Internal API Keys
-
-Internal keys are used for trusted backend-to-backend communication. No request signing is required:
-
-```typescript
-// Explicit internal mode (recommended)
-const client = LysFlash.internal({
-  address: 'https://api.example.com',
-  apiKey: 'sk_live_your_internal_key',
-  contentType: 'msgpack',
-});
-
-// new LysFlash() also defaults to internal mode (backward compatible)
-const client = new LysFlash({
-  address: 'https://api.example.com',
-  apiKey: 'sk_live_your_internal_key',
+// or explicitly:
+const client = new LysFlash({ address: 'ipc:///tmp/tx-executor.ipc' });
+
+// Local network via ZeroMQ TCP
+const client = new LysFlash({ address: 'tcp://127.0.0.1:5555' });
+
+// Remote/cloud via HTTP (API key required)
+const client = LysFlash.external({
+  address: 'http://execution.lyslabs-stage.xyz:3001',
+  apiKey: process.env.LYS_API_KEY!,
 });
 ```
 
-#### External API Keys
+---
 
-External keys require Ed25519 request signing for each request. Use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder`:
+## API Keys & Authentication
+
+### Portal Keys (External)
+
+All keys generated at [https://dev.lyslabs.ai/api-keys](https://dev.lyslabs.ai/api-keys) are **external keys**. They require Ed25519 request signing on every HTTP request.
+
+Use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder`:
 
 ```typescript
 import { Keypair } from '@solana/web3.js';
 import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
 
 const client = LysFlash.external({
-  address: 'https://api.example.com',
-  apiKey: 'sk_live_your_external_key',
-  contentType: 'msgpack',
+  address: 'http://execution.lyslabs-stage.xyz:3001',
+  apiKey: process.env.LYS_API_KEY!,
+  contentType: 'msgpack',  // optional, default: 'msgpack'
 });
 
-// Create a signer from your keypair (public key must be registered with the server)
 const signer = new Signer(Keypair.fromSecretKey(mySecretKey));
 
-// Every builder must be given a signer for external clients
 await new TransactionBuilder(client, signer)
   .pumpFunBuy({ /* ... */ })
   .setFeePayer('wallet')
@@ -745,18 +205,24 @@ await new TransactionBuilder(client, signerB)
   .send();
 ```
 
-Each `Signer` wraps a `Keypair` and automatically signs every HTTP request. If you forget to provide a signer on an external client, `send()` will throw an error.
+Each `Signer` wraps a `Keypair` and automatically signs every HTTP request. The keypair's public key must be registered with your API key on the developer portal. If you forget to pass a signer, `send()` will throw an error.
 
-**When is signing required?**
+### Internal Keys (Backend-to-Backend)
 
-- **Internal keys** - No signing needed. Use `LysFlash.internal()` or `new LysFlash()` for trusted backend-to-backend environments.
-- **External keys** - Signing is **required**. Use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder`. Any API key created through the developer portal is an external key. The keypair's public key must match the one registered with your API key on the server.
+Internal keys are for trusted server-to-server environments where request signing is not required. Use `LysFlash.internal()`:
 
-**Note:** Signing is only used with HTTP transport. ZMQ transport does not support or require request signing.
+```typescript
+const client = LysFlash.internal({
+  address: 'http://execution.lyslabs-stage.xyz:3001',
+  apiKey: 'sk_live_internal_key',
+});
+```
 
-**Signature protocol (for reference):**
+> Internal keys are not issued from the developer portal. They are for backend deployments where the caller is trusted.
 
-Each request includes three authentication headers:
+### Signature Protocol
+
+Each signed request includes three headers:
 
 | Header | Value |
 |--------|-------|
@@ -764,40 +230,308 @@ Each request includes three authentication headers:
 | `X-Timestamp` | `Date.now()` in milliseconds (string) |
 | `X-Signature` | Base58-encoded Ed25519 detached signature |
 
-The signed message is constructed as:
+The signed message is: `timestamp_as_u64_big_endian (8 bytes) + serialized_request_body`.
 
-```
-message = timestamp_as_u64_big_endian_bytes (8 bytes) + serialized_request_body
-```
+The server validates the timestamp is within a 60-second window and the signature matches the public key registered with the API key.
 
-The server validates that the timestamp is within a 60-second window and that the signature matches the public key registered with the API key. Replay protection prevents reuse of the same timestamp.
-
-**Configuration options:**
+### Configuration Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `address` | `string` | `ipc:///tmp/tx-executor.ipc` | Server URL (http/https/tcp/ipc) |
-| `apiKey` | `string` | - | API key for HTTP transport (required) |
-| `contentType` | `'json' \| 'msgpack'` | `'msgpack'` | Request/response serialization format |
+| `address` | `string` | `ipc:///tmp/tx-executor.ipc` | Server URL (`http/https/tcp/ipc`) |
+| `apiKey` | `string` | — | API key for HTTP transport (required) |
+| `contentType` | `'json' \| 'msgpack'` | `'msgpack'` | Request serialization format |
 | `timeout` | `number` | `30000` | Request timeout in milliseconds |
 | `autoReconnect` | `boolean` | `true` | Auto-reconnect on connection loss |
 | `maxReconnectAttempts` | `number` | `5` | Max reconnection attempts |
-| `reconnectDelay` | `number` | `1000` | Delay between reconnect attempts (ms) |
+| `reconnectDelay` | `number` | `1000` | Delay between reconnects (ms) |
 | `verbose` | `boolean` | `false` | Enable debug logging |
+| `connection` | `Connection` | — | Solana RPC connection (required for Meteora/Raydium) |
 
-**API Key Format:**
-- Production keys: `sk_live_*`
-- Test keys: `sk_test_*`
+---
 
-**Content Types:**
-- `msgpack` - Binary format, 2-3x smaller payloads, faster serialization (recommended)
-- `json` - Text format, easier debugging
+## Usage
 
-## Examples
+### Builder API
 
-### Create a Wallet
+The `TransactionBuilder` is the **recommended** API — fluent, type-safe, and easy to compose.
 
-Create a new wallet with dual encryption:
+#### Basic Example (Pump.fun)
+
+```typescript
+import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
+import { Keypair } from '@solana/web3.js';
+
+const client = LysFlash.external({
+  address: 'http://execution.lyslabs-stage.xyz:3001',
+  apiKey: process.env.LYS_API_KEY!,
+});
+const signer = new Signer(Keypair.fromSecretKey(yourSecretKey));
+
+// Buy tokens
+const result = await new TransactionBuilder(client, signer)
+  .pumpFunBuy({
+    pool: "TokenMintAddress",
+    poolAccounts: { coinCreator: "CreatorWallet" },  // optional but speeds up execution
+    user: "YourWallet",
+    solAmountIn: 10_000_000,        // 0.01 SOL in lamports
+    tokenAmountOut: 50_000_000_000, // minimum tokens expected
+    mayhemModeEnabled: false,
+  })
+  .setFeePayer("YourWallet")
+  .setPriorityFee(5_000_000)
+  .setBribe(1_000_000)              // required for all MEV-protected transports
+  .setTransport("FLASH")
+  .send();
+
+console.log("Signature:", result.signature);
+```
+
+#### Batched Operations
+
+Chain multiple operations in a single atomic transaction:
+
+```typescript
+import { Keypair } from '@solana/web3.js';
+
+const mintKeypair = Keypair.generate();
+
+const result = await new TransactionBuilder(client, signer)
+  .pumpFunCreate({
+    user: "CreatorWallet",
+    pool: mintKeypair.publicKey.toBase58(),
+    mintSecretKey: Buffer.from(mintKeypair.secretKey).toString('base64'),
+    meta: { name: "My Token", symbol: "MTK", uri: "https://arweave.net/metadata.json" },
+  })
+  .pumpFunBuy({
+    pool: mintKeypair.publicKey.toBase58(),
+    poolAccounts: { coinCreator: "CreatorWallet" },
+    user: "CreatorWallet",
+    solAmountIn: 10_000_000,
+    tokenAmountOut: 100_000_000_000,
+    mayhemModeEnabled: false,
+  })
+  .setFeePayer("CreatorWallet")
+  .setPriorityFee(10_000_000)
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+```
+
+#### Meteora Operations
+
+Meteora operations are accessed via the `.meteora` namespace (requires a `Connection` in the client config):
+
+```typescript
+// DBC (Dynamic Bonding Curve)
+await new TransactionBuilder(client, signer).meteora.dbc.buy({ pool, user, solAmountIn, minTokensOut });
+
+// DAMM v1 (Dynamic AMM)
+await new TransactionBuilder(client, signer).meteora.dammV1.buy({ pool, user, tokenMint, solAmountIn, minTokensOut });
+
+// DAMM v2 (CP-AMM)
+await new TransactionBuilder(client, signer).meteora.dammV2.buy({ pool, user, tokenMint, solAmountIn, minTokensOut });
+
+// DLMM (Dynamic Liquidity Market Maker)
+await new TransactionBuilder(client, signer).meteora.dlmm.buy({ pool, user, tokenMint, solAmountIn, minTokensOut });
+```
+
+See [docs/METEORA_DBC.md](./docs/METEORA_DBC.md) and related guides for full parameter reference.
+
+#### Raydium Operations
+
+Raydium operations are accessed via the `.raydium` namespace (requires a `Connection` in the client config):
+
+```typescript
+// LaunchPad
+await new TransactionBuilder(client, signer).raydium.launchpad.buy({ /* ... */ });
+
+// CLMM (Concentrated Liquidity)
+await new TransactionBuilder(client, signer).raydium.clmm.buy({ /* ... */ });
+
+// CPMM (Constant Product)
+await new TransactionBuilder(client, signer).raydium.cpmm.buy({ /* ... */ });
+
+// AMMv4
+await new TransactionBuilder(client, signer).raydium.ammv4.buy({ /* ... */ });
+```
+
+See [docs/RAYDIUM_CLMM.md](./docs/RAYDIUM_CLMM.md) and related guides for full parameter reference.
+
+#### Simulate Before Sending
+
+```typescript
+const simulation = await new TransactionBuilder(client, signer)
+  .pumpFunBuy({ /* params */ })
+  .setFeePayer("wallet")
+  .simulate();  // uses SIMULATE transport automatically
+
+if (!simulation.success) {
+  console.error("Simulation failed:", simulation.error);
+  return;
+}
+
+// Then execute
+const result = await new TransactionBuilder(client, signer)
+  .pumpFunBuy({ /* same params */ })
+  .setFeePayer("wallet")
+  .setBribe(1_000_000)
+  .setTransport("FLASH")
+  .send();
+```
+
+---
+
+### Client API
+
+The `client.execute()` method provides direct, low-level access for maximum control:
+
+```typescript
+const result = await client.execute({
+  data: {
+    executionType: "PUMP_FUN",
+    eventType: "BUY",
+    pool: "TokenMintAddress",
+    poolAccounts: { coinCreator: "CreatorWallet" },
+    user: "YourWallet",
+    solAmountIn: 10_000_000,
+    tokenAmountOut: 50_000_000_000,
+    mayhemModeEnabled: false,
+  },
+  feePayer: "YourWallet",
+  priorityFeeLamports: 1_000_000,
+  bribeLamports: 1_000_000,
+  transport: "FLASH",
+});
+```
+
+For full raw API documentation see [docs/RAW_API.md](./docs/RAW_API.md).
+
+---
+
+### Supported Operations
+
+#### Pump.fun (4 operations)
+- `pumpFunBuy()` — Buy tokens on bonding curve
+- `pumpFunSell()` — Sell tokens on bonding curve
+- `pumpFunCreate()` — Create new token
+- `pumpFunMigrate()` — Migrate to Pump.fun AMM
+
+#### Pump.fun AMM (3 operations)
+- `pumpFunAmmBuy()` — Buy on AMM (max quote in, expected base out)
+- `pumpFunAmmBuyExactQuoteIn()` — Buy with exact SOL amount
+- `pumpFunAmmSell()` — Sell on AMM
+
+#### Meteora DBC — Dynamic Bonding Curve (8 operations)
+- `meteora.dbc.buy()` / `sell()` / `swap()`
+- `meteora.dbc.buy2()` / `sell2()` / `swap2()` — ExactIn / PartialFill / ExactOut modes
+- `meteora.dbc.buyExactOut()` / `sellExactOut()`
+
+#### Meteora DAMM v1 — Dynamic AMM (3 operations)
+- `meteora.dammV1.buy()` / `sell()` / `swap()`
+
+#### Meteora DAMM v2 — CP-AMM (8 operations)
+- `meteora.dammV2.buy()` / `sell()` / `swap()`
+- `meteora.dammV2.buy2()` / `sell2()` / `swap2()`
+- `meteora.dammV2.buyExactOut()` / `sellExactOut()`
+
+#### Meteora DLMM — Dynamic Liquidity Market Maker (6 operations)
+- `meteora.dlmm.buy()` / `sell()` / `swap()`
+- `meteora.dlmm.swapExactOut()` / `buyExactOut()` / `sellExactOut()`
+
+#### Raydium LaunchPad
+- `raydium.launchpad.buy()` / `sell()`
+
+#### Raydium CLMM — Concentrated Liquidity (3+ operations)
+- `raydium.clmm.buy()` / `sell()` / `swap()`
+
+#### Raydium CPMM — Constant Product (3+ operations)
+- `raydium.cpmm.buy()` / `sell()` / `swap()`
+
+#### Raydium AMMv4 (3+ operations)
+- `raydium.ammv4.buy()` / `sell()` / `swap()`
+
+#### System Transfer (1 operation)
+- `systemTransfer()` — Transfer native SOL
+
+#### SPL Token (9 operations)
+- `splTokenTransfer()` / `splTokenTransferChecked()`
+- `splTokenCreateATA()` / `splTokenCloseAccount()`
+- `splTokenApprove()` / `splTokenRevoke()`
+- `splTokenMintTo()` / `splTokenBurn()` / `splTokenSyncNative()`
+
+#### Raw Transaction (1 operation)
+- `rawTransaction()` — Execute a pre-built `@solana/web3.js` Transaction
+
+---
+
+### Raw Transactions
+
+Execute pre-built `@solana/web3.js` transactions directly — useful when you need full control over transaction construction or want to integrate with other libraries.
+
+```typescript
+import { Transaction, SystemProgram, PublicKey } from '@solana/web3.js';
+
+const transaction = new Transaction().add(
+  SystemProgram.transfer({
+    fromPubkey: new PublicKey('SenderWallet'),
+    toPubkey: new PublicKey('RecipientWallet'),
+    lamports: 1_000_000,
+  })
+);
+
+const result = await new TransactionBuilder(client, signer)
+  .rawTransaction({ transaction })
+  .setFeePayer('SenderWallet')
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)
+  .setTransport('FLASH')
+  .send();
+```
+
+For multi-signer transactions:
+
+```typescript
+const result = await new TransactionBuilder(client, signer)
+  .rawTransaction({
+    transaction,
+    additionalSigners: ['AdditionalSignerPublicKey1', 'AdditionalSignerPublicKey2'],
+  })
+  .setFeePayer('FeePayerPublicKey')
+  .setTransport('FLASH')
+  .setBribe(1_000_000)
+  .send();
+```
+
+Supports both legacy `Transaction` and `VersionedTransaction` (v0 with address lookup tables). The server handles all signing — never send secret keys over the wire.
+
+---
+
+### Transport Modes
+
+| Mode | Description | MEV Protection | Bribe Required |
+|------|-------------|----------------|----------------|
+| **FLASH** ⭐ | Multi-broadcast to 6 endpoints (recommended) | Yes | **Yes** (min 1,000,000) |
+| ZERO_SLOT | Ultra-fast specialized endpoint | Yes | **Yes** (min 1,000,000) |
+| LUNAR_LANDER | HelloMoon low-latency endpoint | Yes | **Yes** (min 1,000,000) |
+| NOZOMI | Low-latency Temporal endpoint | Yes | **Yes** (min 1,000,000) |
+| HELIUS_SENDER | Premium reliability | Yes | **Yes** (min 1,000,000) |
+| JITO | MEV-protected via Jito | Yes | **Yes** (min 1,000,000) |
+| VANILLA | Standard RPC | No | No |
+| SIMULATE | Test without broadcasting | No | No |
+
+All transports except `VANILLA` and `SIMULATE` require a minimum bribe of **1,000,000 lamports (0.001 SOL)**. Use `FLASH` for production trading.
+
+---
+
+## Wallet Management
+
+The client provides **dual-encrypted wallet creation**:
+
+1. **Server-side (AES-256-GCM)**: Secret key encrypted with the server's master secret
+2. **Client-side (TweetNaCl box)**: Additional encryption with your Ed25519 public key — only you can decrypt
+
+### Creating a Wallet
 
 ```typescript
 import { LysFlash } from '@lyslabs.ai/lys-flash';
@@ -805,18 +539,26 @@ import { Keypair } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 
 const client = new LysFlash();
+const userKeypair = Keypair.generate(); // your encryption keypair
 
-// Your keypair for encryption
-const userKeypair = Keypair.generate();
+const wallet = await client.createWallet(userKeypair.publicKey.toBase58());
+console.log("New wallet:", wallet.publicKey);
+```
 
-// Create new wallet
-const wallet = await client.createWallet(
-  userKeypair.publicKey.toBase58()
-);
+Response format:
+```typescript
+{
+  success: true,
+  publicKey: string,           // new wallet address
+  encryptedSecretKey: string,  // base64, encrypted with your public key
+  nonce: string,               // base64
+  ephemeralPublicKey: string   // base64, needed for decryption
+}
+```
 
-console.log("New wallet created:", wallet.publicKey);
+### Decrypting a Wallet
 
-// Decrypt the secret key
+```typescript
 const decryptedSecretKey = nacl.box.open(
   Buffer.from(wallet.encryptedSecretKey, 'base64'),
   Buffer.from(wallet.nonce, 'base64'),
@@ -824,547 +566,181 @@ const decryptedSecretKey = nacl.box.open(
   userKeypair.secretKey
 );
 
-if (decryptedSecretKey) {
-  const newWalletKeypair = Keypair.fromSecretKey(
-    new Uint8Array(decryptedSecretKey)
-  );
-  console.log("Wallet ready to use!");
+if (!decryptedSecretKey) throw new Error("Decryption failed");
 
-  // Store encrypted wallet securely
-  const walletData = {
-    publicKey: wallet.publicKey,
-    encryptedSecretKey: wallet.encryptedSecretKey,
-    nonce: wallet.nonce,
-    ephemeralPublicKey: wallet.ephemeralPublicKey,
-  };
-  // Save to database or encrypted storage
-}
+const walletKeypair = Keypair.fromSecretKey(new Uint8Array(decryptedSecretKey));
+console.log("Ready:", walletKeypair.publicKey.toBase58());
 ```
 
-### Buy Tokens (Simple)
+Security guarantees: the server never stores plaintext secret keys; only you can decrypt with your private key. See [docs/WALLET_MANAGEMENT.md](./docs/WALLET_MANAGEMENT.md) for storage best practices and security checklist.
 
-```typescript
-const result = await new TransactionBuilder(client)
-  .pumpFunBuy({
-    pool: "TokenMintAddress",
-    poolAccounts: { coinCreator: "CreatorWallet" },
-    user: "YourWallet",
-    solAmountIn: 10_000_000,        // 0.01 SOL
-    tokenAmountOut: 50_000_000_000, // Min 50B tokens
-    mayhemModeEnabled: false
-  })
-  .setFeePayer("YourWallet")
-  .setPriorityFee(5_000_000)
-  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
-  .setTransport("FLASH")
-  .send();
+---
 
-console.log("Bought tokens:", result.signature);
-```
-
-### Sell Tokens
-
-```typescript
-const result = await new TransactionBuilder(client)
-  .pumpFunSell({
-    pool: "TokenMintAddress",
-    poolAccounts: { coinCreator: "CreatorWallet" },
-    user: "YourWallet",
-    tokenAmountIn: 25_000_000_000,  // 25B tokens
-    minSolAmountOut: 8_000_000,     // Min 0.008 SOL
-    mayhemModeEnabled: false,
-    closeAssociatedTokenAccount: true  // Reclaim rent
-  })
-  .setFeePayer("YourWallet")
-  .setPriorityFee(5_000_000)
-  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
-  .setTransport("FLASH")
-  .send();
-
-console.log("Sold tokens:", result.signature);
-```
-
-### Create + Buy (Batched)
-
-```typescript
-import { Keypair } from '@solana/web3.js';
-
-const mintKeypair = Keypair.generate();
-
-const result = await new TransactionBuilder(client)
-  .pumpFunCreate({
-    user: "CreatorWallet",
-    pool: mintKeypair.publicKey.toBase58(),
-    mintSecretKey: Buffer.from(mintKeypair.secretKey).toString('base64'),
-    meta: {
-      name: "My Token",
-      symbol: "MTK",
-      uri: "https://arweave.net/metadata.json"
-    }
-  })
-  .pumpFunBuy({
-    pool: mintKeypair.publicKey.toBase58(),
-    poolAccounts: { coinCreator: "CreatorWallet" },
-    user: "BuyerWallet",
-    solAmountIn: 10_000_000,
-    tokenAmountOut: 100_000_000_000,
-    mayhemModeEnabled: false
-  })
-  .setFeePayer("CreatorWallet")
-  .setPriorityFee(10_000_000)
-  .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
-  .setTransport("FLASH")
-  .send();
-
-console.log("Created and bought:", result.signature);
-```
-
-### Simulate Before Sending
-
-```typescript
-// Always simulate first for important transactions
-const simulation = await new TransactionBuilder(client)
-  .pumpFunBuy({ /* params */ })
-  .setFeePayer("wallet")
-  .simulate();
-
-if (simulation.success) {
-  console.log("Simulation passed, executing...");
-
-  // Then execute with FLASH
-  const result = await new TransactionBuilder(client)
-    .pumpFunBuy({ /* same params */ })
-    .setFeePayer("wallet")
-    .setBribe(1_000_000)           // 0.001 SOL bribe (mandatory for FLASH)
-    .setTransport("FLASH")
-    .send();
-
-  console.log("Executed:", result.signature);
-} else {
-  console.error("Simulation failed:", simulation.error);
-  console.log("Logs:", simulation.logs);
-}
-```
-
-### Meteora DBC (Dynamic Bonding Curve)
-
-```typescript
-import { Connection } from '@solana/web3.js';
-import { LysFlash, TransactionBuilder } from '@lyslabs.ai/lys-flash';
-
-// Connection is required for Meteora operations
-const connection = new Connection('https://api.mainnet-beta.solana.com');
-const client = new LysFlash({
-  address: 'ipc:///tmp/tx-executor.ipc',
-  connection,
-});
-
-// Buy tokens on DBC pool
-const result = await new TransactionBuilder(client)
-  .meteora.dbc.buy({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    solAmountIn: 1_000_000_000,    // 1 SOL
-    minTokensOut: 1000000,         // Min tokens
-  })
-  .setFeePayer("YourWallet")
-  .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-
-console.log("Bought tokens:", result.signature);
-
-// Sell tokens on DBC pool
-const sellResult = await new TransactionBuilder(client)
-  .meteora.dbc.sell({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    tokenAmountIn: 1000000,        // Tokens to sell
-    minSolOut: 500_000_000,        // Min 0.5 SOL
-  })
-  .setFeePayer("YourWallet")
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-
-// Buy exact amount of tokens (ExactOut mode)
-const exactOutResult = await new TransactionBuilder(client)
-  .meteora.dbc.buyExactOut({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    amountOut: 1000000,            // Exact tokens desired
-    maximumAmountIn: 2_000_000_000, // Max SOL to pay
-  })
-  .setFeePayer("YourWallet")
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-```
-
-### Meteora DAMM v2 (CP-AMM)
-
-```typescript
-// Buy tokens on DAMM v2 pool
-const result = await new TransactionBuilder(client)
-  .meteora.dammV2.buy({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    tokenMint: "TokenMintAddress",
-    solAmountIn: 1_000_000_000,    // 1 SOL
-    minTokensOut: 1000000,         // Min tokens
-  })
-  .setFeePayer("YourWallet")
-  .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-
-// Sell tokens on DAMM v2 pool
-const sellResult = await new TransactionBuilder(client)
-  .meteora.dammV2.sell({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    tokenMint: "TokenMintAddress",
-    tokenAmountIn: 1000000,        // Tokens to sell
-    minSolOut: 500_000_000,        // Min 0.5 SOL
-  })
-  .setFeePayer("YourWallet")
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-
-// Advanced swap with ExactOut mode
-const exactOutResult = await new TransactionBuilder(client)
-  .meteora.dammV2.swap2({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    inputMint: "So11111111111111111111111111111111111111112", // SOL
-    outputMint: "TokenMintAddress",
-    mode: "ExactOut",
-    amountOut: 1000000,            // Exact tokens desired
-    maximumAmountIn: 2_000_000_000, // Max SOL to pay
-  })
-  .setFeePayer("YourWallet")
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-```
-
-### Meteora DLMM (Dynamic Liquidity Market Maker)
-
-```typescript
-// Buy tokens on DLMM pool
-const result = await new TransactionBuilder(client)
-  .meteora.dlmm.buy({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    tokenMint: "TokenMintAddress",
-    solAmountIn: 1_000_000_000,    // 1 SOL
-    minTokensOut: 1000000,         // Min tokens
-  })
-  .setFeePayer("YourWallet")
-  .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-
-// Sell tokens on DLMM pool
-const sellResult = await new TransactionBuilder(client)
-  .meteora.dlmm.sell({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    tokenMint: "TokenMintAddress",
-    tokenAmountIn: 1000000,        // Tokens to sell
-    minSolOut: 500_000_000,        // Min 0.5 SOL
-  })
-  .setFeePayer("YourWallet")
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-
-// Generic swap with explicit mints
-const swapResult = await new TransactionBuilder(client)
-  .meteora.dlmm.swap({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    inputMint: "So11111111111111111111111111111111111111112",
-    outputMint: "TokenMintAddress",
-    amountIn: 1_000_000_000,
-    minimumAmountOut: 1000000,
-  })
-  .setFeePayer("YourWallet")
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-```
-
-### Meteora DAMM v1 (Dynamic AMM)
-
-```typescript
-// Buy tokens on DAMM v1 pool
-const result = await new TransactionBuilder(client)
-  .meteora.dammV1.buy({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    tokenMint: "TokenMintAddress",
-    solAmountIn: 1_000_000_000,    // 1 SOL
-    minTokensOut: 1000000,         // Min tokens
-  })
-  .setFeePayer("YourWallet")
-  .setPriorityFee(1_000_000)
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-
-// Sell tokens on DAMM v1 pool
-const sellResult = await new TransactionBuilder(client)
-  .meteora.dammV1.sell({
-    pool: "PoolAddress",
-    user: "YourWallet",
-    tokenMint: "TokenMintAddress",
-    tokenAmountIn: 1000000,        // Tokens to sell
-    minSolOut: 500_000_000,        // Min 0.5 SOL
-  })
-  .setFeePayer("YourWallet")
-  .setBribe(1_000_000)
-  .setTransport("FLASH")
-  .send();
-```
-
-### Multiple Operations (Batched)
-
-```typescript
-const result = await new TransactionBuilder(client)
-  .systemTransfer({
-    sender: "wallet1",
-    recipient: "wallet2",
-    lamports: 10_000_000
-  })
-  .splTokenTransfer({
-    mint: "TokenMint",
-    sourceOwner: "wallet1",
-    destinationOwner: "wallet2",
-    amount: 1_000_000
-  })
-  .pumpFunBuy({
-    pool: "AnotherMint",
-    poolAccounts: { coinCreator: "creator" },
-    user: "wallet1",
-    solAmountIn: 5_000_000,
-    tokenAmountOut: 10_000_000_000,
-    mayhemModeEnabled: false
-  })
-  .setFeePayer("wallet1")
-  .setPriorityFee(2_000_000)
-  .setTransport("VANILLA")
-  .send();
-
-console.log("Batch executed:", result.signature);
-// All 3 operations executed atomically
-```
-
-### Error Handling
+## Error Handling
 
 ```typescript
 import { ExecutionError, ErrorCode } from '@lyslabs.ai/lys-flash';
 
 try {
-  const result = await new TransactionBuilder(client)
-    .pumpFunBuy({ /* params */ })
-    .setBribe(1_000_000)           // 0.001 SOL bribe (mandatory for FLASH)
+  const result = await new TransactionBuilder(client, signer)
+    .pumpFunBuy({ /* ... */ })
+    .setFeePayer("wallet")
+    .setBribe(1_000_000)
     .setTransport("FLASH")
     .send();
 
-  console.log("Success:", result.signature);
+  if (result.success) {
+    console.log("Signature:", result.signature);
+    console.log("Slot:", result.slot);
+    console.log("Latency:", result.latency, "ms");
+  } else {
+    console.error("Failed:", result.error);
+    console.log("Logs:", result.logs);
+  }
 } catch (error) {
   if (error instanceof ExecutionError) {
     switch (error.code) {
-      case ErrorCode.NETWORK_ERROR:
-        console.error("Network error, retrying...");
-        // Implement retry logic
-        break;
-
-      case ErrorCode.TIMEOUT:
-        console.error("Request timeout");
-        break;
-
       case ErrorCode.NONCE_POOL_EXHAUSTED:
-        console.error("Nonce pool exhausted, wait and retry");
+        console.log("Nonce pool exhausted, wait and retry");
         break;
-
-      case ErrorCode.EXECUTION_FAILED:
-        console.error("Transaction failed:", error.message);
+      case ErrorCode.TIMEOUT:
+        console.log("Request timeout");
         break;
-
+      case ErrorCode.NETWORK_ERROR:
+        console.log("Network error, check connection");
+        break;
       default:
-        console.error("Unexpected error:", error.message);
+        console.log(error.getUserMessage());
     }
-
-    // Get user-friendly message
-    console.log(error.getUserMessage());
-
-    // Check if retryable
-    if (error.isRetryable()) {
-      console.log("This error is retryable");
-    }
-  } else {
-    console.error("Unknown error:", error);
+    if (error.isRetryable()) console.log("This error can be retried");
   }
 }
 ```
 
+---
+
 ## Advanced Usage
-
-### Custom Configuration
-
-```typescript
-// ZMQ Transport (local deployment)
-const zmqClient = new LysFlash({
-  address: "tcp://127.0.0.1:5555",  // TCP socket
-  timeout: 60000,                    // 60 seconds
-  autoReconnect: true,
-  maxReconnectAttempts: 10,
-  reconnectDelay: 2000,              // 2 seconds
-  verbose: true,                     // Debug logging
-  logger: customLogger               // Custom logger
-});
-
-// HTTP Transport (remote/cloud deployment)
-const httpClient = new LysFlash({
-  address: "https://api.lyslabs.ai",
-  apiKey: process.env.LYS_API_KEY!,  // From environment variable
-  contentType: "msgpack",             // Binary format (faster)
-  timeout: 30000,
-  autoReconnect: true,
-  verbose: false,
-});
-```
 
 ### Trading Bot Example
 
 ```typescript
-import {
-  LysFlash,
-  TransactionBuilder,
-  ExecutionError,
-  ErrorCode
-} from '@lyslabs.ai/lys-flash';
+import { LysFlash, TransactionBuilder, Signer, ExecutionError, ErrorCode } from '@lyslabs.ai/lys-flash';
+import { Keypair } from '@solana/web3.js';
 
 class TradingBot {
   private client: LysFlash;
+  private signer: Signer;
 
   constructor() {
-    this.client = new LysFlash({
+    this.client = LysFlash.external({
+      address: 'http://execution.lyslabs-stage.xyz:3001',
+      apiKey: process.env.LYS_API_KEY!,
       timeout: 30000,
-      autoReconnect: true
+      autoReconnect: true,
     });
+    this.signer = new Signer(Keypair.fromSecretKey(
+      Buffer.from(process.env.SIGNING_KEY!, 'base64')
+    ));
   }
 
-  async buyToken(
-    mint: string,
-    creator: string,
-    wallet: string,
-    solAmount: number,
-    minTokens: number
-  ) {
-    // Simulate first
-    const sim = await new TransactionBuilder(this.client)
-      .pumpFunBuy({
-        pool: mint,
-        poolAccounts: { coinCreator: creator },
-        user: wallet,
-        solAmountIn: solAmount,
-        tokenAmountOut: minTokens,
-        mayhemModeEnabled: false
-      })
-      .setFeePayer(wallet)
-      .setPriorityFee(1_000_000)
-      .setTransport("SIMULATE")
-      .send();
+  async buyToken(mint: string, creator: string, wallet: string, solAmount: number, minTokens: number) {
+    const params = {
+      pool: mint,
+      poolAccounts: { coinCreator: creator },
+      user: wallet,
+      solAmountIn: solAmount,
+      tokenAmountOut: minTokens,
+      mayhemModeEnabled: false,
+    };
 
-    if (!sim.success) {
-      throw new Error(`Simulation failed: ${sim.error}`);
-    }
+    // Simulate first
+    const sim = await new TransactionBuilder(this.client, this.signer)
+      .pumpFunBuy(params)
+      .setFeePayer(wallet)
+      .simulate();
+
+    if (!sim.success) throw new Error(`Simulation failed: ${sim.error}`);
 
     // Execute with FLASH
-    const result = await new TransactionBuilder(this.client)
-      .pumpFunBuy({
-        pool: mint,
-        poolAccounts: { coinCreator: creator },
-        user: wallet,
-        solAmountIn: solAmount,
-        tokenAmountOut: minTokens,
-        mayhemModeEnabled: false
-      })
-      .setFeePayer(wallet)
-      .setPriorityFee(5_000_000)      // High priority
-      .setBribe(1_000_000)             // MEV protection
-      .setTransport("FLASH")
-      .send();
-
-    console.log(`Bought ${mint}`);
-    return result;
-  }
-
-  async sellToken(
-    mint: string,
-    creator: string,
-    wallet: string,
-    tokenAmount: number,
-    minSol: number
-  ) {
-    const result = await new TransactionBuilder(this.client)
-      .pumpFunSell({
-        pool: mint,
-        poolAccounts: { coinCreator: creator },
-        user: wallet,
-        tokenAmountIn: tokenAmount,
-        minSolAmountOut: minSol,
-        mayhemModeEnabled: false,
-        closeAssociatedTokenAccount: true
-      })
+    return new TransactionBuilder(this.client, this.signer)
+      .pumpFunBuy(params)
       .setFeePayer(wallet)
       .setPriorityFee(5_000_000)
-      .setBribe(1_000_000)             // 0.001 SOL bribe (mandatory for FLASH)
+      .setBribe(1_000_000)
       .setTransport("FLASH")
       .send();
-
-    console.log(`Sold ${mint}`);
-    return result;
   }
 
   shutdown() {
     this.client.close();
   }
 }
-
-// Usage
-const bot = new TradingBot();
-await bot.buyToken(
-  "TokenMint",
-  "CreatorWallet",
-  "BuyerWallet",
-  10_000_000,        // 0.01 SOL
-  50_000_000_000     // Min 50B tokens
-);
 ```
 
 ### Performance Tips
 
-1. **Reuse client instance** - Don't create new client for each transaction
-2. **Use FLASH transport** - Multi-broadcast for redundancy
-3. **Simulate important transactions** - Validate before sending
-4. **Batch operations** - Multiple operations in single transaction
-5. **Set appropriate priority fees** - Higher fees = faster landing
-6. **Monitor statistics** - Track success rate and performance
+1. **Reuse the client instance** — never create a new `LysFlash` per transaction
+2. **Use FLASH transport** — multi-broadcast for redundancy and speed
+3. **Simulate before production** — catch failures before spending gas
+4. **Batch related operations** — multiple operations in one atomic transaction
+5. **Set appropriate priority fees** — higher fees land faster
+6. **Provide pool accounts** — supplying `coinCreator`/`poolCreator` avoids RPC lookups
+7. **Monitor statistics** — use `client.getStats()` to track success rate and latency
 
-## API Documentation
+```typescript
+const stats = client.getStats();
+console.log(`Success rate: ${(stats.requestsSuccessful / stats.requestsSent * 100).toFixed(2)}%`);
+console.log(`Average latency: ${stats.averageLatency.toFixed(2)}ms`);
+```
 
-For complete API documentation with all types and methods, see:
-- [Wallet Management Guide](./docs/WALLET_MANAGEMENT.md)
-- [Security Policy](./SECURITY.md)
-- [Contributing Guide](./CONTRIBUTING.md)
+---
+
+## Detailed Documentation
+
+### API Guides
+- **[Transaction Builder Guide](./docs/TRANSACTION_BUILDER.md)** — Complete `TransactionBuilder` API reference (recommended)
+- **[Raw API Guide](./docs/RAW_API.md)** — Complete `client.execute()` reference for low-level control
+- **[Wallet Management](./docs/WALLET_MANAGEMENT.md)** — Wallet creation, encryption, and security best practices
+
+### Protocol Integration Guides
+
+#### Pump.fun
+- **[Pump.fun Bonding Curve](./docs/PUMPFUN.md)** — buy, sell, create, migrate
+- **[Pump.fun AMM](./docs/PUMPFUN_AMM.md)** — post-graduation AMM trading
+
+#### Meteora
+- **[Meteora DBC](./docs/METEORA_DBC.md)** — Dynamic Bonding Curve
+- **[Meteora DAMM v1](./docs/METEORA_DAMM_V1.md)** — Dynamic AMM v1
+- **[Meteora DAMM v2](./docs/METEORA_DAMM_V2.md)** — Dynamic AMM v2 / CP-AMM
+- **[Meteora DLMM](./docs/METEORA_DLMM.md)** — Dynamic Liquidity Market Maker
+
+#### Raydium
+- **[Raydium LaunchPad](./docs/RAYDIUM_LAUNCHPAD.md)** — LaunchPad token launches
+- **[Raydium CLMM](./docs/RAYDIUM_CLMM.md)** — Concentrated Liquidity Market Maker
+- **[Raydium CPMM](./docs/RAYDIUM_CPMM.md)** — Constant Product Market Maker
+- **[Raydium AMMv4](./docs/RAYDIUM_AMMV4.md)** — AMM v4 pools
+
+### Examples
+
+Working code examples in `examples/`:
+
+| File | Description |
+|------|-------------|
+| `basic-usage.ts` | Simple buy/sell with error handling |
+| `transaction-builder-usage.ts` | Builder API patterns |
+| `raw-api-usage.ts` | Direct `client.execute()` API |
+| `raw-transaction-usage.ts` | Pre-built transaction execution |
+| `wallet-management.ts` | Wallet creation and decryption |
+| `meteora-dbc-usage.ts` | Meteora DBC operations |
+| `meteora-damm-v1-usage.ts` | Meteora DAMM v1 operations |
+| `meteora-damm-v2-usage.ts` | Meteora DAMM v2 operations |
+| `meteora-dlmm-usage.ts` | Meteora DLMM operations |
+| `raydium-launchpad-usage.ts` | Raydium LaunchPad operations |
+| `raydium-clmm-usage.ts` | Raydium CLMM operations |
+| `raydium-cpmm-usage.ts` | Raydium CPMM operations |
+| `raydium-ammv4-usage.ts` | Raydium AMMv4 operations |
+
+---
 
 ## Contributing
 
@@ -1379,9 +755,4 @@ See [LICENSE](./LICENSE) for more information.
 ## Support
 
 - [GitHub Issues](https://github.com/lyslabs-ai/lys-flash/issues)
-- [Discussions](https://github.com/lyslabs-ai/lys-flash/discussions)
 - Email: hello@lyslabs.ai
-
-## Acknowledgments
-
-Built with the LYS Flash Solana Execution Engine - High-performance transaction execution system for Solana.

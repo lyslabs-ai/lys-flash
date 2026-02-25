@@ -30,38 +30,35 @@ For low-level control, see the [Raw API Documentation](./RAW_API.md).
 
 ## HTTP Authentication & Signer
 
-When using HTTP transport, an API key is always required. External API keys additionally require Ed25519 request signing via a `Signer` on each `TransactionBuilder`. See the [HTTP Transport & API Keys](../README.md#http-transport--api-keys) section of the README for full details.
+When using HTTP transport, an API key is always required. Generate your API key at **[https://dev.lyslabs.ai/api-keys](https://dev.lyslabs.ai/api-keys)**.
+
+Keys from the developer portal are **external keys** — they require Ed25519 request signing. Use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder`:
 
 ```typescript
 import { Keypair } from '@solana/web3.js';
 import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
 
-// Internal API key (no signing)
-const internalClient = LysFlash.internal({
-  address: 'https://api.example.com',
-  apiKey: 'sk_live_internal_key',
-});
-
-// External API key (signing required per builder)
-const externalClient = LysFlash.external({
-  address: 'https://api.example.com',
-  apiKey: 'sk_live_external_key',
+const client = LysFlash.external({
+  address: 'http://execution.lyslabs-stage.xyz:3001',
+  apiKey: process.env.LYS_API_KEY!,
 });
 
 const signer = new Signer(Keypair.fromSecretKey(mySecretKey));
 
-await new TransactionBuilder(externalClient, signer)
+await new TransactionBuilder(client, signer)
   .pumpFunBuy({ /* ... */ })
   .setFeePayer('wallet')
   .send();
 
 // Or set signer fluently
-await new TransactionBuilder(externalClient)
+await new TransactionBuilder(client)
   .setSigner(signer)
   .pumpFunBuy({ /* ... */ })
   .setFeePayer('wallet')
   .send();
 ```
+
+For trusted backend-to-backend environments where signing is not required, use `LysFlash.internal()` with an internal key (not from the portal).
 
 **Note:** Signing is only used with HTTP transport. ZMQ transport does not support or require request signing.
 

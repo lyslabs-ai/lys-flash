@@ -25,29 +25,24 @@ For a higher-level, more convenient API, see the [Transaction Builder API](./TRA
 
 ## HTTP Authentication
 
-When using HTTP transport, an API key is always required. For external API keys, use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder` (see [Transaction Builder docs](./TRANSACTION_BUILDER.md#http-authentication--signer)).
+When using HTTP transport, an API key is always required. Generate your API key at **[https://dev.lyslabs.ai/api-keys](https://dev.lyslabs.ai/api-keys)**.
 
-For raw `client.execute()` calls with external keys, you can pass a `SigningKeypair` directly:
+Keys from the developer portal are **external keys** — they require Ed25519 request signing. Use `LysFlash.external()` and pass a `Signer` when calling `client.execute()`:
 
 ```typescript
 import { Keypair } from '@solana/web3.js';
 import { LysFlash, Signer } from '@lyslabs.ai/lys-flash';
 
-// Internal (no signing)
-const client = LysFlash.internal({
-  address: 'https://api.example.com',
-  apiKey: 'sk_live_internal_key',
-});
-
-// External (signing required — pass keypair to execute/createWallet/ping)
 const client = LysFlash.external({
-  address: 'https://api.example.com',
-  apiKey: 'sk_live_external_key',
+  address: 'http://execution.lyslabs-stage.xyz:3001',
+  apiKey: process.env.LYS_API_KEY!,
 });
 
 const signer = new Signer(Keypair.fromSecretKey(mySecretKey));
 const result = await client.execute(request, signer.toSigningKeypair());
 ```
+
+For trusted backend-to-backend environments where signing is not required, use `LysFlash.internal()` with an internal key (not from the portal).
 
 **Note:** Signing is only used with HTTP transport. ZMQ transport does not support or require request signing.
 
@@ -62,12 +57,18 @@ npm install @lyslabs.ai/lys-flash @solana/web3.js
 ```typescript
 import { LysFlash } from '@lyslabs.ai/lys-flash';
 
-// Create client
+// Create client (ZMQ IPC for local deployment)
 const client = new LysFlash({
   address: 'ipc:///tmp/tx-executor.ipc',
   timeout: 30000,
-  verbose: true
+  verbose: true,
 });
+
+// Or via HTTP with an API key from https://dev.lyslabs.ai/api-keys
+// const client = LysFlash.external({
+//   address: 'http://execution.lyslabs-stage.xyz:3001',
+//   apiKey: process.env.LYS_API_KEY!,
+// });
 
 // Execute a Pump.fun buy
 const result = await client.execute({
