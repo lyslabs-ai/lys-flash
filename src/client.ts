@@ -408,7 +408,7 @@ export class LysFlash {
    * @example
    * ```typescript
    * import { Keypair } from '@solana/web3.js';
-   * import nacl from 'tweetnacl';
+   * import { decryptWallet } from '@lyslabs.ai/lys-flash';
    *
    * // User's keypair for encryption
    * const userKeypair = Keypair.generate();
@@ -420,13 +420,8 @@ export class LysFlash {
    *
    * console.log("New wallet:", wallet.publicKey);
    *
-   * // Decrypt on client side
-   * const secretKey = nacl.box.open(
-   *   Buffer.from(wallet.encryptedSecretKey, 'base64'),
-   *   Buffer.from(wallet.nonce, 'base64'),
-   *   Buffer.from(wallet.ephemeralPublicKey, 'base64'),
-   *   userKeypair.secretKey
-   * );
+   * // Decrypt on client side (handles Ed25519 → Curve25519 conversion)
+   * const walletKeypair = decryptWallet(wallet, userKeypair);
    * ```
    */
   async createWallet(userPublicKey: string, signingKeypair?: SigningKeypair): Promise<WalletCreationResponse> {

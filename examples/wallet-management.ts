@@ -9,9 +9,8 @@
  * - Best practices for wallet security
  */
 
-import { LysFlash, TransactionBuilder } from '@lyslabs.ai/lys-flash';
+import { LysFlash, TransactionBuilder, decryptWallet } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
-import nacl from 'tweetnacl';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -76,32 +75,11 @@ class WalletManager {
   /**
    * Decrypt a wallet to get the Keypair
    */
-  decryptWallet(walletStorage: WalletStorage): Keypair | null {
+  decryptWalletStorage(walletStorage: WalletStorage): Keypair | null {
     console.log(`\n🔓 Decrypting wallet ${walletStorage.publicKey}...`);
 
     try {
-      // Decrypt the secret key using TweetNaCl
-      const decryptedSecretKey = nacl.box.open(
-        Buffer.from(walletStorage.encryptedSecretKey, 'base64'),
-        Buffer.from(walletStorage.nonce, 'base64'),
-        Buffer.from(walletStorage.ephemeralPublicKey, 'base64'),
-        this.userKeypair.secretKey
-      );
-
-      if (!decryptedSecretKey) {
-        console.error('✗ Failed to decrypt wallet - invalid encryption');
-        return null;
-      }
-
-      // Create Keypair from decrypted secret
-      const keypair = Keypair.fromSecretKey(new Uint8Array(decryptedSecretKey));
-
-      // Verify the public key matches
-      if (keypair.publicKey.toBase58() !== walletStorage.publicKey) {
-        console.error('✗ Public key mismatch after decryption');
-        return null;
-      }
-
+      const keypair = decryptWallet(walletStorage, this.userKeypair);
       console.log('✓ Wallet decrypted successfully!');
       return keypair;
     } catch (error) {
@@ -145,7 +123,7 @@ class WalletManager {
     console.log(`\n💸 Using wallet ${walletStorage.publicKey} for transaction...`);
 
     // Decrypt the wallet
-    const keypair = this.decryptWallet(walletStorage);
+    const keypair = this.decryptWalletStorage(walletStorage);
     if (!keypair) {
       throw new Error('Failed to decrypt wallet');
     }
@@ -224,7 +202,7 @@ async function main() {
     // Step 5: Decrypt and verify wallets
     console.log('\n4. Verifying wallet decryption:');
     for (const wallet of wallets) {
-      const keypair = walletManager.decryptWallet(wallet);
+      const keypair = walletManager.decryptWalletStorage(wallet);
       if (keypair) {
         console.log(`   ✓ ${wallet.label}: ${keypair.publicKey.toBase58()}`);
       } else {

@@ -89,8 +89,9 @@
     "prepublishOnly": "npm run typecheck && npm run build"
   },
   "dependencies": {
-    "zeromq": "^6.0.0",
-    "msgpackr": "^1.11.0"
+    "ed2curve": "^0.3.0",
+    "msgpackr": "^1.11.0",
+    "zeromq": "^6.0.0"
   },
   "devDependencies": {
     "@meteora-ag/cp-amm-sdk": "^1.0.0",
@@ -100,11 +101,12 @@
     "@raydium-io/raydium-sdk-v2": "^0.2.32-alpha",
     "@solana/web3.js": "^1.95.0",
     "@types/bn.js": "^5.1.5",
+    "@types/ed2curve": "^0.2.4",
     "@types/node": "^20.0.0",
-    "bn.js": "^5.2.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitest/coverage-v8": "^1.0.0",
+    "bn.js": "^5.2.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.0",
@@ -116,14 +118,14 @@
     "vitest": "^1.0.0"
   },
   "peerDependencies": {
-    "@solana/web3.js": "^1.95.0",
-    "tweetnacl": "^1.0.3",
-    "@meteora-ag/dynamic-bonding-curve-sdk": "^1.0.0",
-    "@meteora-ag/dynamic-amm-sdk": "^1.0.0",
     "@meteora-ag/cp-amm-sdk": "^1.0.0",
     "@meteora-ag/dlmm": "^1.0.0",
+    "@meteora-ag/dynamic-amm-sdk": "^1.0.0",
+    "@meteora-ag/dynamic-bonding-curve-sdk": "^1.0.0",
     "@raydium-io/raydium-sdk-v2": "^0.2.32-alpha",
-    "bn.js": "^5.2.0"
+    "@solana/web3.js": "^1.95.0",
+    "bn.js": "^5.2.0",
+    "tweetnacl": "^1.0.3"
   },
   "peerDependenciesMeta": {
     "@meteora-ag/dynamic-bonding-curve-sdk": {

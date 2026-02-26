@@ -37,6 +37,9 @@ export { LysFlash, SolanaExecutionClient } from './client';
 export { TransactionBuilder } from './builder';
 export { Signer } from './signer';
 
+// Utilities
+export { decryptWallet } from './utils/wallet';
+
 // Error handling
 export { ExecutionError, ErrorCode, fromUnknownError } from './errors';
 

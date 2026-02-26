@@ -18,7 +18,7 @@ This ensures that:
 ## Installation
 
 ```bash
-npm install @lyslabs.ai/lys-flash @solana/web3.js tweetnacl
+npm install @lyslabs.ai/lys-flash @solana/web3.js
 ```
 
 ## Quick Start
@@ -45,22 +45,11 @@ console.log("New wallet:", wallet.publicKey);
 ### Decrypting a Wallet
 
 ```typescript
-import nacl from 'tweetnacl';
+import { decryptWallet } from '@lyslabs.ai/lys-flash';
 
-// Decrypt the secret key
-const decryptedSecretKey = nacl.box.open(
-  Buffer.from(wallet.encryptedSecretKey, 'base64'),
-  Buffer.from(wallet.nonce, 'base64'),
-  Buffer.from(wallet.ephemeralPublicKey, 'base64'),
-  userKeypair.secretKey
-);
-
-if (decryptedSecretKey) {
-  const walletKeypair = Keypair.fromSecretKey(
-    new Uint8Array(decryptedSecretKey)
-  );
-  console.log("Wallet ready:", walletKeypair.publicKey.toBase58());
-}
+// Decrypt the secret key (handles Ed25519 → Curve25519 conversion internally)
+const walletKeypair = decryptWallet(wallet, userKeypair);
+console.log("Wallet ready:", walletKeypair.publicKey.toBase58());
 ```
 
 ## Complete Example
@@ -232,26 +221,11 @@ async function rotateMasterSecret() {
 ## Error Handling
 
 ```typescript
-import { ExecutionError, ErrorCode } from '@lyslabs.ai/lys-flash';
+import { ExecutionError, ErrorCode, decryptWallet } from '@lyslabs.ai/lys-flash';
 
 try {
   const wallet = await client.createWallet(userPublicKey);
-
-  const decryptedSecretKey = nacl.box.open(
-    Buffer.from(wallet.encryptedSecretKey, 'base64'),
-    Buffer.from(wallet.nonce, 'base64'),
-    Buffer.from(wallet.ephemeralPublicKey, 'base64'),
-    userKeypair.secretKey
-  );
-
-  if (!decryptedSecretKey) {
-    throw new Error("Failed to decrypt wallet");
-  }
-
-  const walletKeypair = Keypair.fromSecretKey(
-    new Uint8Array(decryptedSecretKey)
-  );
-
+  const walletKeypair = decryptWallet(wallet, userKeypair);
 } catch (error) {
   if (error instanceof ExecutionError) {
     switch (error.code) {

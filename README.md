@@ -42,10 +42,8 @@
 ## Installation
 
 ```bash
-npm install @lyslabs.ai/lys-flash @solana/web3.js tweetnacl
+npm install @lyslabs.ai/lys-flash @solana/web3.js
 ```
-
-> `tweetnacl` is required for client-side wallet decryption.
 
 ### RPC Connection (Required for Meteora & Raydium)
 
@@ -559,16 +557,10 @@ Response format:
 ### Decrypting a Wallet
 
 ```typescript
-const decryptedSecretKey = nacl.box.open(
-  Buffer.from(wallet.encryptedSecretKey, 'base64'),
-  Buffer.from(wallet.nonce, 'base64'),
-  Buffer.from(wallet.ephemeralPublicKey, 'base64'),
-  userKeypair.secretKey
-);
+import { decryptWallet } from '@lyslabs.ai/lys-flash';
 
-if (!decryptedSecretKey) throw new Error("Decryption failed");
-
-const walletKeypair = Keypair.fromSecretKey(new Uint8Array(decryptedSecretKey));
+// Handles Ed25519 → Curve25519 conversion internally
+const walletKeypair = decryptWallet(wallet, userKeypair);
 console.log("Ready:", walletKeypair.publicKey.toBase58());
 ```
 
