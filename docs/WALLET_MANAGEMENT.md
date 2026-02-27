@@ -4,6 +4,8 @@ Complete guide to secure wallet creation and management with LYS Flash.
 
 ## Overview
 
+> **Note:** Wallet management is required when using the **FLASH** transport layer. The wallet management system runs inside the execution engine's TEE, which uses your signer's public key to deterministically generate wallets.
+
 The client library provides **dual-encrypted wallet creation** for maximum security:
 
 1. **Server-side encryption** (AES-256-GCM) - Wallets encrypted with master secret

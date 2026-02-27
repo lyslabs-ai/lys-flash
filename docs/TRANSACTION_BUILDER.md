@@ -32,7 +32,7 @@ For low-level control, see the [Raw API Documentation](./RAW_API.md).
 
 When using HTTP transport, an API key is always required. Generate your API key at **[https://dev.lyslabs.ai/api-keys](https://dev.lyslabs.ai/api-keys)**.
 
-Keys from the developer portal are **external keys** — they require Ed25519 request signing. Use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder`:
+The `Signer` keypair is used for two things: the execution engine's TEE uses its public key to deterministically generate wallets, and each request is signed to prove the caller owns that key. Use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder`:
 
 ```typescript
 import { Keypair } from '@solana/web3.js';

@@ -103,7 +103,7 @@ export LYS_API_KEY=sk_live_your_key_here
 
 The execution engine endpoint is `http://execution.lyslabs-stage.xyz:3001`.
 
-API keys from the portal are **external keys** — they require Ed25519 request signing. Use `LysFlash.external()`:
+Use `LysFlash.external()` with your API key and a `Signer`. The signer's public key is used by the execution engine's TEE to deterministically generate wallets, and each request is signed to prove you own that key.
 
 ```typescript
 import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
@@ -114,23 +114,35 @@ const client = LysFlash.external({
   apiKey: process.env.LYS_API_KEY!,
 });
 
-// Create a signer from your keypair (public key must be registered with the key on the portal)
+// The signer's public key is used for deterministic wallet generation in the TEE
 const signer = new Signer(Keypair.fromSecretKey(yourSecretKey));
 ```
 
-### Step 3: Execute a Transaction
+### Step 3: Create a Wallet (required for FLASH)
+
+Before using the FLASH transport, you must create a wallet inside the execution engine's TEE. The wallet is deterministically derived from your signer's public key.
+
+```typescript
+import { decryptWallet } from '@lyslabs.ai/lys-flash';
+
+const wallet = await client.createWallet(signer.publicKey());
+const walletKeypair = decryptWallet(wallet, yourKeypair);
+console.log("Wallet address:", walletKeypair.publicKey.toBase58());
+```
+
+### Step 4: Execute a Transaction
 
 ```typescript
 const result = await new TransactionBuilder(client, signer)
   .pumpFunBuy({
     pool: "TokenMintAddress",
     poolAccounts: { coinCreator: "CreatorWallet" },
-    user: "YourWallet",
+    user: walletKeypair.publicKey.toBase58(),
     solAmountIn: 10_000_000,        // 0.01 SOL
     tokenAmountOut: 50_000_000_000, // Minimum tokens expected
     mayhemModeEnabled: false,
   })
-  .setFeePayer("YourWallet")
+  .setFeePayer(walletKeypair.publicKey.toBase58())
   .setPriorityFee(1_000_000)
   .setBribe(1_000_000)              // Required for FLASH transport
   .setTransport("FLASH")
@@ -172,11 +184,18 @@ const client = LysFlash.external({
 
 ## API Keys & Authentication
 
-### Portal Keys (External)
+### API Key
 
-All keys generated at [https://dev.lyslabs.ai/api-keys](https://dev.lyslabs.ai/api-keys) are **external keys**. They require Ed25519 request signing on every HTTP request.
+Obtain your API key at [https://dev.lyslabs.ai/api-keys](https://dev.lyslabs.ai/api-keys). The API key authenticates every HTTP request to the execution engine.
 
-Use `LysFlash.external()` and pass a `Signer` to each `TransactionBuilder`:
+### Signer
+
+The `Signer` wraps a `Keypair` and serves two purposes:
+
+1. **Wallet generation** — the execution engine's TEE uses the signer's public key to deterministically generate wallets
+2. **Request verification** — each request is signed with Ed25519, proving the caller owns the public key that was used to create the wallets
+
+Both the API key and a `Signer` are required when using `LysFlash.external()`:
 
 ```typescript
 import { Keypair } from '@solana/web3.js';
@@ -203,7 +222,7 @@ await new TransactionBuilder(client, signerB)
   .send();
 ```
 
-Each `Signer` wraps a `Keypair` and automatically signs every HTTP request. The keypair's public key must be registered with your API key on the developer portal. If you forget to pass a signer, `send()` will throw an error.
+Each `Signer` automatically signs every HTTP request. If you forget to pass a signer, `send()` will throw an error.
 
 ### Internal Keys (Backend-to-Backend)
 
@@ -230,7 +249,7 @@ Each signed request includes three headers:
 
 The signed message is: `timestamp_as_u64_big_endian (8 bytes) + serialized_request_body`.
 
-The server validates the timestamp is within a 60-second window and the signature matches the public key registered with the API key.
+The server validates the timestamp is within a 60-second window and the signature matches the public key that was used to create the wallets.
 
 ### Configuration Options
 
@@ -523,6 +542,8 @@ All transports except `VANILLA` and `SIMULATE` require a minimum bribe of **1,00
 ---
 
 ## Wallet Management
+
+The wallet management system runs inside the execution engine's TEE and is required when using the **FLASH** transport layer.
 
 The client provides **dual-encrypted wallet creation**:
 
