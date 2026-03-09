@@ -76,7 +76,7 @@ async function main() {
       })
       .pumpFunBuy({
         pool: mintKeypair2.publicKey.toBase58(),
-        tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        tokenProgram: 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', // Token-2022 (required for CreateV2 tokens)
         poolAccounts: {
           coinCreator: 'YourWalletAddress',
         },
@@ -96,6 +96,55 @@ async function main() {
       console.log('   Signature:', result2.signature);
     } else {
       console.log('   Failed:', result2.error);
+    }
+    // Simulate-first pattern (recommended for testing)
+    console.log('\n4. Simulate before sending...');
+
+    const mintKeypair3 = Keypair.generate();
+
+    const builder = new TransactionBuilder(client)
+      .pumpFunCreateV2({
+        user: 'YourWalletAddress',
+        pool: mintKeypair3.publicKey.toBase58(),
+        mintSecretKey: Buffer.from(mintKeypair3.secretKey).toString('base64'),
+        meta: {
+          name: 'Simulated Token',
+          symbol: 'SIM',
+          uri: 'https://arweave.net/metadata3.json',
+        },
+        isMayhemMode: false,
+        isCashbackEnabled: false,
+      })
+      .setFeePayer('YourWalletAddress')
+      .setPriorityFee(1_000_000)
+      .setBribe(1_000_000);
+
+    // Simulate first
+    const sim = await builder.simulate();
+    console.log('   Simulation:', sim.success ? 'passed' : 'failed');
+
+    if (sim.success) {
+      // Then send for real
+      const result3 = await new TransactionBuilder(client)
+        .pumpFunCreateV2({
+          user: 'YourWalletAddress',
+          pool: mintKeypair3.publicKey.toBase58(),
+          mintSecretKey: Buffer.from(mintKeypair3.secretKey).toString('base64'),
+          meta: {
+            name: 'Simulated Token',
+            symbol: 'SIM',
+            uri: 'https://arweave.net/metadata3.json',
+          },
+          isMayhemMode: false,
+          isCashbackEnabled: false,
+        })
+        .setFeePayer('YourWalletAddress')
+        .setPriorityFee(1_000_000)
+        .setBribe(1_000_000)
+        .setTransport('FLASH')
+        .send();
+
+      console.log('   Send:', result3.success ? result3.signature : result3.error);
     }
   } catch (error) {
     console.error('Error:', error);

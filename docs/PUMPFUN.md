@@ -285,7 +285,7 @@ console.log('Cashback claimed:', result.signature);
 
 ## Batched Operations
 
-### Create + Buy (Atomic)
+### CreateV2 + Buy (Atomic)
 
 Create a token and immediately buy in the same transaction:
 
@@ -295,7 +295,7 @@ import { Keypair } from '@solana/web3.js';
 const mintKeypair = Keypair.generate();
 
 const result = await new TransactionBuilder(client)
-  .pumpFunCreate({
+  .pumpFunCreateV2({
     user: 'YOUR_WALLET',
     pool: mintKeypair.publicKey.toBase58(),
     mintSecretKey: Buffer.from(mintKeypair.secretKey).toString('base64'),
@@ -304,17 +304,19 @@ const result = await new TransactionBuilder(client)
       symbol: 'MTK',
       uri: 'https://arweave.net/metadata.json',
     },
+    isMayhemMode: true,
+    isCashbackEnabled: true,
   })
   .pumpFunBuy({
     pool: mintKeypair.publicKey.toBase58(),
-    tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+    tokenProgram: 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb', // Token-2022 (required for CreateV2 tokens)
     poolAccounts: {
       coinCreator: 'YOUR_WALLET', // Creator is the user
     },
     user: 'YOUR_WALLET',
     solAmountIn: 10_000_000_000, // 10 SOL
     tokenAmountOut: 340_000_000_000, // Min tokens
-    mayhemModeEnabled: false,
+    mayhemModeEnabled: true,
   })
   .setFeePayer('YOUR_WALLET')
   .setPriorityFee(1_000_000)
