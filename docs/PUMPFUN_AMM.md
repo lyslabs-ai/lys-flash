@@ -378,6 +378,30 @@ const result = await new TransactionBuilder(client)
 | `closeBaseAssociatedTokenAccount` | boolean | No | Close base ATA after transaction |
 | `closeQuoteAssociatedTokenAccount` | boolean | No | Close quote ATA after transaction |
 
+### pumpFunAmmClaimCashback
+
+Claim accumulated cashback rewards from AMM trading.
+
+```typescript
+const result = await new TransactionBuilder(client)
+  .pumpFunAmmClaimCashback({
+    user: 'YOUR_WALLET',
+  })
+  .setFeePayer('YOUR_WALLET')
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)
+  .setTransport('FLASH')
+  .send();
+
+console.log('AMM cashback claimed:', result.signature);
+```
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `user` | string | Yes | User wallet address claiming cashback |
+
 ## Types
 
 ```typescript
@@ -430,6 +454,10 @@ interface PumpFunAmmSellParams {
   minQuoteAmountOut: number;
   closeBaseAssociatedTokenAccount?: boolean;
   closeQuoteAssociatedTokenAccount?: boolean;
+}
+
+interface PumpFunAmmClaimCashbackParams {
+  user: string;
 }
 ```
 

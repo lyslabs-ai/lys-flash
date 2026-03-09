@@ -75,6 +75,42 @@ const result = await new TransactionBuilder(client)
 | `tokenAmountOut` | number | Yes | Minimum tokens expected (slippage protection) |
 | `mayhemModeEnabled` | boolean | Yes | Enable Mayhem mode |
 
+### pumpFunBuyExactSolIn
+
+Buy tokens by spending an exact SOL amount. Unlike `pumpFunBuy` where you specify the exact token amount and max SOL cost, this method lets you specify the exact SOL to spend and minimum tokens to receive.
+
+```typescript
+const result = await new TransactionBuilder(client)
+  .pumpFunBuyExactSolIn({
+    pool: '5dxJHyvvhnEHV3ZH5BaNv66gmFy7NKrFbjpefryNpump',
+    tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+    poolAccounts: {
+      coinCreator: '4eUKGdDm7HFkZTYEsn1srZvRYRAMYt6c9eFb7QgTjuU3',
+    },
+    user: 'YOUR_WALLET',
+    solAmountIn: 1_000_000_000, // Exactly 1 SOL
+    tokenAmountOut: 34_000_000_000, // Min tokens expected
+    mayhemModeEnabled: false,
+  })
+  .setFeePayer('YOUR_WALLET')
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)
+  .setTransport('FLASH')
+  .send();
+```
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `pool` | string | Yes | Token mint address |
+| `tokenProgram` | string | Yes | Token program address (usually `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`) |
+| `poolAccounts.coinCreator` | string | Yes | Token creator wallet address |
+| `user` | string | Yes | Buyer wallet address |
+| `solAmountIn` | number | Yes | Exact SOL amount to spend (in lamports) |
+| `tokenAmountOut` | number | Yes | Minimum tokens expected (slippage protection) |
+| `mayhemModeEnabled` | boolean | Yes | Enable Mayhem mode |
+
 ### pumpFunSell
 
 Sell tokens on the bonding curve.
@@ -153,6 +189,50 @@ console.log('Token created:', mintKeypair.publicKey.toBase58());
 | `meta.symbol` | string | Yes | Token symbol (3-5 characters) |
 | `meta.uri` | string | Yes | Metadata URI (JSON with name, symbol, description, image) |
 
+### pumpFunCreateV2
+
+Create a new token on Pump.fun with mayhem mode and cashback support.
+
+```typescript
+import { Keypair } from '@solana/web3.js';
+
+const mintKeypair = Keypair.generate();
+
+const result = await new TransactionBuilder(client)
+  .pumpFunCreateV2({
+    user: 'YOUR_WALLET',
+    pool: mintKeypair.publicKey.toBase58(),
+    mintSecretKey: Buffer.from(mintKeypair.secretKey).toString('base64'),
+    meta: {
+      name: 'My Token',
+      symbol: 'MTK',
+      uri: 'https://arweave.net/metadata.json',
+    },
+    isMayhemMode: true,
+    isCashbackEnabled: true,
+  })
+  .setFeePayer('YOUR_WALLET')
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)
+  .setTransport('FLASH')
+  .send();
+
+console.log('Token created:', mintKeypair.publicKey.toBase58());
+```
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `user` | string | Yes | Creator wallet address |
+| `pool` | string | Yes | New mint public key (base58) |
+| `mintSecretKey` | string | Yes | Mint secret key (base64 encoded) |
+| `meta.name` | string | Yes | Token name |
+| `meta.symbol` | string | Yes | Token symbol (3-5 characters) |
+| `meta.uri` | string | Yes | Metadata URI (JSON with name, symbol, description, image) |
+| `isMayhemMode` | boolean | Yes | Enable Mayhem mode features |
+| `isCashbackEnabled` | boolean | Yes | Enable cashback rewards for traders |
+
 ### pumpFunMigrate
 
 Migrate a graduated token to AMM (Raydium).
@@ -178,6 +258,30 @@ const result = await new TransactionBuilder(client)
 | `user` | string | Yes | User wallet address |
 
 **Note:** Migration is only available after the token graduates (bonding curve completes).
+
+### pumpFunClaimCashback
+
+Claim accumulated cashback rewards from bonding curve trading.
+
+```typescript
+const result = await new TransactionBuilder(client)
+  .pumpFunClaimCashback({
+    user: 'YOUR_WALLET',
+  })
+  .setFeePayer('YOUR_WALLET')
+  .setPriorityFee(1_000_000)
+  .setBribe(1_000_000)
+  .setTransport('FLASH')
+  .send();
+
+console.log('Cashback claimed:', result.signature);
+```
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `user` | string | Yes | User wallet address claiming cashback |
 
 ## Batched Operations
 
@@ -234,6 +338,18 @@ interface PumpFunBuyParams {
   mayhemModeEnabled: boolean;
 }
 
+interface PumpFunBuyExactSolInParams {
+  pool: string;
+  tokenProgram: string;
+  poolAccounts: {
+    coinCreator: string;
+  };
+  user: string;
+  solAmountIn: number;
+  tokenAmountOut: number;
+  mayhemModeEnabled: boolean;
+}
+
 interface PumpFunSellParams {
   pool: string;
   tokenProgram: string;
@@ -256,6 +372,23 @@ interface PumpFunCreateParams {
     symbol: string;
     uri: string;
   };
+}
+
+interface PumpFunCreateV2Params {
+  user: string;
+  pool: string;
+  mintSecretKey: string;
+  meta: {
+    name: string;
+    symbol: string;
+    uri: string;
+  };
+  isMayhemMode: boolean;
+  isCashbackEnabled: boolean;
+}
+
+interface PumpFunClaimCashbackParams {
+  user: string;
 }
 
 interface PumpFunMigrateParams {

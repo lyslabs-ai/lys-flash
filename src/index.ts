@@ -101,13 +101,17 @@ export type {
 
   // Pump.fun operations
   PumpFunBuyParams,
+  PumpFunBuyExactSolInParams,
   PumpFunSellParams,
   PumpFunCreateParams,
+  PumpFunCreateV2Params,
+  PumpFunClaimCashbackParams,
   PumpFunMigrateParams,
 
   // Pump.fun AMM operations
   PumpFunAmmBuyParams,
   PumpFunAmmSellParams,
+  PumpFunAmmClaimCashbackParams,
 
   // System transfer
   SystemTransferParams,
@@ -272,7 +276,7 @@ export type {
 /**
  * Library version
  */
-export const VERSION = '1.5.0';
+export const VERSION = '2.1.0';
 
 /**
  * Default address (ZMQ IPC)

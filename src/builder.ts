@@ -7,12 +7,16 @@ import {
   TransportMode,
   OperationData,
   PumpFunBuyParams,
+  PumpFunBuyExactSolInParams,
   PumpFunSellParams,
   PumpFunCreateParams,
+  PumpFunCreateV2Params,
+  PumpFunClaimCashbackParams,
   PumpFunMigrateParams,
   PumpFunAmmBuyParams,
   PumpFunAmmBuyExactQuoteInParams,
   PumpFunAmmSellParams,
+  PumpFunAmmClaimCashbackParams,
   SystemTransferParams,
   SplTokenTransferParams,
   SplTokenTransferCheckedParams,
@@ -245,6 +249,39 @@ export class TransactionBuilder {
   }
 
   /**
+   * Add Pump.fun BUY_EXACT_SOL_IN operation
+   *
+   * Buy tokens by spending an exact SOL amount and receiving at least minimum tokens.
+   * Use this when you want to spend a precise amount of SOL.
+   *
+   * @param params - Buy exact SOL in parameters
+   * @returns this (for method chaining)
+   *
+   * @example
+   * ```typescript
+   * builder.pumpFunBuyExactSolIn({
+   *   pool: "mint_address",
+   *   tokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+   *   poolAccounts: { coinCreator: "creator_address" },
+   *   user: "buyer_wallet",
+   *   solAmountIn: 1_000_000_000,     // Exactly 1 SOL
+   *   tokenAmountOut: 3_400_000_000,  // Min tokens to receive
+   *   mayhemModeEnabled: false,
+   * })
+   * ```
+   */
+  pumpFunBuyExactSolIn(
+    params: Omit<PumpFunBuyExactSolInParams, 'executionType' | 'eventType'>
+  ): this {
+    this.operations.push({
+      executionType: 'PUMP_FUN',
+      eventType: 'BUY_EXACT_SOL_IN',
+      ...params,
+    } as PumpFunBuyExactSolInParams);
+    return this;
+  }
+
+  /**
    * Add Pump.fun SELL operation
    *
    * @param params - Sell parameters
@@ -305,6 +342,43 @@ export class TransactionBuilder {
   }
 
   /**
+   * Add Pump.fun CREATE_V2 operation
+   *
+   * Create a new token on Pump.fun with mayhem mode and cashback support.
+   *
+   * @param params - Create V2 parameters
+   * @returns this (for method chaining)
+   *
+   * @example
+   * ```typescript
+   * import { Keypair } from '@solana/web3.js';
+   *
+   * const mintKeypair = Keypair.generate();
+   *
+   * builder.pumpFunCreateV2({
+   *   user: "creator_wallet",
+   *   pool: mintKeypair.publicKey.toBase58(),
+   *   mintSecretKey: Buffer.from(mintKeypair.secretKey).toString('base64'),
+   *   meta: {
+   *     name: "My Token",
+   *     symbol: "MTK",
+   *     uri: "https://arweave.net/metadata.json"
+   *   },
+   *   isMayhemMode: true,
+   *   isCashbackEnabled: true,
+   * })
+   * ```
+   */
+  pumpFunCreateV2(params: Omit<PumpFunCreateV2Params, 'executionType' | 'eventType'>): this {
+    this.operations.push({
+      executionType: 'PUMP_FUN',
+      eventType: 'CREATE_V2',
+      ...params,
+    } as PumpFunCreateV2Params);
+    return this;
+  }
+
+  /**
    * Add Pump.fun MIGRATE operation
    *
    * @param params - Migrate parameters
@@ -324,6 +398,32 @@ export class TransactionBuilder {
       eventType: 'MIGRATE',
       ...params,
     } as PumpFunMigrateParams);
+    return this;
+  }
+
+  /**
+   * Add Pump.fun CLAIM_CASHBACK operation
+   *
+   * Claim accumulated cashback rewards from bonding curve trading.
+   *
+   * @param params - Claim cashback parameters
+   * @returns this (for method chaining)
+   *
+   * @example
+   * ```typescript
+   * builder.pumpFunClaimCashback({
+   *   user: "your_wallet",
+   * })
+   * ```
+   */
+  pumpFunClaimCashback(
+    params: Omit<PumpFunClaimCashbackParams, 'executionType' | 'eventType'>
+  ): this {
+    this.operations.push({
+      executionType: 'PUMP_FUN',
+      eventType: 'CLAIM_CASHBACK',
+      ...params,
+    } as PumpFunClaimCashbackParams);
     return this;
   }
 
@@ -433,6 +533,32 @@ export class TransactionBuilder {
       eventType: 'SELL',
       ...params,
     } as PumpFunAmmSellParams);
+    return this;
+  }
+
+  /**
+   * Add Pump.fun AMM CLAIM_CASHBACK operation
+   *
+   * Claim accumulated cashback rewards from AMM trading.
+   *
+   * @param params - Claim cashback parameters
+   * @returns this (for method chaining)
+   *
+   * @example
+   * ```typescript
+   * builder.pumpFunAmmClaimCashback({
+   *   user: "your_wallet",
+   * })
+   * ```
+   */
+  pumpFunAmmClaimCashback(
+    params: Omit<PumpFunAmmClaimCashbackParams, 'executionType' | 'eventType'>
+  ): this {
+    this.operations.push({
+      executionType: 'PUMP_FUN_AMM',
+      eventType: 'CLAIM_CASHBACK',
+      ...params,
+    } as PumpFunAmmClaimCashbackParams);
     return this;
   }
 

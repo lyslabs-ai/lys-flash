@@ -428,16 +428,20 @@ For full raw API documentation see [docs/RAW_API.md](./docs/RAW_API.md).
 
 ### Supported Operations
 
-#### Pump.fun (4 operations)
+#### Pump.fun (7 operations)
 - `pumpFunBuy()` — Buy tokens on bonding curve
+- `pumpFunBuyExactSolIn()` — Buy with exact SOL input
 - `pumpFunSell()` — Sell tokens on bonding curve
 - `pumpFunCreate()` — Create new token
+- `pumpFunCreateV2()` — Create new token with mayhem mode + cashback
+- `pumpFunClaimCashback()` — Claim cashback rewards
 - `pumpFunMigrate()` — Migrate to Pump.fun AMM
 
-#### Pump.fun AMM (3 operations)
+#### Pump.fun AMM (4 operations)
 - `pumpFunAmmBuy()` — Buy on AMM (max quote in, expected base out)
 - `pumpFunAmmBuyExactQuoteIn()` — Buy with exact SOL amount
 - `pumpFunAmmSell()` — Sell on AMM
+- `pumpFunAmmClaimCashback()` — Claim AMM cashback rewards
 
 #### Meteora DBC — Dynamic Bonding Curve (8 operations)
 - `meteora.dbc.buy()` / `sell()` / `swap()`

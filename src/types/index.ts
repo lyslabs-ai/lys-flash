@@ -48,14 +48,18 @@ export type {
 
   // Pump.fun operations
   PumpFunBuyParams,
+  PumpFunBuyExactSolInParams,
   PumpFunSellParams,
   PumpFunCreateParams,
+  PumpFunCreateV2Params,
+  PumpFunClaimCashbackParams,
   PumpFunMigrateParams,
 
   // Pump.fun AMM operations
   PumpFunAmmBuyParams,
   PumpFunAmmBuyExactQuoteInParams,
   PumpFunAmmSellParams,
+  PumpFunAmmClaimCashbackParams,
 
   // System transfer
   SystemTransferParams,

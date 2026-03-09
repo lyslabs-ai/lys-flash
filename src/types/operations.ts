@@ -19,9 +19,12 @@ export type ExecutionType =
  */
 export type EventType =
   | 'BUY'
+  | 'BUY_EXACT_SOL_IN'
   | 'BUY_EXACT_QUOTE_IN'
   | 'SELL'
   | 'CREATE'
+  | 'CREATE_V2'
+  | 'CLAIM_CASHBACK'
   | 'MIGRATE'
   | 'TRANSFER'
   | 'TRANSFER_CHECKED'
@@ -82,6 +85,63 @@ export interface PumpFunBuyParams {
   /**
    * Minimum tokens expected (slippage protection)
    * @example 3_400_000_000 // 3.4B tokens minimum
+   */
+  tokenAmountOut: number;
+
+  /**
+   * Whether to enable Mayhem mode
+   * @default false
+   */
+  mayhemModeEnabled: boolean;
+}
+
+/**
+ * Pump.fun BUY_EXACT_SOL_IN operation
+ * Buy tokens with an exact SOL input amount
+ *
+ * Unlike `pumpFunBuy` where you specify the exact token amount and max SOL cost,
+ * this method lets you specify the exact SOL to spend and minimum tokens to receive.
+ */
+export interface PumpFunBuyExactSolInParams {
+  executionType: 'PUMP_FUN';
+  eventType: 'BUY_EXACT_SOL_IN';
+
+  /**
+   * Token mint address
+   * @example "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+   */
+  pool: string;
+
+  /**
+   * Token program address
+   * @example "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+   */
+  tokenProgram: string;
+
+  /**
+   * Pool-related accounts
+   */
+  poolAccounts: {
+    /**
+     * Token creator wallet address
+     */
+    coinCreator: string | null;
+  };
+
+  /**
+   * Buyer wallet address
+   */
+  user: string;
+
+  /**
+   * Exact amount of SOL to spend (in lamports)
+   * @example 1_000_000_000 // Exactly 1 SOL
+   */
+  solAmountIn: number;
+
+  /**
+   * Minimum tokens expected (slippage protection)
+   * @example 3_400_000_000 // At least 3.4B tokens
    */
   tokenAmountOut: number;
 
@@ -200,6 +260,82 @@ export interface PumpFunCreateParams {
      */
     uri: string;
   };
+}
+
+/**
+ * Pump.fun CREATE_V2 operation
+ * Create new token on Pump.fun with mayhem mode and cashback support
+ */
+export interface PumpFunCreateV2Params {
+  executionType: 'PUMP_FUN';
+  eventType: 'CREATE_V2';
+
+  /**
+   * Creator wallet address
+   */
+  user: string;
+
+  /**
+   * New mint public key (generate with Keypair.generate())
+   * @example "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+   */
+  pool: string;
+
+  /**
+   * Mint secret key (base58 encoded)
+   * Required to initialize the mint account
+   * @example Buffer.from(mintKeypair.secretKey).toString('base64')
+   */
+  mintSecretKey: string;
+
+  /**
+   * Token metadata
+   */
+  meta: {
+    /**
+     * Token name
+     * @example "My Awesome Token"
+     */
+    name: string;
+
+    /**
+     * Token symbol (typically 3-5 characters)
+     * @example "MAT"
+     */
+    symbol: string;
+
+    /**
+     * Metadata URI (JSON file with token description, image, etc.)
+     * @example "https://arweave.net/..."
+     */
+    uri: string;
+  };
+
+  /**
+   * Whether to enable Mayhem mode
+   * @default false
+   */
+  isMayhemMode: boolean;
+
+  /**
+   * Whether to enable cashback rewards
+   * @default false
+   */
+  isCashbackEnabled: boolean;
+}
+
+/**
+ * Pump.fun CLAIM_CASHBACK operation
+ * Claim accumulated cashback rewards from bonding curve trading
+ */
+export interface PumpFunClaimCashbackParams {
+  executionType: 'PUMP_FUN';
+  eventType: 'CLAIM_CASHBACK';
+
+  /**
+   * User wallet address claiming cashback
+   */
+  user: string;
 }
 
 /**
@@ -458,6 +594,20 @@ export interface PumpFunAmmBuyExactQuoteInParams {
    * @default false
    */
   closeQuoteAssociatedTokenAccount?: boolean;
+}
+
+/**
+ * Pump.fun AMM CLAIM_CASHBACK operation
+ * Claim accumulated cashback rewards from AMM trading
+ */
+export interface PumpFunAmmClaimCashbackParams {
+  executionType: 'PUMP_FUN_AMM';
+  eventType: 'CLAIM_CASHBACK';
+
+  /**
+   * User wallet address claiming cashback
+   */
+  user: string;
 }
 
 // ============================================================================
@@ -782,12 +932,16 @@ export interface RawTransactionParams {
  */
 export type OperationData =
   | PumpFunBuyParams
+  | PumpFunBuyExactSolInParams
   | PumpFunSellParams
   | PumpFunCreateParams
+  | PumpFunCreateV2Params
+  | PumpFunClaimCashbackParams
   | PumpFunMigrateParams
   | PumpFunAmmBuyParams
   | PumpFunAmmBuyExactQuoteInParams
   | PumpFunAmmSellParams
+  | PumpFunAmmClaimCashbackParams
   | SystemTransferParams
   | SplTokenTransferParams
   | SplTokenTransferCheckedParams
