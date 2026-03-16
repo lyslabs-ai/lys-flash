@@ -34,7 +34,7 @@ import { Keypair } from '@solana/web3.js';
 import { LysFlash, Signer } from '@lyslabs.ai/lys-flash';
 
 const client = LysFlash.external({
-  address: 'http://execution.lyslabs-stage.xyz:3001',
+  address: 'http://execution.lyslabs.ai',
   apiKey: process.env.LYS_API_KEY!,
 });
 
@@ -66,7 +66,7 @@ const client = new LysFlash({
 
 // Or via HTTP with an API key from https://dev.lyslabs.ai/api-keys
 // const client = LysFlash.external({
-//   address: 'http://execution.lyslabs-stage.xyz:3001',
+//   address: 'http://execution.lyslabs.ai',
 //   apiKey: process.env.LYS_API_KEY!,
 // });
 
@@ -109,7 +109,7 @@ interface TransactionRequest {
   data: OperationData | OperationData[];  // Single or batched operations
   feePayer: string;                        // Fee payer wallet address (base58)
   priorityFeeLamports?: number;            // Priority fee (default: 1_000_000)
-  bribeLamports?: number;                  // MEV protection bribe (mandatory for all transports except VANILLA and SIMULATE)
+  bribeLamports?: number;                  // MEV protection bribe (mandatory for all transports except VANILLA, SIMULATE, DEVNET, and SIMULATE_DEVNET)
   transport?: TransportMode;               // Transport mode (default: "FLASH")
 }
 ```
@@ -140,8 +140,10 @@ interface TransactionResponse {
 | JITO | MEV-protected via Jito | Yes | **YES** (min 1_000_000) |
 | VANILLA | Standard RPC | No | No |
 | SIMULATE | Test without broadcasting (free) | No | No |
+| DEVNET | Devnet endpoint for testing | No | No |
+| SIMULATE_DEVNET | Devnet simulation (no broadcast) | No | No |
 
-**Important:** All transport modes except VANILLA and SIMULATE **require** a minimum bribe of 1_000_000 lamports (0.001 SOL) for MEV protection.
+**Important:** All transport modes except VANILLA, SIMULATE, DEVNET, and SIMULATE_DEVNET **require** a minimum bribe of 1_000_000 lamports (0.001 SOL) for MEV protection.
 
 ## Operation Types
 

@@ -39,7 +39,7 @@ import { Keypair } from '@solana/web3.js';
 import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
 
 const client = LysFlash.external({
-  address: 'http://execution.lyslabs-stage.xyz:3001',
+  address: 'http://execution.lyslabs.ai',
   apiKey: process.env.LYS_API_KEY!,
 });
 
@@ -563,7 +563,7 @@ builder.setPriorityFee(5_000_000)  // 0.005 SOL for high priority
 
 ### `setBribe(lamports: number)`
 
-Set MEV protection bribe in lamports. **Required for all transports except VANILLA and SIMULATE** (minimum: 1_000_000).
+Set MEV protection bribe in lamports. **Required for all transports except VANILLA, SIMULATE, DEVNET, and SIMULATE_DEVNET** (minimum: 1_000_000).
 
 ```typescript
 builder.setBribe(1_000_000)  // 0.001 SOL (required for MEV protection)
@@ -580,6 +580,8 @@ builder.setTransport("LUNAR_LANDER") // HelloMoon low-latency
 builder.setTransport("NOZOMI")       // Low-latency
 builder.setTransport("VANILLA")      // Standard RPC
 builder.setTransport("SIMULATE")     // Test without broadcasting
+builder.setTransport("DEVNET")          // Devnet testing
+builder.setTransport("SIMULATE_DEVNET") // Devnet simulation
 ```
 
 **Available modes:**
@@ -591,6 +593,8 @@ builder.setTransport("SIMULATE")     // Test without broadcasting
 - `JITO` - MEV-protected via Jito (requires bribe)
 - `VANILLA` - Standard RPC (no MEV protection, no bribe)
 - `SIMULATE` - Testing only (no broadcast, no bribe)
+- `DEVNET` - Devnet endpoint for testing (no MEV protection, no bribe)
+- `SIMULATE_DEVNET` - Devnet simulation only (no broadcast, no bribe)
 
 ## Batched Operations
 
@@ -725,6 +729,12 @@ const simulation = await new TransactionBuilder(client)
   .pumpFunBuy({ /* ... */ })
   .setFeePayer("wallet")
   .simulate();  // Uses SIMULATE transport automatically
+
+// Or simulate on devnet
+const devnetSim = await new TransactionBuilder(client)
+  .pumpFunBuy({ /* ... */ })
+  .setFeePayer("wallet")
+  .simulateDevnet();  // Uses SIMULATE_DEVNET transport automatically
 
 if (!simulation.success) {
   console.error("Simulation failed:", simulation.error);

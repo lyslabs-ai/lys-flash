@@ -64,7 +64,7 @@ import { LysFlash } from '@lyslabs.ai/lys-flash';
 
 const connection = new Connection('https://api.mainnet-beta.solana.com');
 const client = LysFlash.external({
-  address: 'http://execution.lyslabs-stage.xyz:3001',
+  address: 'http://execution.lyslabs.ai',
   apiKey: process.env.LYS_API_KEY!,
   connection,  // Required for Meteora/Raydium
 });
@@ -101,7 +101,7 @@ export LYS_API_KEY=sk_live_your_key_here
 
 ### Step 2: Connect to the Execution Engine
 
-The execution engine endpoint is `http://execution.lyslabs-stage.xyz:3001`.
+The execution engine endpoint is `http://execution.lyslabs.ai`.
 
 Use `LysFlash.external()` with your API key and a `Signer`. The signer's public key is used by the execution engine's TEE to deterministically generate wallets, and each request is signed to prove you own that key.
 
@@ -110,7 +110,7 @@ import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
 
 const client = LysFlash.external({
-  address: 'http://execution.lyslabs-stage.xyz:3001',
+  address: 'http://execution.lyslabs.ai',
   apiKey: process.env.LYS_API_KEY!,
 });
 
@@ -175,7 +175,7 @@ const client = new LysFlash({ address: 'tcp://127.0.0.1:5555' });
 
 // Remote/cloud via HTTP (API key required)
 const client = LysFlash.external({
-  address: 'http://execution.lyslabs-stage.xyz:3001',
+  address: 'http://execution.lyslabs.ai',
   apiKey: process.env.LYS_API_KEY!,
 });
 ```
@@ -202,7 +202,7 @@ import { Keypair } from '@solana/web3.js';
 import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
 
 const client = LysFlash.external({
-  address: 'http://execution.lyslabs-stage.xyz:3001',
+  address: 'http://execution.lyslabs.ai',
   apiKey: process.env.LYS_API_KEY!,
   contentType: 'msgpack',  // optional, default: 'msgpack'
 });
@@ -230,7 +230,7 @@ Internal keys are for trusted server-to-server environments where request signin
 
 ```typescript
 const client = LysFlash.internal({
-  address: 'http://execution.lyslabs-stage.xyz:3001',
+  address: 'http://execution.lyslabs.ai',
   apiKey: 'sk_live_internal_key',
 });
 ```
@@ -280,7 +280,7 @@ import { LysFlash, TransactionBuilder, Signer } from '@lyslabs.ai/lys-flash';
 import { Keypair } from '@solana/web3.js';
 
 const client = LysFlash.external({
-  address: 'http://execution.lyslabs-stage.xyz:3001',
+  address: 'http://execution.lyslabs.ai',
   apiKey: process.env.LYS_API_KEY!,
 });
 const signer = new Signer(Keypair.fromSecretKey(yourSecretKey));
@@ -540,8 +540,10 @@ Supports both legacy `Transaction` and `VersionedTransaction` (v0 with address l
 | JITO | MEV-protected via Jito | Yes | **Yes** (min 1,000,000) |
 | VANILLA | Standard RPC | No | No |
 | SIMULATE | Test without broadcasting | No | No |
+| DEVNET | Devnet endpoint for testing | No | No |
+| SIMULATE_DEVNET | Devnet simulation (no broadcast) | No | No |
 
-All transports except `VANILLA` and `SIMULATE` require a minimum bribe of **1,000,000 lamports (0.001 SOL)**. Use `FLASH` for production trading.
+All transports except `VANILLA`, `SIMULATE`, `DEVNET`, and `SIMULATE_DEVNET` require a minimum bribe of **1,000,000 lamports (0.001 SOL)**. Use `FLASH` for production trading.
 
 ---
 
@@ -650,7 +652,7 @@ class TradingBot {
 
   constructor() {
     this.client = LysFlash.external({
-      address: 'http://execution.lyslabs-stage.xyz:3001',
+      address: 'http://execution.lyslabs.ai',
       apiKey: process.env.LYS_API_KEY!,
       timeout: 30000,
       autoReconnect: true,

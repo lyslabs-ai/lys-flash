@@ -431,6 +431,8 @@ async function main() {
     console.log('   - JITO         : MEV-protected via Jito [Requires bribe]');
     console.log('   - VANILLA      : Standard RPC (no MEV protection, no bribe)');
     console.log('   - SIMULATE     : Testing only (no broadcast, no bribe)');
+    console.log('   - DEVNET         : Devnet endpoint for testing (no bribe)');
+    console.log('   - SIMULATE_DEVNET: Devnet simulation (no broadcast, no bribe)');
 
     // ========================================================================
     // CLIENT STATISTICS

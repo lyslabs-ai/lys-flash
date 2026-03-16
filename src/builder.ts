@@ -585,8 +585,10 @@ export class TransactionBuilder {
     this.operations.push({
       executionType: 'SYSTEM_TRANSFER',
       eventType: 'TRANSFER',
-      ...params,
-    } as SystemTransferParams);
+      from: params.sender,
+      to: params.recipient,
+      amount: params.lamports,
+    } as unknown as OperationData);
     return this;
   }
 
@@ -869,6 +871,8 @@ export class TransactionBuilder {
    * builder.setTransport("NOZOMI")       // Low-latency
    * builder.setTransport("VANILLA")      // Standard RPC
    * builder.setTransport("SIMULATE")     // Test without broadcasting
+   * builder.setTransport("DEVNET")          // Devnet (testing)
+   * builder.setTransport("SIMULATE_DEVNET") // Devnet simulation
    * ```
    */
   setTransport(mode: TransportMode): this {
@@ -1013,6 +1017,26 @@ export class TransactionBuilder {
 
     const originalTransport = this.transport;
     this.transport = 'SIMULATE';
+
+    try {
+      const result = await this.send();
+      return result as SimulationResponse;
+    } finally {
+      this.transport = originalTransport;
+    }
+  }
+
+  /**
+   * Simulate the transaction on devnet without broadcasting
+   *
+   * @returns Simulation response with logs
+   * @throws ExecutionError if validation fails or simulation error occurs
+   */
+  async simulateDevnet(): Promise<SimulationResponse> {
+    this.validate();
+
+    const originalTransport = this.transport;
+    this.transport = 'SIMULATE_DEVNET';
 
     try {
       const result = await this.send();

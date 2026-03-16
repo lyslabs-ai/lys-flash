@@ -22,16 +22,22 @@
  *
  * // Testing only (no broadcast)
  * transport: "SIMULATE"       // Local simulation
+ *
+ * // Devnet
+ * transport: "DEVNET"          // 300-1000ms (devnet testing)
+ * transport: "SIMULATE_DEVNET" // Devnet simulation
  * ```
  */
 export type TransportMode =
   | 'SIMULATE'
+  | 'SIMULATE_DEVNET'
   | 'VANILLA'
   | 'NOZOMI'
   | 'ZERO_SLOT'
   | 'LUNAR_LANDER'
   | 'HELIUS_SENDER'
   | 'JITO'
+  | 'DEVNET'
   | 'FLASH'
   | 'NONCE'; // Internal alias for FLASH (sent to server)
 
@@ -54,12 +60,14 @@ export function normalizeTransportForServer(transport: TransportMode): ServerTra
  */
 export const TRANSPORT_DESCRIPTIONS: Record<TransportMode, string> = {
   SIMULATE: 'Test transactions without broadcasting (free, local simulation)',
+  SIMULATE_DEVNET: 'Test transactions on devnet without broadcasting (free, devnet simulation)',
   VANILLA: 'Standard RPC with SwQOS support (300-800ms)',
   NOZOMI: 'Temporal Nozomi low-latency endpoint (100-300ms)',
   ZERO_SLOT: '0Slot specialized endpoint (40-150ms, ultra-fast)',
   LUNAR_LANDER: 'HelloMoon Lunar Lander low-latency endpoint (50-100ms)',
   HELIUS_SENDER: 'Helius sender service (150-400ms, premium reliability)',
   JITO: 'Jito MEV-protected transactions (200-500ms, MEV protection)',
+  DEVNET: 'Devnet endpoint for testing (no bribes, devnet cluster)',
   FLASH: 'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 6 endpoints in parallel)',
   NONCE: 'Multi-broadcast strategy (40-100ms, fastest - broadcasts to all 6 endpoints in parallel)', // Internal alias for FLASH
 };
@@ -75,6 +83,11 @@ export const TRANSPORT_LATENCY: Record<
     min: 0,
     max: 0,
     description: 'Local simulation only (no broadcast)',
+  },
+  SIMULATE_DEVNET: {
+    min: 0,
+    max: 0,
+    description: 'Devnet simulation only (no broadcast)',
   },
   VANILLA: {
     min: 300,
@@ -105,6 +118,11 @@ export const TRANSPORT_LATENCY: Record<
     min: 200,
     max: 500,
     description: 'MEV-protected transactions',
+  },
+  DEVNET: {
+    min: 300,
+    max: 1000,
+    description: 'Devnet endpoint (testing only)',
   },
   FLASH: {
     min: 40,
